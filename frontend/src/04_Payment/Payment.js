@@ -1,0 +1,531 @@
+// ========================
+// Import Libraries
+// ========================
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import API_BASE_URL from "../config/apiConfig";
+import { ADMIN_API_URL } from "../config/apiConfig";
+import "./Payment.css";
+import promptpayLogo from "../data-icon/promptpay-logo.png";
+import paymentLogo from "../data-icon/payment-logo.jpg";
+import { incrementQueueNumber } from "../utils";
+import SlipUpload from "../06_Slip upload/SlipUpload";
+
+/**
+ * Payment Component - หน้าชำระเงิน
+ * รองรับการชำระเงินสำหรับ:
+ * 1. การแสดงรูปภาพ/ข้อความ (image/text)
+ * 2. การส่งของขวัญ (gift)
+ * 
+ * รองรับการชำระเงินผ่าน PromptPay QR Code
+ */
+function Payment() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const shopId = new URLSearchParams(location.search).get("shopId") || localStorage.getItem("shopId") || "";
+  console.log("[Payment] shopId:", shopId);
+
+  // ดึงข้อมูลจาก URL query parameters
+  const queryParams = new URLSearchParams(location.search);
+  const type = queryParams.get("type"); // ประเภท: "image", "text", "gift"
+  const time = queryParams.get("time"); // ระยะเวลาแสดง (วินาที)
+  const price = queryParams.get("price"); // ราคา
+  const orderId = queryParams.get("orderId"); // ID ของคำสั่งซื้อของขวัญ
+  const isGift = type === "gift"; // ตรวจสอบว่าเป็นการส่งของขวัญหรือไม่
+
+  // ========================
+  // State Management
+  // ========================
+  const [paymentMethod, setPaymentMethod] = useState(null); // วิธีการชำระเงินที่เลือก
+  const [showPopup, setShowPopup] = useState(false); // แสดง popup ชำระเงิน
+  const [errorMessage, setErrorMessage] = useState(""); // ข้อความ error
+  const [isProcessing, setIsProcessing] = useState(false); // สถานะกำลังประมวลผล
+  const [showSuccessModal, setShowSuccessModal] = useState(false); // แสดง modal สำเร็จ
+  const [giftOrder, setGiftOrder] = useState(null); // ข้อมูลคำสั่งซื้อของขวัญ
+  const [isLoadingOrder, setIsLoadingOrder] = useState(isGift); // สถานะกำลังโหลดคำสั่งซื้อ
+  const [paymentQrImage, setPaymentQrImage] = useState(null); // ภาพ QR code ชำระเงินจาก Admin
+
+  console.log("[Payment render] showSuccessModal =", showSuccessModal);
+
+  // ========================
+  // useEffect: โหลดข้อมูลคำสั่งซื้อของขวัญ
+  // ========================
+  /**
+   * ถ้าเป็นการส่งของขวัญ จะดึงข้อมูลคำสั่งซื้อจาก API
+   * เพื่อแสดงรายละเอียดของขวัญและราคา
+   */
+  useEffect(() => {
+    if (!isGift) return;
+    if (!orderId) {
+      setErrorMessage("ไม่พบคำสั่งซื้อของขวัญ");
+      setIsLoadingOrder(false);
+      return;
+    }
+
+    const fetchOrder = async () => {
+      setIsLoadingOrder(true);
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/gifts/order/${orderId}?shopId=${shopId}`, {
+          headers: { "x-shop-id": shopId }
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || "โหลดรายละเอียดคำสั่งซื้อไม่สำเร็จ");
+        }
+        setGiftOrder(data.order);
+      } catch (error) {
+        console.error("[Payment] load gift order failed", error);
+        setErrorMessage(error.message || "ไม่สามารถโหลดคำสั่งซื้อของขวัญได้");
+      } finally {
+        setIsLoadingOrder(false);
+      }
+    };
+
+    fetchOrder();
+  }, [isGift, orderId]);
+
+  // ========================
+  // useEffect: โหลดภาพ QR Code ชำระเงินจาก Admin
+  // ========================
+  useEffect(() => {
+    const loadPaymentQr = async () => {
+      try {
+        const res = await fetch(`${ADMIN_API_URL}/api/config/payment-qr?shopId=${shopId}`, {
+          headers: { "x-shop-id": shopId }
+        });
+        const data = await res.json();
+        if (data.success && data.paymentQrUrl) {
+          setPaymentQrImage(data.paymentQrUrl);
+        }
+      } catch (error) {
+        console.error("[Payment] Failed to load payment QR:", error);
+      }
+    };
+    loadPaymentQr();
+  }, []);
+
+  // ========================
+  // Form Handlers
+  // ========================
+  /**
+   * จัดการการยืนยันการชำระเงิน
+   * สำหรับ image/text: ยืนยันการชำระเงินด้วย uploadId
+   * สำหรับ gift: ยืนยันคำสั่งซื้อของขวัญ
+   */
+  const handleConfirmPayment = async () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    setErrorMessage("");
+
+    try {
+      // ดึงข้อมูลผู้ใช้จาก localStorage เพื่อบันทึกข้อมูลผู้ชำระเงิน
+      let userId = null;
+      let email = null;
+      let avatar = null;
+
+      try {
+        const storedUser = localStorage.getItem("user");
+        console.log("[Payment] Stored user:", storedUser);
+
+        if (storedUser) {
+          const userObj = JSON.parse(storedUser);
+          userId = userObj.id || null;
+          email = userObj.email || null;
+          avatar = userObj.avatar || null;
+
+          console.log("[Payment] Parsed user data - userId:", userId, "email:", email);
+        } else {
+          console.log("[Payment] No user data in localStorage");
+        }
+      } catch (err) {
+        console.warn("[Payment] Cannot parse user data:", err);
+      }
+
+      // === กรณีส่งของขวัญ ===
+      if (isGift) {
+        if (!orderId) {
+          throw new Error("ไม่พบคำสั่งซื้อของขวัญ");
+        }
+        // เรียก API เพื่อยืนยันคำสั่งซื้อของขวัญ
+        const response = await fetch(`${API_BASE_URL}/api/gifts/order/${orderId}/confirm?shopId=${shopId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-shop-id": shopId
+          },
+          body: JSON.stringify({ userId, email, avatar })
+        });
+        const data = await response.json();
+        if (!response.ok || !data.success) {
+          throw new Error(data.message || "ยืนยันคำสั่งซื้อไม่สำเร็จ");
+        }
+
+        // สร้างหมายเลขคิวใหม่
+        const currentQueueNumber = incrementQueueNumber();
+        const newOrder = {
+          type: "gift",
+          price: data.order.totalPrice,
+          queueNumber: currentQueueNumber,
+          tableNumber: data.order.tableNumber,
+          giftItems: data.order.items,
+          orderId: orderId
+        };
+
+        // เก็บคำสั่งซื้อใน localStorage เป็น array
+        const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]");
+        existingOrders.push(newOrder);
+        localStorage.setItem("orders", JSON.stringify(existingOrders));
+        // เก็บ order ล่าสุดไว้ด้วย (สำหรับ backward compatibility)
+        localStorage.setItem("order", JSON.stringify(newOrder));
+        setGiftOrder(data.order);
+
+        // === กรณีแสดงรูปภาพ/ข้อความ ===
+      } else {
+        // ดึงข้อมูลการอัพโหลดที่เก็บไว้จาก Upload.js (มี uploadId)
+        const savedData = localStorage.getItem("pendingUploadData");
+        console.log("[Payment] Saved upload data:", savedData);
+
+        if (!savedData) {
+          throw new Error("ไม่พบข้อมูลการอัปโหลด");
+        }
+
+        const uploadData = JSON.parse(savedData);
+        const uploadId = uploadData.uploadId;
+
+        if (!uploadId) {
+          throw new Error("ไม่พบ uploadId กรุณาอัพโหลดใหม่");
+        }
+
+        console.log("[Payment] Confirming payment for uploadId:", uploadId);
+
+        // เรียก API เพื่อยืนยันการชำระเงิน
+        const response = await fetch(`${API_BASE_URL}/api/confirm-payment?shopId=${shopId}`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-shop-id": shopId
+          },
+          body: JSON.stringify({
+            uploadId,
+            userId: uploadData.userId,
+            email: uploadData.email,
+            avatar: uploadData.avatar
+          })
+        });
+
+        if (!response.ok) {
+          const errText = await response.text();
+          throw new Error(`Payment confirmation failed: ${response.status} ${errText}`);
+        }
+
+        const result = await response.json();
+        console.log("[Payment] Payment confirmed:", result);
+        console.log("[Payment] Received uploadId from Admin:", result.uploadId);
+
+        // สร้างหมายเลขคิวและข้อมูลคำสั่งซื้อใหม่
+        const currentQueueNumber = incrementQueueNumber();
+        const newOrder = {
+          type: uploadData.type,
+          time: uploadData.time,
+          price: uploadData.price,
+          queueNumber: currentQueueNumber,
+          orderId: result.uploadId || uploadId  // ใช้ uploadId จาก Admin (result.uploadId) เป็นหลัก
+        };
+
+        console.log("[Payment] Creating order with orderId:", newOrder.orderId);
+
+        // เก็บคำสั่งซื้อใน localStorage
+        const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]");
+        existingOrders.push(newOrder);
+        localStorage.setItem("orders", JSON.stringify(existingOrders));
+        localStorage.setItem("order", JSON.stringify(newOrder));
+
+        // ลบข้อมูลชั่วคราวที่ใช้ในกระบวนการอัพโหลด
+        localStorage.removeItem("pendingUploadData");
+        localStorage.removeItem("uploadFormDraft");
+        localStorage.removeItem("uploadFormImage");
+      }
+
+      // ปิด popup และแสดง modal สำเร็จ
+      setShowPopup(false);
+      setShowSuccessModal(true);
+      console.log("[Payment] after setShowSuccessModal ->", true);
+
+    } catch (err) {
+      console.error("[Payment] Error:", err);
+      setErrorMessage(`❌ ${err.message || "เกิดข้อผิดพลาดในการยืนยันการชำระเงิน"}`);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  /**
+   * จัดการการเลือกวิธีการชำระเงิน
+   * ตรวจสอบสถานะและแสดง popup ชำระเงิน
+   */
+  const handlePaymentSelection = (method) => {
+    if (!method) return;
+    if (isGift && (isLoadingOrder || !giftOrder)) {
+      setErrorMessage("กำลังโหลดข้อมูลคำสั่งซื้อ กรุณารอสักครู่");
+      return;
+    }
+    setPaymentMethod(method);
+    setShowPopup(true);
+    setErrorMessage("");
+  };
+
+  /**
+   * ปิด popup ชำระเงิน
+   */
+  const closePopup = () => {
+    setShowPopup(false);
+    setErrorMessage("");
+  };
+
+  /**
+   * กลับไปหน้าก่อนหน้า
+   */
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
+  // คำนวณยอดเงินที่ต้องชำระ
+  const amountToPay = isGift ? giftOrder?.totalPrice ?? price : price;
+
+  // ปิดใช้งานปุ่มชำระเงินถ้า:
+  // - ยังไม่เลือกวิธีการชำระเงิน
+  // - กำลังประมวลผล
+  // - เป็นของขวัญแต่ยังไม่มีข้อมูลหรือกำลังโหลด
+  const disablePayButton =
+    !paymentMethod ||
+    isProcessing ||
+    (isGift && (!giftOrder || isLoadingOrder));
+
+  // ========================
+  // Render Component
+  // ========================
+  return (
+    <div className="payment-container">
+      <div className="payment-wrapper">
+        <header className="payment-header">
+          <button className="back-btn" onClick={handleGoBack}>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+          </button>
+          <h1>ชำระเงิน</h1>
+          <div></div>
+        </header>
+
+        <main className="payment-main">
+          <div className="content-card">
+            {/* Order Summary */}
+            <div className="order-summary">
+              <div className="summary-header">
+                <div className="summary-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M9 12l2 2 4-4" />
+                    <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3" />
+                    <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3" />
+                    <path d="M3 12h6m6 0h6" />
+                  </svg>
+                </div>
+                <h2>สรุปรายการ</h2>
+              </div>
+
+              <div className="summary-details">
+                {isGift ? (
+                  <>
+                    <div className="summary-item">
+                      <span className="item-label">บริการ:</span>
+                      <span className="item-value">ส่งของขวัญ</span>
+                    </div>
+                    <div className="summary-item">
+                      <span className="item-label">โต๊ะ:</span>
+                      <span className="item-value">#{giftOrder?.tableNumber || "-"}</span>
+                    </div>
+                    <div className="summary-item">
+                      <span className="item-label">รายการ:</span>
+                      <span className="item-value multi-line">
+                        {giftOrder?.items && giftOrder.items.length > 0
+                          ? giftOrder.items.map((item) => `${item.name} x${item.quantity}`).join(", ")
+                          : isLoadingOrder
+                            ? "กำลังโหลด..."
+                            : "ยังไม่มีรายการ"}
+                      </span>
+                    </div>
+                    <div className="summary-item total-item">
+                      <span className="item-label">ยอดรวม:</span>
+                      <span className="item-value total-price">{(giftOrder?.totalPrice || price) === 0 ? 'ฟรี' : `฿${giftOrder?.totalPrice || price}`}</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="summary-item">
+                      <span className="item-label">บริการ:</span>
+                      <span className="item-value">
+                        {type === "image" ? "รูปภาพ + ข้อความ" : "ข้อความ"}
+                      </span>
+                    </div>
+                    <div className="summary-item">
+                      <span className="item-label">ระยะเวลา:</span>
+                      <span className="item-value">{time} วินาที</span>
+                    </div>
+                    <div className="summary-item total-item">
+                      <span className="item-label">ยอดรวม:</span>
+                      <span className="item-value total-price">{price === 0 ? 'ฟรี' : `฿${price}`}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Payment Methods */}
+            <div className="payment-section">
+              <h3>เลือกวิธีการชำระเงิน</h3>
+              <div className="payment-methods">
+                <div
+                  className={`payment-method ${paymentMethod === "promptpay" ? "selected" : ""}`}
+                  onClick={() => setPaymentMethod("promptpay")}
+                >
+                  <div className="method-icon">
+                    <img src={promptpayLogo} alt="PromptPay" />
+                  </div>
+                  <div className="method-info">
+                    <h4>PromptPay</h4>
+                    <p>ชำระผ่าน QR Code</p>
+                  </div>
+                  <div className="method-check">
+                    {paymentMethod === "promptpay" && (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M20 6L9 17l-5-5" />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+                {/* ลบปุ่ม TrueMoney ออก */}
+              </div>
+            </div>
+
+            {/* Error/Success Message */}
+            {errorMessage && (
+              <div className={`alert-message ${errorMessage.includes("✅") ? 'success' : 'error'}`}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  {errorMessage.includes("✅") ? (
+                    <path d="M20 6L9 17l-5-5" />
+                  ) : (
+                    <>
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </>
+                  )}
+                </svg>
+                {errorMessage}
+              </div>
+            )}
+
+            {/* Continue Button */}
+            <div className="action-buttons">
+              <button className="secondary-btn" onClick={handleGoBack}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M19 12H5M12 19l-7-7 7-7" />
+                </svg>
+                ย้อนกลับ
+              </button>
+              <button
+                className="primary-btn"
+                onClick={() => handlePaymentSelection(paymentMethod)}
+                disabled={disablePayButton}
+              >
+                {isProcessing ? (
+                  <>
+                    <div className="spinner"></div>
+                    กำลังประมวลผล...
+                  </>
+                ) : (
+                  <>
+                    ดำเนินการชำระเงิน
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </main>
+
+        {/* PromptPay Popup */}
+        {showPopup && paymentMethod === "promptpay" && (
+          <div className="modal-overlay" onClick={closePopup}>
+            <div className="modal-content payment-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>ชำระเงินผ่าน PromptPay</h3>
+                <button className="close-button" onClick={closePopup}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+              <div className="modal-body">
+                <div className="qr-section">
+                  <img src={paymentQrImage || paymentLogo} alt="QR Code" className="qr-code" />
+                  <div className="amount-display">
+                    <span className="amount-label">ยอดชำระ</span>
+                    <span className="amount-value">{amountToPay === 0 ? 'ฟรี' : `฿${amountToPay}`}</span>
+                  </div>
+                </div>
+                <div className="payment-steps">
+                  <h4>ขั้นตอนการชำระเงิน</h4>
+                  <ol>
+                    <li>เปิดแอปธนาคาร</li>
+                    <li>เลือก "สแกน QR"</li>
+                    <li>สแกน QR Code ข้างต้น</li>
+                    <li>ยืนยันยอดเงินและชำระ</li>
+                    <li>อัปโหลดสลิปเพื่อยืนยัน</li>
+                  </ol>
+                </div>
+                <SlipUpload price={amountToPay} onSuccess={() => {
+                  console.log("[Payment] SlipUpload onSuccess fired");
+                  handleConfirmPayment();
+                }} />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Success Modal */}
+        {showSuccessModal && (
+          <div className="modal-overlay">
+            <div className="modal-content" style={{ maxWidth: 420, textAlign: "center" }}>
+              <h3 style={{ marginBottom: 12 }}>ชำระเงินสำเร็จ</h3>
+              <p style={{ marginBottom: 24 }}>ระบบได้รับข้อมูลแล้ว ขอบคุณค่ะ</p>
+              <button
+                onClick={() => {
+                  navigate(`/home${shopId ? `?shopId=${shopId}` : ''}`);
+                }}
+                style={{
+                  background: "#2563eb",
+                  color: "#fff",
+                  padding: "10px 22px",
+                  borderRadius: "8px",
+                  fontWeight: 600,
+                  border: "none",
+                  cursor: "pointer",
+                  width: "100%"
+                }}
+              >
+                ไปหน้าหลัก
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default Payment;

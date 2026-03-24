@@ -1,0 +1,1125 @@
+/* ==================== CONTAINER หลัก ==================== */
+/* กล่องหลักของหน้า Upload - ใช้ gradient สีม่วงเป็นพื้นหลัง */
+.upload-container {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Wrapper สำหรับจำกัดความกว้างและจัดกึ่งกลาง */
+.upload-wrapper {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* ==================== HEADER: แถบหัวหน้า ==================== */
+/* แสดงปุ่มย้อนกลับ + หัวเรื่อง */
+.upload-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+  color: white;
+}
+
+/* ปุ่มย้อนกลับ - มีเอฟเฟกต์ hover เลื่อนซ้าย */
+.back-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateX(-5px);
+}
+
+/* หัวข้อหน้า Upload */
+.upload-header h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ==================== MAIN CONTENT ==================== */
+/* พื้นที่เนื้อหาหลัก - จัดกึ่งกลาง */
+.upload-main {
+  display: flex;
+  justify-content: center;
+}
+
+/* การ์ดเนื้อหาหลัก - พื้นหลังขาว มุมโค้ง มีเงา */
+.content-card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 600px;
+}
+
+/* ==================== PACKAGE INFO: แสดงข้อมูลแพ็กเกจ ==================== */
+/* กล่องแสดงประเภท/เวลา/ราคา - พื้นหลังสีอ่อน */
+.package-info {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 30px;
+  border: 1px solid #e2e8f0;
+}
+
+/* แต่ละบรรทัดของข้อมูลแพ็กเกจ (label + value) */
+.package-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.package-detail:last-child {
+  margin-bottom: 0;
+}
+
+/* ป้ายชื่อ (เช่น "ประเภท:") */
+.package-detail .label {
+  font-weight: 500;
+  color: #64748b;
+}
+
+/* ค่าข้อมูล (เช่น "รูปภาพ + ข้อความ") */
+.package-detail .value {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* ราคา - สีเขียว */
+.package-detail .price {
+  color: #059669;
+  font-size: 18px;
+}
+
+/* ==================== SECTIONS: ส่วนต่างๆ ในฟอร์ม ==================== */
+/* ระยะห่างระหว่างแต่ละส่วน */
+.upload-section,
+.text-section,
+.color-section {
+  margin-bottom: 30px;
+}
+
+.upload-section h3,
+.text-section h3,
+.color-section h3 {
+  margin: 0 0 16px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* ==================== FILE UPLOAD: อัปโหลดไฟล์ ==================== */
+/* Container สำหรับ input file */
+.file-upload-container {
+  position: relative;
+}
+
+/* ซ่อน input file จริง (ใช้ label แทน) */
+.file-input {
+  display: none;
+}
+
+/* Label ที่คลิกได้สำหรับเลือกไฟล์ - เส้นประสีฟ้า */
+.file-upload-label {
+  display: block;
+  padding: 40px 20px;
+  border: 2px dashed #cbd5e1;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #f8fafc;
+}
+
+.file-upload-label:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+/* ข้อความตัวอย่างในกล่องอัปโหลด (เมื่อยังไม่ได้เลือกไฟล์) */
+.file-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  color: #64748b;
+}
+
+.file-placeholder svg {
+  opacity: 0.5;
+}
+
+.file-placeholder span {
+  font-weight: 500;
+}
+
+.file-placeholder small {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* แสดงเมื่อเลือกไฟล์แล้ว - สีเขียว มีไอคอนถูก */
+.file-selected {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #059669;
+  font-weight: 500;
+}
+
+/* ==================== IMAGE PREVIEW: แสดงตัวอย่างรูปภาพ ==================== */
+/* Container สำหรับแสดงรูปที่เลือก */
+.image-preview-container {
+  position: relative;
+  margin-top: 20px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f1f5f9;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.preview-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  max-height: 400px;
+}
+
+/* ข้อความที่วางทับบนรูป */
+.preview-text-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  z-index: 2;
+  max-width: 90%;
+}
+
+/* ==================== TEXT INPUT: กล่องพิมพ์ข้อความ ==================== */
+/* Container สำหรับ textarea และ character count */
+.text-input-container {
+  position: relative;
+}
+
+.text-input {
+  width: 100%;
+  min-height: 100px;
+  padding: 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 16px;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.3s ease;
+}
+
+.text-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* ตัวนับจำนวนตัวอักษร - แสดงมุมล่างขวา */
+.character-count {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  font-size: 12px;
+  color: #64748b;
+  background: white;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.character-count .limit-reached {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+/* ==================== COLOR PICKER: เลือกสีข้อความอิสระ ==================== */
+.color-picker-group {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.color-picker-item {
+  flex: 1;
+  min-width: 160px;
+}
+
+.color-picker-item label {
+  display: block;
+  font-weight: 500;
+  color: #475569;
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.color-picker-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.color-input {
+  width: 48px;
+  height: 48px;
+  border: 3px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  padding: 2px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.color-input:hover {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+.color-hex {
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  color: #64748b;
+  background: #f1f5f9;
+  padding: 6px 12px;
+  border-radius: 8px;
+  letter-spacing: 1px;
+}
+
+/* ==================== TEMPLATE SELECTOR: เลือกเทมเพลตจัดวาง ==================== */
+.template-section {
+  margin-bottom: 1.5rem;
+}
+
+.template-options {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.template-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 72px;
+}
+
+.template-btn:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  transform: translateY(-2px);
+}
+
+.template-btn.active {
+  border-color: #3b82f6;
+  background: #dbeafe;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+}
+
+.template-icon {
+  font-size: 20px;
+}
+
+.template-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* ==================== ALERT MESSAGE: ข้อความแจ้งเตือน ==================== */
+/* กล่องแสดง error หรือ warning (สีแดง) */
+.alert-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+/* ==================== ACTION BUTTONS: ปุ่มดำเนินการ ==================== */
+/* Container สำหรับปุ่มต่างๆ - จัดชิดขวา */
+.action-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: flex-end;
+  margin-top: 30px;
+}
+
+.primary-btn,
+.secondary-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border-radius: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  font-size: 16px;
+}
+
+/* ปุ่มหลัก - สีน้ำเงิน (ดำเนินการต่อ) */
+.primary-btn {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+}
+
+/* ปุ่มรอง - สีแดง (ข้อกำหนด) */
+.secondary-btn {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  border: 1px solid #dc2626;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
+}
+
+.secondary-btn:hover {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+}
+
+/* ==================== MODAL: หน้าต่าง Popup ==================== */
+/* พื้นหลังมืดทึบของ modal - มี blur effect */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+/* เนื้อหา modal - กล่องสีขาวมุมโค้ง */
+.modal-content {
+  background: white;
+  border-radius: 16px;
+  max-width: 500px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+}
+
+/* ส่วนหัว modal - มีหัวข้อและปุ่มปิด */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 0 24px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 20px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+/* ปุ่มปิด modal (X) */
+.close-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  color: #64748b;
+  transition: all 0.2s ease;
+}
+
+.close-button:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+/* เนื้อหาภายใน modal */
+.modal-body {
+  padding: 0 24px 20px;
+}
+
+.restrictions-content h4 {
+  color: #dc2626;
+  margin-bottom: 16px;
+  font-size: 16px;
+}
+
+.restrictions-content ul {
+  list-style: none;
+  padding: 0;
+}
+
+.restrictions-content li {
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+  color: #475569;
+  position: relative;
+  padding-left: 20px;
+}
+
+.restrictions-content li:before {
+  content: "•";
+  color: #dc2626;
+  position: absolute;
+  left: 0;
+}
+
+.warning-note {
+  background: #fff7ed;
+  border: 1px solid #fed7aa;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 20px;
+  color: #c2410c;
+  font-size: 14px;
+}
+
+/* ==================== PREVIEW MODAL: ยืนยันเนื้อหา ==================== */
+/* Modal สำหรับแสดงตัวอย่างก่อนยืนยัน */
+.preview-modal {
+  max-width: 700px;
+  max-height: 90vh;
+}
+
+.final-preview {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+  background: #f1f5f9;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.final-preview img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  max-height: 500px;
+}
+
+.final-text-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+  max-width: 90%;
+}
+
+.text-only-preview {
+  background: linear-gradient(135deg, #1e293b, #334155);
+  padding: 60px 40px;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 20px;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.text-only-preview p {
+  margin: 0;
+  font-size: 28px;
+  font-weight: bold;
+  line-height: 1.4;
+}
+
+.preview-info {
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.preview-info p {
+  margin: 8px 0;
+  color: #475569;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding: 20px 24px 24px;
+  border-top: 1px solid #f1f5f9;
+}
+
+/* ==================== SOCIAL SECTION: เลือก Social Media ==================== */
+/* ส่วนเลือกช่องทางโซเชียลมีเดีย (IG, FB, Line, TikTok) */
+.social-section {
+  margin-bottom: 1.5rem;
+}
+
+.social-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.social-options label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.social-input {
+  margin-left: 0.5rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.4rem;
+  font-size: 1rem;
+  max-width: 150px;
+}
+
+.social-preview-text {
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #374151;
+  background: #f3f4f6;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  word-break: break-all;
+}
+
+/* ข้อความ social ที่วางทับบนรูป */
+.preview-social-overlay {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-weight: bold;
+  font-size: 32px;
+  z-index: 2;
+  max-width: 90%;
+  text-align: center;
+  word-break: break-all;
+}
+
+.social-radio-options {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.social-radio {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  transition: border 0.2s;
+}
+
+.social-radio.selected {
+  border: 1.5px solid #dc2626;
+  background: #fef2f2;
+}
+
+.icon-label {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 500;
+}
+
+.social-input {
+  padding: 0.4rem 0.7rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.4rem;
+  font-size: 1rem;
+  max-width: 180px;
+}
+
+/* ==================== RESPONSIVE: รองรับหน้าจอขนาดต่างๆ ==================== */
+/* ปรับหน้าจอมือถือ (กว้างไม่เกิน 768px) */
+@media (max-width: 768px) {
+  .upload-wrapper {
+    padding: 10px;
+  }
+
+  .content-card {
+    padding: 20px;
+  }
+
+  .upload-header h1 {
+    font-size: 24px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .color-picker-group {
+    flex-direction: column;
+  }
+
+  .template-options {
+    justify-content: center;
+  }
+
+  .preview-image {
+    max-height: 300px;
+  }
+
+  .final-preview img {
+    max-height: 350px;
+  }
+
+  .preview-modal {
+    max-width: 95%;
+    margin: 20px;
+  }
+
+  .preview-text-overlay,
+  .final-text-overlay {
+    font-size: 16px;
+    padding: 6px 12px;
+  }
+
+  .text-only-preview {
+    padding: 40px 20px;
+    min-height: 150px;
+  }
+
+  .text-only-preview p {
+    font-size: 24px;
+  }
+}
+
+/* รูปภาพแนวตั้ง - ใช้ความกว้างเต็ม */
+@media (orientation: portrait) {
+
+  .preview-image,
+  .final-preview img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* รูปภาพแนวนอน - จำกัดความสูง */
+@media (orientation: landscape) {
+
+  .preview-image,
+  .final-preview img {
+    max-height: 60vh;
+    width: auto;
+  }
+}
+
+/* ==================== PREVIEW LAYOUT: แสดงตัวอย่างรูป+ข้อความ ==================== */
+/* Container หลักสำหรับจัดเรียงรูปภาพ+ข้อความ */
+.upload-preview-container {
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+  align-items: stretch;
+  background: #929292;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* === Layout: ขวา (default) === */
+.upload-preview-container.layout-right {
+  flex-direction: row;
+}
+
+/* === Layout: ซ้าย === */
+.upload-preview-container.layout-left {
+  flex-direction: row-reverse;
+}
+
+/* === Layout: บน === */
+.upload-preview-container.layout-top {
+  flex-direction: column-reverse;
+}
+
+.upload-preview-container.layout-top .upload-preview-image-box {
+  width: 100%;
+  height: 300px;
+}
+
+.upload-preview-container.layout-top .upload-preview-sidebar {
+  max-width: none;
+  margin-left: 0;
+  flex-direction: row;
+  gap: 20px;
+}
+
+/* === Layout: ล่าง === */
+.upload-preview-container.layout-bottom {
+  flex-direction: column;
+}
+
+.upload-preview-container.layout-bottom .upload-preview-image-box {
+  width: 100%;
+  height: 300px;
+}
+
+.upload-preview-container.layout-bottom .upload-preview-sidebar {
+  max-width: none;
+  margin-left: 0;
+  flex-direction: row;
+  gap: 20px;
+}
+
+/* === Layout: กลาง (overlay) === */
+.upload-preview-container.layout-center {
+  position: relative;
+}
+
+.upload-preview-container.layout-center .upload-preview-image-box {
+  width: 100%;
+  height: 400px;
+}
+
+.upload-preview-container.layout-center .upload-preview-sidebar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  max-width: none;
+  margin-left: 0;
+  background: rgba(0, 0, 0, 0.35);
+  border-radius: 12px;
+  z-index: 2;
+  padding: 20px;
+}
+
+/* กล่องแสดงรูปภาพด้านซ้าย - ขนาดคงที่ 300x375px */
+.upload-preview-image-box {
+  width: 300px;
+  height: 375px;
+  flex-shrink: 0;
+  background: #929292;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.upload-preview-image-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Sidebar ด้านขวา - แสดงข้อความและ QR Code */
+.upload-preview-sidebar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-width: 200px;
+  max-width: 250px;
+  padding: 15px 10px;
+  margin-left: -30px;
+}
+
+/* Sidebar เมื่อมี QR Code - ปรับระยะห่าง */
+.upload-preview-sidebar.has-qr {
+  justify-content: center;
+  padding: 15px 10px;
+}
+
+/* ส่วนเนื้อหา - social + ข้อความ */
+.upload-preview-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  text-align: center;
+}
+
+/* แสดง social media (logo + username) */
+.upload-social-display {
+  font-weight: 700;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: white;
+}
+
+/* แสดงข้อความหลัก */
+.upload-text-display {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  word-break: break-word;
+  white-space: pre-wrap;
+  color: white;
+}
+
+/* ส่วนแสดง QR Code (ถ้ามี) */
+.upload-qr-display {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.upload-qr-display img {
+  width: 120px;
+  height: 120px;
+  border-radius: 8px;
+  background: white;
+  padding: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.upload-qr-label {
+  font-size: 12px;
+  color: #ffffff;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .upload-preview-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .upload-preview-image-box {
+    width: 100%;
+    max-width: 350px;
+  }
+}
+
+/* ==================== MODAL PREVIEW LAYOUT: แสดงตัวอย่างใน Modal ==================== */
+/* ใช้ขนาดคงที่ + กรอบคู่ + รักษาอัตราส่วนรูป */
+
+/* Container หลักสำหรับจัดเรียงซ้าย-ขวาใน Modal */
+.preview-layout-grid {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 40px;
+  padding: 20px;
+  flex-wrap: wrap;
+}
+
+/* กรอบรูปภาพด้านซ้าย - ขนาดคงที่ + กรอบคู่ */
+.preview-image-frame {
+  width: 400px;
+  height: 500px;
+  flex-shrink: 0;
+  border: 2px solid #333;
+  outline: 2px solid #333;
+  outline-offset: 4px;
+  margin: 6px;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: #f5f5f5;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.preview-image-fixed {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  /* ไม่ครอบตัด - คงอัตราส่วนเดิม */
+  object-position: center;
+  display: block;
+}
+
+/* ส่วนข้อมูลด้านขวา - แสดง Social ด้านบน + QR ด้านล่าง */
+.preview-info-sidebar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  width: 300px;
+  height: 500px;
+  padding: 20px 10px;
+}
+
+/* กลุ่มข้อความด้านบน: Social + ข้อความหลัก */
+.preview-text-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  text-align: center;
+  width: 100%;
+  flex-grow: 1;
+  justify-content: center;
+}
+
+.social-badge {
+  background: #f3f4f6;
+  padding: 10px 20px;
+  border-radius: 20px;
+  border: 1px solid #e5e7eb;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+  color: #333;
+  box-shadow: 0 2px 5px rgba(255, 255, 255, 0.05);
+}
+
+.main-text-display {
+  font-size: 1.2rem;
+  line-height: 1.5;
+  word-break: break-word;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+/* ส่วนล่าง: QR Code Box */
+.preview-qr-box {
+  width: 180px;
+  height: 180px;
+  border: 2px solid #333;
+  background: #fff;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.preview-qr-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.qr-label {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+/* ==================== RESPONSIVE: หน้าจอมือถือ ==================== */
+
+/* ==================== MODAL VIEW: ปรับขนาดใน Modal ==================== */
+/* ปรับขนาดเนื้อหาแบบชัดเจน (ไม่ใช้ transform) */
+.upload-preview-container.modal-view {
+  width: 100%;
+  padding: 15px;
+  gap: 15px;
+}
+
+/* ลดขนาดกล่องรูปภาพ จาก 300px เหลือ 240px */
+.upload-preview-container.modal-view .upload-preview-image-box {
+  width: 240px;
+  height: 300px;
+}
+
+/* Sidebar ปรับขนาดตามพื้นที่ว่าง */
+.upload-preview-container.modal-view .upload-preview-sidebar {
+  flex: 1;
+  min-width: 220px;
+  max-width: none;
+  margin-left: 0;
+  padding: 10px;
+}
+
+.upload-preview-container.modal-view .upload-social-display {
+  font-size: 16px;
+}
+
+.upload-preview-container.modal-view .upload-text-display {
+  font-size: 15px;
+}
+
+.upload-preview-container.modal-view .upload-qr-display img {
+  width: 100px;
+  height: 100px;
+}
+
+/* ==================== MEDIA QUERY: หน้าจอมือถือ (กว้างไม่เกิน 768px) ==================== */
+/* ปรับ layout เป็นแนวตั้งสำหรับหน้าจอเล็ก */
+@media (max-width: 768px) {
+  .preview-layout-grid {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* ปรับขนาดกรอบรูปและ sidebar ให้เต็มความกว้าง */
+  .preview-image-frame,
+  .preview-info-sidebar {
+    width: 100%;
+    max-width: 350px;
+    height: 450px;
+  }
+}

@@ -1,0 +1,551 @@
+/* ========================
+   Auth Container & Wrapper
+   ======================== */
+/* Container หลักที่ครอบทั้งหน้า Login/Register
+   ใช้ gradient animation แบบไหลเลื่อน */
+.register-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+  font-family: 'Kanit', 'Prompt', sans-serif;
+  padding: 1rem;
+}
+
+/* กำหนด animation สำหรับ background gradient ให้เคลื่อนที่แบบนิ่มนวล */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Card ที่แสดงฟอร์ม Login/Register
+   ใช้ glass morphism effect ด้วย backdrop-filter */
+.auth-wrapper {
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  border-radius: 24px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.5);
+  width: 100%;
+  max-width: 450px;
+  padding: 3rem 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  animation: slideUp 0.6s ease;
+}
+
+/* Animation สำหรับให้ card เลื่อนขึ้นมาอย่างนิ่มนวล */
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================
+   Auth Header
+   ======================== */
+.auth-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.logo {
+  font-size: 3rem;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+/* Animation ให้ logo เด้งขึ้นลงเบาๆ */
+@keyframes bounce {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.auth-header h1 {
+  font-size: 2.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+/* ข้อความบรรยายใต้หัวข้อ */
+.tagline {
+  color: #666;
+  font-size: 1.05rem;
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+/* ========================
+   Tab Navigation
+   ======================== */
+/* ปุ่มสำหรับสลับระหว่าง Register และ Login */
+.tab-navigation {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 1rem;
+  background: none;
+  border: none;
+  border-bottom: 3px solid transparent;
+  color: #999;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: none;
+  font-family: 'Kanit', 'Prompt', sans-serif;
+}
+
+/* Hover effect สำหรับ tab */
+.tab-btn:hover {
+  color: #667eea;
+}
+
+/* สไตล์สำหรับ tab ที่ถูกเลือก */
+.tab-btn.active {
+  color: #667eea;
+  border-bottom-color: #667eea;
+}
+
+/* ========================
+   Form Styles
+   ======================== */
+/* ฟอร์มหลักสำหรับกรอกข้อมูล */
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  color: #333;
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* กรอบครอบ input field พร้อม icon */
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  background: #f8f9fa;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+/* เปลี่ยนสีเมื่อ focus ที่ input */
+.input-wrapper:focus-within {
+  border-color: #667eea;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.input-icon {
+  padding: 0 1rem;
+  font-size: 1.2rem;
+  pointer-events: none;
+}
+
+.input-wrapper input {
+  flex: 1;
+  padding: 0.9rem 0.5rem 0.9rem 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 1rem;
+  color: #333;
+  font-family: 'Kanit', 'Prompt', sans-serif;
+}
+
+.input-wrapper input::placeholder {
+  color: #999;
+}
+
+.toggle-password {
+  background: none;
+  border: none;
+  padding: 0 1rem;
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #999;
+  transition: color 0.2s ease;
+}
+
+.toggle-password:hover {
+  color: #667eea;
+}
+
+/* ========================
+   Password Strength
+   ======================== */
+/* แสดงแถบและข้อความบอกความแข็งแรงของรหัสผ่าน */
+.password-strength {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.strength-bar {
+  flex: 1;
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+/* แถบกรอกเต็มตามความแข็งแรงของรหัสผ่าน (สีเปลี่ยนตาม JS) */
+.strength-fill {
+  height: 100%;
+  width: 0;
+  transition: width 0.3s ease, background-color 0.3s ease;
+  border-radius: 3px;
+}
+
+.strength-text {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #999;
+  min-width: 60px;
+}
+
+/* ========================
+   Messages
+   ======================== */
+/* ข้อความแจ้งเตือนเมื่อเกิด error */
+.error-message {
+  color: #d32f2f;
+  font-size: 0.9rem;
+  padding: 0.9rem;
+  background: linear-gradient(135deg, rgba(211, 47, 47, 0.1) 0%, rgba(211, 47, 47, 0.05) 100%);
+  border-left: 4px solid #d32f2f;
+  border-radius: 8px;
+  animation: slideIn 0.3s ease;
+}
+
+/* ข้อความแจ้งเมื่อสำเร็จ */
+.success-message {
+  color: #388e3c;
+  font-size: 0.9rem;
+  padding: 0.9rem;
+  background: linear-gradient(135deg, rgba(56, 142, 60, 0.1) 0%, rgba(56, 142, 60, 0.05) 100%);
+  border-left: 4px solid #388e3c;
+  border-radius: 8px;
+  animation: slideIn 0.3s ease;
+}
+
+/* Animation สำหรับข้อความเลื่อนลงมา */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ========================
+   Buttons
+   ======================== */
+/* ปุ่มหลักในฟอร์ม */
+.auth-button {
+  padding: 1.1rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Kanit', 'Prompt', sans-serif;
+}
+
+/* ปุ่มหลักสีม่วง (Login/Register) พร้อม gradient และ shadow */
+.auth-button.primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #fff;
+  box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+}
+
+/* Hover effect ให้ปุ่มยกขึ้นและเพิ่ม shadow */
+.auth-button.primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+}
+
+/* สไตล์ปุ่ม disabled */
+.auth-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.forgot-password {
+  color: #667eea;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: color 0.2s ease;
+  align-self: flex-end;
+}
+
+.forgot-password:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+/* ========================
+   Divider
+   ======================== */
+/* เส้นแบ่งระหว่างฟอร์มกับปุ่ม Social Login */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem 0;
+  color: #999;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #e0e0e0;
+}
+
+.divider span {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* ========================
+   Social Login
+   ======================== */
+/* ส่วนสำหรับปุ่ม Login ด้วย Google */
+.social-login {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  background: #f8f9fa;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-family: 'Kanit', 'Prompt', sans-serif;
+}
+
+/* Hover effect ยกปุ่มขึ้นและเพิ่ม shadow */
+.social-btn:hover:not(:disabled) {
+  border-color: #667eea;
+  background: #fff;
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+  transform: translateY(-2px);
+}
+
+/* สไตล์เฉพาะสำหรับปุ่ม Google (สีแดง) */
+.social-btn.google {
+  border-color: #ea4335;
+  color: #ea4335;
+}
+
+.social-btn.google:hover:not(:disabled) {
+  border-color: #d33425;
+  background: rgba(234, 67, 53, 0.05);
+  box-shadow: 0 5px 15px rgba(234, 67, 53, 0.2);
+}
+
+.social-icon {
+  font-size: 1.3rem;
+}
+
+/* ========================
+   Footer
+   ======================== */
+/* ข้อความท้ายฟอร์มสำหรับสลับระหว่าง Login/Register */
+.auth-footer {
+  text-align: center;
+  font-size: 0.95rem;
+  color: #666;
+  margin: 1.5rem 0 1rem;
+}
+
+/* ปุ่มสำหรับสลับ tab */
+.switch-tab-btn {
+  background: none;
+  border: none;
+  color: #667eea;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  font-family: 'Kanit', 'Prompt', sans-serif;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* Hover effect สำหรับปุ่มสลับ tab */
+.switch-tab-btn:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+/* ข้อความข้อกำหนดและนโยบาย */
+.terms-text {
+  text-align: center;
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.terms-text a {
+  color: #667eea;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.terms-text a:hover {
+  color: #764ba2;
+  text-decoration: underline;
+}
+
+/* === ปุ่มยืนยันอีเมล (Send OTP) === */
+/* จัด layout ให้ form-group เป็น column ชัดเจน */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+/* input wrapper ปกติครอบ input และ icon */
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* === ปุ่มยืนยันอีเมล ===
+   ปุ่มสำหรับส่งรหัส OTP ไปยังอีเมล */
+.send-otp-btn {
+  margin-top: 8px;          /* อยู่ใต้ input */
+  align-self: flex-end;     /* ชิดขวา */
+  padding: 10px 18px;
+
+  border: none;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 500;
+
+  /* สีเดียวกับปุ่มลงทะเบียน */
+  background: linear-gradient(135deg, #6c7cff, #8b5cf6);
+  color: #fff;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+/* Hover effect ให้ปุ่มโปร่งขึ้นและยกขึ้นเล็กน้อย */
+.send-otp-btn:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Disabled state - แสดงเป็นสีเทาเมื่อปิดใช้งาน (กำลังนับถอยหลัง) */
+.send-otp-btn:disabled {
+  background: #d1d5db;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ========================
+   Responsive
+   ======================== */
+/* สำหรับหน้าจอขนาดเล็กกว่า 768px (Tablet และ Mobile) */
+@media (max-width: 768px) {
+  .auth-wrapper {
+    padding: 2rem 1.5rem;
+    max-width: 100%;
+    margin: 1rem;
+  }
+
+  .auth-header h1 {
+    font-size: 2rem;
+  }
+
+  .logo {
+    font-size: 2.5rem;
+  }
+
+  .tab-btn {
+    font-size: 0.95rem;
+    padding: 0.75rem;
+  }
+
+  .auth-button {
+    padding: 0.95rem;
+    font-size: 1rem;
+  }
+}
