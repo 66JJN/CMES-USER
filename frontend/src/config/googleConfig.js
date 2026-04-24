@@ -4,7 +4,7 @@
 export const GOOGLE_CONFIG = {
   // Get your Client ID from: https://console.cloud.google.com/
   // Select your project > APIs & Services > Credentials > OAuth 2.0 Client IDs
-  clientId: "883469174780-dmo1gmgtvkbmckcpgohipvbqk1glcl6g.apps.googleusercontent.com",
+  clientId: process.env.REACT_APP_GOOGLE_CLIENT_ID || "588733956605-6d07pgmirpkobtnjj28d68im5qk4u851.apps.googleusercontent.com",
   
   // These should match your Google Cloud Console settings
   redirectUris: [
