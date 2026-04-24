@@ -121,7 +121,7 @@ function Home() {
       if (!ord.orderId) return;
       try {
         // เรียก API จาก Admin Backend เพื่อดึงสถานะล่าสุด
-        const response = await fetch(`${process.env.REACT_APP_ADMIN_API_URL || 'https://cmes-admin-server.onrender.com'}/api/order-status/${ord.orderId}?shopId=${shopId}`, {
+        const response = await fetch(`${ADMIN_API_URL}/api/order-status/${ord.orderId}?shopId=${shopId}`, {
           headers: { 'x-shop-id': shopId }
         });
         const data = await response.json();
@@ -471,7 +471,7 @@ function Home() {
 
     // ดึงข้อมูลสิทธิ์จาก Admin Backend โดยใช้ email
     const encodedEmail = encodeURIComponent(email);
-    fetch(`${process.env.REACT_APP_ADMIN_API_URL || 'https://cmes-admin-server.onrender.com'}/api/birthday-eligibility/${encodedEmail}?shopId=${shopId}`, {
+    fetch(`${ADMIN_API_URL}/api/birthday-eligibility/${encodedEmail}?shopId=${shopId}`, {
       headers: { 'x-shop-id': shopId }
     })
       .then(res => res.json())

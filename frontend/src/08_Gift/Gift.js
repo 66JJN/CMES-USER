@@ -8,14 +8,14 @@ import { useNavigate } from "react-router-dom";
 import "./Gift.css";
 import { incrementQueueNumber } from "../utils";
 
-import API_BASE_URL, { REALTIME_URL } from '../config/apiConfig';
+import API_BASE_URL, { ADMIN_API_URL, REALTIME_URL } from '../config/apiConfig';
 
 // API endpoints สำหรับเชื่อมต่อกับ backend
 const API_BASE = API_BASE_URL;
 const REALTIME_BASE = REALTIME_URL;
 
 // Admin API สำหรับดึงรูปภาพสินค้า
-const ADMIN_API_BASE = process.env.REACT_APP_ADMIN_API_URL || 'https://cmes-admin-server.onrender.com';
+const ADMIN_API_BASE = ADMIN_API_URL;
 
 
 /**
