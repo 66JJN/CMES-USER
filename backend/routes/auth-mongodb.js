@@ -521,10 +521,12 @@ router.put("/profile", async (req, res) => {
     // ทำทุกครั้งที่บันทึกโปรไฟล์ เพื่อให้ชื่อและรูปอัปเดตทันทีใน Ranking
     try {
       console.log(`[Auth] Syncing profile to Admin Backend for user: ${user.email}`);
+      const requestShopId = req.query.shopId || req.headers['x-shop-id'] || "";
       const syncResponse = await fetch(`${ADMIN_API_BASE}/api/rankings/update-avatar`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          "x-shop-id": requestShopId,
         },
         body: JSON.stringify({
           userId: user._id.toString(),
