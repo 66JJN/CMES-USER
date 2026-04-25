@@ -44,6 +44,7 @@ function Upload() {
   const [socialName, setSocialName] = useState(""); // ชื่อ username หรือ ID ของโซเชียลมีเดีย
   const [actualType, setActualType] = useState(type); // type จริงๆ ของคำสั่งซื้อ (อาจแตกต่างจาก URL ถ้ามีการเปลี่ยนแปลง)
   const [qrCodeFile, setQrCodeFile] = useState(null); // ไฟล์ QR Code สำหรับ Instagram (ถ้ามี)
+  const [isUploading, setIsUploading] = useState(false); // สถานะกำลังอัปโหลดเพื่อป้องกันการกดซ้ำ
 
   // ==================== CONSTANTS ====================
   const MAX_TEXT_LENGTH = 36; // จำนวนตัวอักษรสูงสุดที่อนุญาตให้พิมพ์
@@ -256,6 +257,8 @@ function Upload() {
   // ฟังก์ชันหลักสำหรับยืนยันและส่งข้อมูลไปยัง Backend
   // จัดการทั้งกรณีฟรีและมีค่าใช้จ่าย, ทั้งรูปภาพและข้อความ
   const handleAccept = async () => {
+    if (isUploading) return; // ป้องกันการกดซ้ำ
+    setIsUploading(true);
     console.log("[Upload] handleAccept called, type:", type, "actualType:", actualType, "isFree:", isFree);
 
     // ==================== กรณี: อัปโหลดรูปภาพ (image หรือ birthday) ====================
@@ -354,6 +357,7 @@ function Upload() {
         } catch (error) {
           console.error('[Upload] Error uploading:', error);
           setAlertMessage("เกิดข้อผิดพลาดในการอัปโหลด กรุณาลองใหม่");
+          setIsUploading(false);
         }
       } else {
         // ==================== กรณี: สินค้ามีค่าใช้จ่าย ====================
@@ -464,6 +468,7 @@ function Upload() {
             } catch (confirmError) {
               console.error('[Upload] Free order confirmation error:', confirmError);
               setAlertMessage("เกิดข้อผิดพลาดในการยืนยันคำสั่ง กรุณาลองใหม่");
+              setIsUploading(false);
               return;
             }
           }
@@ -473,6 +478,7 @@ function Upload() {
         } catch (error) {
           console.error('[Upload] Error uploading file:', error);
           setAlertMessage("เกิดข้อผิดพลาดในการอัพโหลดไฟล์ กรุณาลองใหม่");
+          setIsUploading(false);
         }
       }
     } else if (type === "text") {
@@ -560,6 +566,7 @@ function Upload() {
         } catch (error) {
           console.error('Error uploading:', error);
           setAlertMessage("เกิดข้อผิดพลาดในการอัปโหลด กรุณาลองใหม่");
+          setIsUploading(false);
         }
       } else {
         // ==================== กรณี: ข้อความมีค่าใช้จ่าย ====================
@@ -621,6 +628,7 @@ function Upload() {
         } catch (error) {
           console.error('[Upload] Error uploading text:', error);
           setAlertMessage("เกิดข้อผิดพลาดในการอัพโหลดข้อมูล กรุณาลองใหม่");
+          setIsUploading(false);
         }
       }
     }
@@ -1143,8 +1151,18 @@ function Upload() {
               </div>
               <div className="modal-actions">
                 <button className="secondary-btn" onClick={handleEdit}>แก้ไข</button>
-                <button className="primary-btn" onClick={handleAccept}>
-                  {isFree ? "ยืนยันการอัพโหลด" : "ยืนยันและชำระเงิน"}
+                <button className="primary-btn" onClick={handleAccept} disabled={isUploading} style={{ opacity: isUploading ? 0.7 : 1, cursor: isUploading ? 'not-allowed' : 'pointer' }}>
+                  {isUploading ? (
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" strokeDasharray="32" strokeDashoffset="0" style={{ animation: 'spin 1s linear infinite' }}></circle>
+                      </svg>
+                      กำลังดำเนินการ...
+                      <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
+                    </span>
+                  ) : (
+                    isFree ? "ยืนยันการอัพโหลด" : "ยืนยันและชำระเงิน"
+                  )}
                 </button>
               </div>
             </div>
