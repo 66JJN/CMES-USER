@@ -342,7 +342,7 @@
 /* Modal เลือกแคปชั่น - dark theme ตาม reference */
 .caption-picker-modal {
   max-width: 520px;
-  background: #1a1a2e !important;
+  background: linear-gradient(135deg, #2f3c72 0%, #623f83 100%) !important;
   color: white;
   max-height: 85vh;
 }
