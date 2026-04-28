@@ -68,12 +68,12 @@ const ADMIN_API_BASE = (process.env.ADMIN_API_BASE || "https://cmes-admin-server
 // จำนวนเงินที่คาดหวังสำหรับการชำระเงิน
 const expectedAmount = parseInt(process.env.EXPECTED_AMOUNT, 10);
 
-// ใช้ Body Parser middleware สำหรับแปลง JSON request body
-app.use(bodyParser.json());
+// ใช้ Body Parser middleware สำหรับแปลง JSON request body (เพิ่ม limit เป็น 20MB สำหรับรูป base64)
+app.use(bodyParser.json({ limit: '20mb' }));
 // เปิดให้เข้าถึงไฟล์ static ในโฟลเดอร์ uploads
 app.use(express.static("uploads"));
-// ใช้ Express JSON middleware
-app.use(express.json());
+// ใช้ Express JSON middleware (เพิ่ม limit เป็น 20MB สำหรับรูป base64)
+app.use(express.json({ limit: '20mb' }));
 
 // ===== การเชื่อมต่อ MONGODB DATABASE =====
 // URI สำหรับเชื่อมต่อ MongoDB
@@ -389,6 +389,192 @@ app.post("/api/report", optionalAuth, async (req, res) => {
     res.status(500).json({
       status: "error",
       message: "Failed to save report"
+    });
+  }
+});
+
+// ===== API สำหรับสร้างแคปชั่นอัตโนมัติด้วย AI (Google Gemini) =====
+// รับรูปภาพ base64 จาก Frontend แล้วส่งให้ Gemini วิเคราะห์เพื่อสร้าง caption แนว Gen Z
+// รองรับ retry + fallback model เมื่อ quota เต็ม
+
+// ฟังก์ชันเรียก Gemini API พร้อม retry logic
+async function callGeminiWithRetry(model, apiKey, base64Data, detectedMime, retries = 2) {
+  const prompt = `คุณคือเทพแคปชั่นสาย Party สไตล์ไทย Gen Z
+
+บริบท: แอปนี้ใช้ในร้านเหล้า ผับ บาร์ — ลูกค้าส่งรูปขึ้นจอเพื่ออวด แอคสาว/หนุ่ม ชวนชนแก้ว หรือสร้างบรรยากาศปาร์ตี้
+
+ดูรูปนี้แล้วเขียนแคปชั่นภาษาไทย โดย:
+- สังเกตว่าในรูปเป็นผู้ชายหรือผู้หญิง กี่คน บรรยากาศแบบไหน
+- ถ้าเป็นผู้ชาย → แคปชั่นแนวอวดหล่อ แอคสาว ชวนชนแก้ว เช่น "พี่หล่อมั้ยน้อง ชนแก้วกัน" "ใครว่างมาชนแก้วกัน"
+- ถ้าเป็นผู้หญิง → แนวสวยแซ่บ มั่นใจ ชวนหนุ่ม เช่น "โต๊ะข้างๆน่ารักจัง" "สวยขนาดนี้ยังโสดอยู่นะ"
+- ถ้าเป็นกลุ่มเพื่อน → แนวปาร์ตี้ ชนแก้ว สนุก เช่น "คืนนี้ไม่เมาไม่กลับ" "แก๊งนี้ไม่มีใครเบรค"
+- ใช้คำ Gen Z ที่ฮิต เช่น: 67, scuba, เริส, ปัง, แม่, ตัวแม่, slay, คือดี, ถูกใจ, real, vibe, ชิลไปไหน
+- สไตล์ casual ชิลๆ เหมือนคนโพสเอง ไม่เป็นทางการ
+- ห้ามใส่ hashtag และ emoji เด็ดขาด
+- ความยาวไม่เกิน 36 ตัวอักษร
+- ตอบแค่แคปชั่นเดียวเท่านั้น ไม่ต้องอธิบายอะไรเพิ่ม ไม่ต้องใส่เครื่องหมายคำพูด`;
+
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    console.log(`[AI Caption] Attempt ${attempt + 1}/${retries + 1} using model: ${model}`);
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: prompt },
+                {
+                  inlineData: {
+                    mimeType: detectedMime,
+                    data: base64Data
+                  }
+                }
+              ]
+            }
+          ],
+          generationConfig: {
+            temperature: 1.0,
+            maxOutputTokens: 100,
+            topP: 0.95,
+            topK: 40
+          }
+        })
+      }
+    );
+
+    if (response.ok) {
+      return { success: true, data: await response.json(), model };
+    }
+
+    const status = response.status;
+    const errText = await response.text();
+
+    // 429 = Rate limit / Quota exceeded
+    if (status === 429) {
+      // ดึง retryDelay จาก response (ถ้ามี)
+      let waitSec = 5 * (attempt + 1); // default exponential backoff
+      try {
+        const errJson = JSON.parse(errText);
+        const retryInfo = errJson?.error?.details?.find(d => d["@type"]?.includes("RetryInfo"));
+        if (retryInfo?.retryDelay) {
+          waitSec = Math.min(parseInt(retryInfo.retryDelay) || waitSec, 30);
+        }
+      } catch { /* ignore parse error */ }
+
+      console.warn(`[AI Caption] Rate limited (429). Waiting ${waitSec}s before retry...`);
+
+      if (attempt < retries) {
+        await new Promise(resolve => setTimeout(resolve, waitSec * 1000));
+        continue;
+      }
+    }
+
+    console.error(`[AI Caption] ${model} error: ${status}`, errText.substring(0, 300));
+    return { success: false, status, errText, model };
+  }
+
+  return { success: false, status: 429, errText: "Max retries exceeded", model };
+}
+
+app.post("/api/generate-caption", async (req, res) => {
+  try {
+    const { imageBase64, mimeType } = req.body;
+    const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+
+    if (!GEMINI_API_KEY) {
+      return res.status(500).json({
+        success: false,
+        errorCode: "NO_API_KEY",
+        message: "ยังไม่ได้ตั้งค่า GEMINI_API_KEY ใน .env"
+      });
+    }
+
+    if (!imageBase64) {
+      return res.status(400).json({
+        success: false,
+        errorCode: "NO_IMAGE",
+        message: "กรุณาอัปโหลดรูปภาพก่อน"
+      });
+    }
+
+    // ลบ data URL prefix ถ้ามี (เช่น "data:image/png;base64,")
+    const base64Data = imageBase64.includes(",")
+      ? imageBase64.split(",")[1]
+      : imageBase64;
+
+    const detectedMime = mimeType || "image/jpeg";
+
+    console.log("[AI Caption] Sending image to Gemini...");
+
+    // ลำดับ model ที่จะลอง: primary → fallback
+    // gemini-2.5-flash ใช้ได้กับ free tier ของ project นี้
+    const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.0-flash-lite"];
+
+    let result = null;
+
+    for (const model of models) {
+      result = await callGeminiWithRetry(model, GEMINI_API_KEY, base64Data, detectedMime, 1);
+
+      if (result.success) {
+        break; // สำเร็จ! ออกจาก loop
+      }
+
+      // ถ้า 429 (quota exceeded) ให้ลอง model ถัดไป
+      if (result.status === 429) {
+        console.warn(`[AI Caption] ${model} quota exceeded, trying next model...`);
+        continue;
+      }
+
+      // Error อื่นๆ ให้หยุดเลย
+      break;
+    }
+
+    // ถ้าไม่สำเร็จเลย
+    if (!result || !result.success) {
+      const isQuotaError = result?.status === 429;
+      return res.status(isQuotaError ? 429 : 500).json({
+        success: false,
+        errorCode: isQuotaError ? "QUOTA_EXCEEDED" : "API_ERROR",
+        message: isQuotaError
+          ? "AI ใช้งานเต็มแล้วในขณะนี้ กรุณารอ 1-2 นาทีแล้วลองใหม่"
+          : "AI ไม่สามารถสร้างแคปชั่นได้ กรุณาลองใหม่"
+      });
+    }
+
+    const geminiData = result.data;
+
+    // ดึงข้อความจาก response
+    const caption = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "";
+
+    if (!caption) {
+      return res.status(500).json({
+        success: false,
+        errorCode: "EMPTY_RESPONSE",
+        message: "AI ไม่สามารถวิเคราะห์รูปภาพได้"
+      });
+    }
+
+    // ตัดให้ไม่เกิน 36 ตัวอักษร
+    const trimmedCaption = caption.substring(0, 36);
+
+    console.log(`[AI Caption] ✓ Generated (${result.model}):`, trimmedCaption);
+
+    res.json({
+      success: true,
+      caption: trimmedCaption,
+      model: result.model
+    });
+
+  } catch (error) {
+    console.error("[AI Caption] Error:", error);
+    res.status(500).json({
+      success: false,
+      errorCode: "SERVER_ERROR",
+      message: "เกิดข้อผิดพลาดในการสร้างแคปชั่น"
     });
   }
 });

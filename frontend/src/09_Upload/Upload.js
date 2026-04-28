@@ -45,6 +45,7 @@ function Upload() {
   const [actualType, setActualType] = useState(type); // type จริงๆ ของคำสั่งซื้อ (อาจแตกต่างจาก URL ถ้ามีการเปลี่ยนแปลง)
   const [qrCodeFile, setQrCodeFile] = useState(null); // ไฟล์ QR Code สำหรับ Instagram (ถ้ามี)
   const [isUploading, setIsUploading] = useState(false); // สถานะกำลังอัปโหลดเพื่อป้องกันการกดซ้ำ
+  const [isGeneratingCaption, setIsGeneratingCaption] = useState(false); // สถานะกำลังเจน AI caption
 
   // ==================== CONSTANTS ====================
   const MAX_TEXT_LENGTH = 36; // จำนวนตัวอักษรสูงสุดที่อนุญาตให้พิมพ์
@@ -157,6 +158,90 @@ function Upload() {
       }
       setQrCodeFile(file);
       setAlertMessage("");
+    }
+  };
+
+  // ==================== HANDLER: สร้างแคปชั่นด้วย AI (Gemini) ====================
+  // แปลงรูปภาพเป็น base64 แล้วส่งไป Backend เพื่อให้ Gemini AI วิเคราะห์และสร้าง caption
+  // รองรับ auto-retry เมื่อ AI quota เต็ม
+  const [captionRetryCount, setCaptionRetryCount] = useState(0);
+  const [captionCooldown, setCaptionCooldown] = useState(0);
+
+  // Countdown timer สำหรับ cooldown
+  useEffect(() => {
+    if (captionCooldown <= 0) return;
+    const timer = setInterval(() => {
+      setCaptionCooldown(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [captionCooldown]);
+
+  const handleGenerateCaption = async () => {
+    if (!image) {
+      setAlertMessage("กรุณาเลือกรูปภาพก่อนใช้ AI สร้างแคปชั่น");
+      return;
+    }
+
+    if (captionCooldown > 0) return; // ยังอยู่ใน cooldown
+
+    setIsGeneratingCaption(true);
+    setAlertMessage("");
+
+    try {
+      // แปลงรูปเป็น base64
+      const reader = new FileReader();
+      const base64Promise = new Promise((resolve, reject) => {
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+      });
+      reader.readAsDataURL(image);
+      const imageBase64 = await base64Promise;
+
+      // ส่งไป Backend
+      const response = await fetch(`${API_BASE_URL}/api/generate-caption`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          imageBase64,
+          mimeType: image.type || "image/jpeg"
+        })
+      });
+
+      // Handle non-JSON responses safely
+      const responseText = await response.text();
+      let data;
+      try {
+        data = JSON.parse(responseText);
+      } catch {
+        console.error("[AI Caption] Non-JSON response:", responseText);
+        setAlertMessage("AI ไม่สามารถสร้างแคปชั่นได้ กรุณาลองใหม่");
+        return;
+      }
+
+      if (data.success && data.caption) {
+        setText(data.caption);
+        setCaptionRetryCount(0); // reset retry count on success
+        setAlertMessage(""); // clear any previous error
+      } else if (data.errorCode === "QUOTA_EXCEEDED") {
+        // AI quota เต็ม — ตั้ง cooldown 60 วินาที
+        const cooldownSec = 60;
+        setCaptionCooldown(cooldownSec);
+        setCaptionRetryCount(prev => prev + 1);
+        setAlertMessage(`⏳ AI กำลังพักชั่วคราว รอ ${cooldownSec} วินาทีแล้วลองกดใหม่`);
+      } else {
+        setAlertMessage(data.message || "AI ไม่สามารถสร้างแคปชั่นได้");
+      }
+    } catch (error) {
+      console.error("[AI Caption] Error:", error);
+      setAlertMessage("เกิดข้อผิดพลาดในการสร้างแคปชั่น กรุณาลองใหม่");
+    } finally {
+      setIsGeneratingCaption(false);
     }
   };
 
@@ -894,7 +979,45 @@ function Upload() {
             )}
 
             <div className="text-section">
-              <h3>ข้อความที่ต้องการแสดง</h3>
+              <div className="text-section-header">
+                <h3>ข้อความที่ต้องการแสดง</h3>
+                {(type === "image" || type === "birthday") && (
+                  <button
+                    className={`ai-caption-btn ${isGeneratingCaption ? 'loading' : ''} ${captionCooldown > 0 ? 'cooldown' : ''}`}
+                    onClick={handleGenerateCaption}
+                    disabled={isGeneratingCaption || !image || captionCooldown > 0}
+                    title={
+                      captionCooldown > 0
+                        ? `รอ ${captionCooldown} วินาที`
+                        : !image
+                          ? 'กรุณาเลือกรูปภาพก่อน'
+                          : 'ให้ AI สร้างแคปชั่นจากรูปภาพ'
+                    }
+                  >
+                    {isGeneratingCaption ? (
+                      <>
+                        <span className="ai-spinner"></span>
+                        <span>กำลังคิด...</span>
+                      </>
+                    ) : captionCooldown > 0 ? (
+                      <>
+                        <svg className="ai-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <circle cx="12" cy="12" r="10" />
+                          <path d="M12 6v6l4 2" />
+                        </svg>
+                        <span>รอ {captionCooldown}s</span>
+                      </>
+                    ) : (
+                      <>
+                        <svg className="ai-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                        </svg>
+                        <span>AI Caption</span>
+                      </>
+                    )}
+                  </button>
+                )}
+              </div>
               <div className="text-input-container">
                 <textarea
                   placeholder="พิมพ์ข้อความที่ต้องการแสดงบนหน้าจอ..."
