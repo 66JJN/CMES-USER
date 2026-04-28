@@ -46,9 +46,107 @@ function Upload() {
   const [qrCodeFile, setQrCodeFile] = useState(null); // ไฟล์ QR Code สำหรับ Instagram (ถ้ามี)
   const [isUploading, setIsUploading] = useState(false); // สถานะกำลังอัปโหลดเพื่อป้องกันการกดซ้ำ
   const [isGeneratingCaption, setIsGeneratingCaption] = useState(false); // สถานะกำลังเจน AI caption
+  const [showCaptionPicker, setShowCaptionPicker] = useState(false); // เปิด/ปิด modal เลือกแคปชั่น
+  const [openCategory, setOpenCategory] = useState(null); // หมวดหมู่ที่เปิดอยู่ใน modal
 
   // ==================== CONSTANTS ====================
   const MAX_TEXT_LENGTH = 36; // จำนวนตัวอักษรสูงสุดที่อนุญาตให้พิมพ์
+
+  // ==================== PRESET CAPTIONS: แคปชั่นสำเร็จรูปสำหรับสุ่ม/เลือก ====================
+  const PRESET_CAPTIONS = {
+    "แคปชั่นมาใหม่": [
+      "เมาไม่หลับ มารับเหล้าที่ร้านก่อน",
+      "มีแก้วแล้ว ก็ต้องมีเราไหม",
+      "โต๊ะไหนไม่สำคัญ ขอแค่มีเธอนั่งด้วยก็พอ",
+      "คนอื่นเมาเหล้า แต่เราเมาเธอ",
+      "อย่ามองบ่อย เดี๋ยวหลงรักไม่รู้ตัว",
+      "มาเงียบๆ แต่นั่งหล่อเสียงดัง",
+      "กินเหล้าเอาสังคม",
+      "กลับบ้านไหวมั้ย ถ้าไม่ไหวก็กลับมาหาเรา",
+      "โต๊ะนี้ไม่มีคนคุย แต่มีคนคอย",
+      "มานั่งร้านเหล้า ไม่ได้เหงา แค่ว่าง",
+      "เพื่อนเราหล่อมาก ถ้าปิดไฟ",
+      "มากับเพื่อน แต่ไม่มีใครกักเพื่อนเลย",
+      "เพื่อนเราไม่เมา แค่ลืมว่าตัวเองเป็นใคร",
+      "เบียร์ไม่หวาน แต่เราหวานนะ",
+      "ถ้าเธอชอบคนกินเหล้า เราคือตัวเลือกที่ดี",
+      "ใครโสดยกแก้ว ใครเหงาเดินมาเลย",
+      "เบียร์หมดเติมได้ แต่คนข้างกายเติมยัง",
+      "ชงไม่เก่ง แต่เทเก่งนะ",
+      "แก้วแรกไม่เป็นไร แก้วต่อไปอยู่โต๊ะ",
+    ],
+    "แอคหนุ่ม/สาว": [
+      "พี่หล่อมั้ยน้อง ชนแก้วกัน",
+      "โต๊ะข้างๆน่ารักจัง",
+      "สวยขนาดนี้ยังโสดอยู่นะ",
+      "ใครว่างมาชนแก้วกัน",
+      "มองอะไร มานั่งด้วยกันเลย",
+      "หล่อแบบนี้ ใครจะไม่มอง",
+      "น่ารักจัง มาจากโต๊ะไหน",
+      "เดินผ่านทีไร ใจเต้นทุกที",
+      "ถ้ามองแล้วใจสั่น มานั่งด้วยกัน",
+      "คนนั้นน่ารัก คนนี้ก็น่ารัก แต่เราน่ารักสุด",
+      "ไม่ต้องแอคหรอก แค่มองก็รู้ว่าสนใจ",
+      "ถ้าเธอไม่มา เราจะไปเอง",
+    ],
+    "ปาร์ตี้/ชนแก้ว": [
+      "คืนนี้ไม่เมาไม่กลับ",
+      "แก๊งนี้ไม่มีใครเบรค",
+      "ชนแก้วกันมั้ย",
+      "ดื่มให้สนุก อย่าดื่มให้เมา",
+      "วันนี้ดื่มฉลอง พรุ่งนี้ค่อยเสียใจ",
+      "แก้วนี้อุทิศให้คนโสด",
+      "เมาแล้วพูดความจริง",
+      "ยกแก้วให้คนที่กล้ามา",
+      "คืนนี้ vibe ดีมาก",
+      "เต้นไม่เป็น แต่ดื่มเก่ง",
+      "มาร้านนี้ครั้งแรก แต่เมาเหมือนขาประจำ",
+      "แก้วแรกชิล แก้วสามเริ่มบ้า",
+    ],
+    "Gen Z สุดปัง": [
+      "67 ถูกใจใช่เลย",
+      "scuba ไปเลยพี่",
+      "เริสมากแม่",
+      "slay ทั้งร้าน",
+      "vibe คือดีย์",
+      "real ones only",
+      "ปังทุกช็อต",
+      "ตัวแม่มาแล้ว",
+      "ชิลไปไหน",
+      "คือดี ไม่ต้องอธิบาย",
+      "67 scuba เริส ปังนางมาก",
+      "main character energy",
+    ],
+    "ฮาๆ ขำๆ": [
+      "เมาแล้วหล่อขึ้น จริงมั้ย",
+      "มาร้านเหล้าหาแฟน ได้แค่แฮงค์",
+      "สั่งเบียร์มา 2 แก้ว อีกแก้วให้เงา",
+      "ถ่ายรูปหล่อไว้ก่อน เดี๋ยวเมาถ่ายไม่ได้",
+      "หน้าตาดี แต่ตับไม่ดี",
+      "มาคนเดียว กลับ 0 คน เพราะหลับอยู่ร้าน",
+      "เพื่อนชวนมา 5 นาที อยู่ต่อ 5 ชั่วโมง",
+      "บอกว่าแก้วเดียว ตอนนี้แก้วที่ 7",
+      "เมาไม่ขับ แต่เมาโทรหาแฟนเก่า",
+      "พรุ่งนี้ค่อยเสียใจ คืนนี้สนุกก่อน",
+    ],
+  };
+
+  // รวมแคปชั่นทั้งหมดเป็น array เดียว
+  const ALL_CAPTIONS = Object.values(PRESET_CAPTIONS).flat();
+
+  // ==================== HANDLER: สุ่มแคปชั่น ====================
+  const handleRandomCaption = () => {
+    const randomIndex = Math.floor(Math.random() * ALL_CAPTIONS.length);
+    setText(ALL_CAPTIONS[randomIndex]);
+    setAlertMessage("");
+  };
+
+  // ==================== HANDLER: เลือกแคปชั่นจาก modal ====================
+  const handleSelectCaption = (caption) => {
+    setText(caption);
+    setShowCaptionPicker(false);
+    setAlertMessage("");
+  };
 
   // ==================== useEffect: โหลดข้อมูลจาก localStorage ====================
   // รันครั้งเดียวตอน component mount และเมื่อ type เปลี่ยน
@@ -981,42 +1079,71 @@ function Upload() {
             <div className="text-section">
               <div className="text-section-header">
                 <h3>ข้อความที่ต้องการแสดง</h3>
-                {(type === "image" || type === "birthday") && (
+                <div className="caption-btn-group">
+                  {/* ปุ่มสุ่มแคปชั่น */}
                   <button
-                    className={`ai-caption-btn ${isGeneratingCaption ? 'loading' : ''} ${captionCooldown > 0 ? 'cooldown' : ''}`}
-                    onClick={handleGenerateCaption}
-                    disabled={isGeneratingCaption || !image || captionCooldown > 0}
-                    title={
-                      captionCooldown > 0
-                        ? `รอ ${captionCooldown} วินาที`
-                        : !image
-                          ? 'กรุณาเลือกรูปภาพก่อน'
-                          : 'ให้ AI สร้างแคปชั่นจากรูปภาพ'
-                    }
+                    className="random-caption-btn"
+                    onClick={handleRandomCaption}
+                    title="สุ่มแคปชั่น"
+                    type="button"
                   >
-                    {isGeneratingCaption ? (
-                      <>
-                        <span className="ai-spinner"></span>
-                        <span>กำลังคิด...</span>
-                      </>
-                    ) : captionCooldown > 0 ? (
-                      <>
-                        <svg className="ai-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <circle cx="12" cy="12" r="10" />
-                          <path d="M12 6v6l4 2" />
-                        </svg>
-                        <span>รอ {captionCooldown}s</span>
-                      </>
-                    ) : (
-                      <>
-                        <svg className="ai-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
-                        </svg>
-                        <span>AI Caption</span>
-                      </>
-                    )}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M16 3h5v5M4 20L21 3M21 16v5h-5M15 15l6 6M4 4l5 5" />
+                    </svg>
+                    <span>สุ่ม</span>
                   </button>
-                )}
+
+                  {/* ปุ่มเลือกแคปชั่น */}
+                  <button
+                    className="pick-caption-btn"
+                    onClick={() => setShowCaptionPicker(true)}
+                    title="เลือกแคปชั่นจากรายการ"
+                    type="button"
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                    <span>เลือก</span>
+                  </button>
+
+                  {/* ปุ่ม AI Caption (เฉพาะ image/birthday) */}
+                  {(type === "image" || type === "birthday") && (
+                    <button
+                      className={`ai-caption-btn ${isGeneratingCaption ? 'loading' : ''} ${captionCooldown > 0 ? 'cooldown' : ''}`}
+                      onClick={handleGenerateCaption}
+                      disabled={isGeneratingCaption || !image || captionCooldown > 0}
+                      title={
+                        captionCooldown > 0
+                          ? `รอ ${captionCooldown} วินาที`
+                          : !image
+                            ? 'กรุณาเลือกรูปภาพก่อน'
+                            : 'ให้ AI สร้างแคปชั่นจากรูปภาพ'
+                      }
+                    >
+                      {isGeneratingCaption ? (
+                        <>
+                          <span className="ai-spinner"></span>
+                          <span>กำลังคิด...</span>
+                        </>
+                      ) : captionCooldown > 0 ? (
+                        <>
+                          <svg className="ai-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M12 6v6l4 2" />
+                          </svg>
+                          <span>รอ {captionCooldown}s</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg className="ai-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+                          </svg>
+                          <span>AI Caption</span>
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
               </div>
               <div className="text-input-container">
                 <textarea
@@ -1287,6 +1414,57 @@ function Upload() {
                     isFree ? "ยืนยันการอัพโหลด" : "ยืนยันและชำระเงิน"
                   )}
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ==================== MODAL: เลือกแคปชั่นสำเร็จรูป ==================== */}
+        {showCaptionPicker && (
+          <div className="modal-overlay" onClick={() => setShowCaptionPicker(false)}>
+            <div className="modal-content caption-picker-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>เลือกข้อความ</h3>
+                <button className="close-button" onClick={() => setShowCaptionPicker(false)}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
+              <div className="modal-body caption-picker-body">
+                {Object.entries(PRESET_CAPTIONS).map(([category, captions]) => (
+                  <div key={category} className="caption-category">
+                    <button
+                      className={`caption-category-header ${openCategory === category ? 'open' : ''}`}
+                      onClick={() => setOpenCategory(openCategory === category ? null : category)}
+                    >
+                      <span>{category}</span>
+                      <svg
+                        width="20" height="20" viewBox="0 0 24 24"
+                        fill="none" stroke="currentColor" strokeWidth="2"
+                        className={`category-chevron ${openCategory === category ? 'rotate' : ''}`}
+                      >
+                        <path d="M6 9l6 6 6-6" />
+                      </svg>
+                    </button>
+                    {openCategory === category && (
+                      <div className="caption-list">
+                        {captions.map((caption, index) => (
+                          <div key={index} className="caption-item">
+                            <span className="caption-text">{caption}</span>
+                            <button
+                              className="caption-select-btn"
+                              onClick={() => handleSelectCaption(caption)}
+                            >
+                              เลือก
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
