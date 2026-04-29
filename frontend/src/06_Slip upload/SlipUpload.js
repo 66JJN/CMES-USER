@@ -222,26 +222,21 @@ function SlipUpload({ price, onSuccess }) {
         - pending: สีน้ำเงิน - กำลังตรวจสอบ
         - failed: สีแดง - ล้มเหลว
       */}
-      {paymentStatus && (
+      {paymentStatus && paymentStatus !== "pending" && (
         <div className="payment-status" style={{
           marginTop: '16px',
           padding: '12px',
           borderRadius: '8px',
           fontSize: '14px',
           textAlign: 'center',
-          backgroundColor: paymentStatus === 'success' ? '#dcfce7' : paymentStatus === 'pending' ? '#eff6ff' : '#fee2e2',
-          color: paymentStatus === 'success' ? '#166534' : paymentStatus === 'pending' ? '#1e40af' : '#b91c1c',
-          border: `1px solid ${paymentStatus === 'success' ? '#bbf7d0' : paymentStatus === 'pending' ? '#dbeafe' : '#fecaca'}`
+          backgroundColor: paymentStatus === 'success' ? '#dcfce7' : '#fee2e2',
+          color: paymentStatus === 'success' ? '#166534' : '#b91c1c',
+          border: `1px solid ${paymentStatus === 'success' ? '#bbf7d0' : '#fecaca'}`
         }}>
           {paymentStatus === "success" ? (
             <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 6L9 17l-5-5" /></svg>
               การชำระเงินสำเร็จ!
-            </p>
-          ) : paymentStatus === "pending" ? (
-            <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
-              <span className="slip-spinner" style={{ width: '16px', height: '16px', borderWidth: '2px', borderColor: 'rgba(30,64,175,0.2)', borderTopColor: '#1e40af' }}></span>
-              กำลังตรวจสอบการชำระเงิน...
             </p>
           ) : (
             <p>การชำระเงินล้มเหลว หรือสลิปไม่ถูกต้อง</p>
