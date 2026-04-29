@@ -855,6 +855,15 @@
 .preview-modal {
   max-width: 700px;
   max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.preview-modal .modal-body {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  min-height: 0;
 }
 
 .final-preview {
@@ -925,6 +934,7 @@
   justify-content: flex-end;
   padding: 20px 24px 24px;
   border-top: 1px solid #f1f5f9;
+  flex-shrink: 0;
 }
 
 /* ==================== SOCIAL SECTION: เลือก Social Media ==================== */
@@ -1449,5 +1459,21 @@
     width: 100%;
     max-width: 350px;
     height: 450px;
+  }
+
+  /* Preview modal เต็มหน้าจอบนมือถือ */
+  .preview-modal {
+    width: 95%;
+    max-height: 85vh;
+    margin: auto;
+  }
+
+  .preview-modal .modal-body {
+    max-height: calc(85vh - 140px);
+    padding: 0 16px 16px;
+  }
+
+  .modal-actions {
+    padding: 12px 16px 16px;
   }
 }

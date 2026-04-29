@@ -50,7 +50,7 @@ function Upload() {
   const [openCategory, setOpenCategory] = useState(null); // หมวดหมู่ที่เปิดอยู่ใน modal
 
   // ==================== CONSTANTS ====================
-  const MAX_TEXT_LENGTH = 36; // จำนวนตัวอักษรสูงสุดที่อนุญาตให้พิมพ์
+  const MAX_TEXT_LENGTH = 50; // จำนวนตัวอักษรสูงสุดที่อนุญาตให้พิมพ์
 
   // ==================== PRESET CAPTIONS: แคปชั่นสำเร็จรูปสำหรับสุ่ม/เลือก ====================
   const PRESET_CAPTIONS = {
