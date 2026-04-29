@@ -262,6 +262,7 @@ function Upload() {
   // ==================== HANDLER: สร้างแคปชั่นด้วย AI (Gemini) ====================
   // แปลงรูปภาพเป็น base64 แล้วส่งไป Backend เพื่อให้ Gemini AI วิเคราะห์และสร้าง caption
   // รองรับ auto-retry เมื่อ AI quota เต็ม
+  // eslint-disable-next-line no-unused-vars
   const [captionRetryCount, setCaptionRetryCount] = useState(0);
   const [captionCooldown, setCaptionCooldown] = useState(0);
 

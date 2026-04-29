@@ -493,7 +493,7 @@ function Home() {
       .catch(err => {
         console.error("[Home] Failed to check birthday eligibility:", err);
       });
-  }, [isLoggedIn]);
+  }, [isLoggedIn, shopId]);
 
   // ===== useEffect: ปิดเมนูโปรไฟล์เมื่อคลิกนอกเมนู =====
   useEffect(() => {
@@ -1258,7 +1258,6 @@ function Home() {
                     {orders.map((ord, index) => {
                       const stat = ordersStatus[ord.orderId];
                       const isExpanded = expandedOrderId === ord.orderId;
-                      const isPending = stat?.status === 'pending';
                       const statusColor = stat?.status === 'rejected' ? '#ef4444' :
                         stat?.status === 'pending' ? '#f59e0b' :
                           stat?.status === 'playing' ? '#0ea5e9' :
