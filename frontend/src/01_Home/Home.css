@@ -670,20 +670,22 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .service-icon {
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
   color: white;
-  width: 64px;
-  height: 64px;
-  border-radius: 18px;
+  width: 100px;
+  height: 100px;
+  border-radius: 22px;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
   border: 1px solid rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .service-badge {
@@ -697,29 +699,34 @@
 }
 
 .card-content h3 {
-  font-size: 1.5rem;
-  font-weight: 600;
+  font-size: 1.25rem;
+  font-weight: 700;
   color: #1e293b;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .card-content p {
   color: #64748b;
-  line-height: 1.6;
-  margin-bottom: 1.5rem;
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+  font-size: 0.85rem;
 }
 
 .card-features {
   display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1.5rem;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.75rem;
 }
 
 .feature {
-  font-size: 0.875rem;
+  font-size: 0.75rem;
   color: #475569;
-  padding: 0.25rem 0;
+  padding: 0.2rem 0.6rem;
+  background: #f1f5f9;
+  border-radius: 6px;
+  white-space: nowrap;
 }
 
 .card-footer {
@@ -767,12 +774,13 @@
 .status-icon {
   background: linear-gradient(135deg, #f59e0b, #d97706);
   color: white;
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .status-header h3 {
