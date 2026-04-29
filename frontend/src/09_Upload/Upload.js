@@ -1404,11 +1404,19 @@ function Upload() {
                 <button className="primary-btn" onClick={handleAccept} disabled={isUploading} style={{ opacity: isUploading ? 0.7 : 1, cursor: isUploading ? 'not-allowed' : 'pointer' }}>
                   {isUploading ? (
                     <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <svg className="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" strokeDasharray="32" strokeDashoffset="0" style={{ animation: 'spin 1s linear infinite' }}></circle>
-                      </svg>
+                      <span style={{
+                        display: 'inline-block',
+                        width: '18px',
+                        height: '18px',
+                        border: '3px solid rgba(255,255,255,0.3)',
+                        borderTopColor: 'white',
+                        borderRadius: '50%',
+                        animation: 'uploadSpin 0.7s linear infinite',
+                        boxSizing: 'border-box',
+                        flexShrink: 0,
+                      }}></span>
                       กำลังดำเนินการ...
-                      <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
+                      <style>{`@keyframes uploadSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
                     </span>
                   ) : (
                     isFree ? "ยืนยันการอัพโหลด" : "ยืนยันและชำระเงิน"

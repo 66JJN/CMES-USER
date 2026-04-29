@@ -203,7 +203,7 @@ function SlipUpload({ price, onSuccess }) {
         {isVerifyingSlip ? (
           <>
             {/* Loading spinner */}
-            <div className="spinner" style={{ width: '20px', height: '20px', border: '3px solid rgba(255,255,255,0.3)', borderTopColor: 'white', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+            <span className="slip-spinner"></span>
             กำลังตรวจสอบ...
           </>
         ) : (
@@ -239,7 +239,10 @@ function SlipUpload({ price, onSuccess }) {
               การชำระเงินสำเร็จ!
             </p>
           ) : paymentStatus === "pending" ? (
-            <p>กำลังตรวจสอบการชำระเงิน...</p>
+            <p style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}>
+              <span className="slip-spinner" style={{ width: '16px', height: '16px', borderWidth: '2px', borderColor: 'rgba(30,64,175,0.2)', borderTopColor: '#1e40af' }}></span>
+              กำลังตรวจสอบการชำระเงิน...
+            </p>
           ) : (
             <p>การชำระเงินล้มเหลว หรือสลิปไม่ถูกต้อง</p>
           )}
@@ -247,8 +250,23 @@ function SlipUpload({ price, onSuccess }) {
       )}
 
       <style>{`
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .slip-spinner {
+          display: inline-block;
+          width: 20px;
+          height: 20px;
+          border: 3px solid rgba(255,255,255,0.3);
+          border-top-color: white;
+          border-radius: 50%;
+          animation: slipSpin 0.7s linear infinite;
+          flex-shrink: 0;
+          box-sizing: border-box;
+          vertical-align: middle;
+          margin: 0;
+          padding: 0;
+        }
+        @keyframes slipSpin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
         }
       `}</style>
     </div>

@@ -923,7 +923,21 @@ function Home() {
               {/* เนื้อหาแผง: แสดง Top 3 Supporters */}
               <div className="rank-panel-body">
                 {rankLoading ? (
-                  <span className="rank-empty">กำลังโหลด...</span>
+                  <>
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className={`rank-card tier-${i} position-${i}`} style={{ opacity: 0.5 }}>
+                        <div className="rank-profile">
+                          <div style={{ width: '72px', height: '72px', borderRadius: '50%', background: 'rgba(0,0,0,0.08)', animation: 'homePulse 1.8s ease-in-out infinite' }} />
+                          <div className="rank-index">#{i}</div>
+                        </div>
+                        <div className="rank-details">
+                          <div style={{ width: '60%', height: '14px', borderRadius: '7px', background: 'rgba(0,0,0,0.08)', margin: '0 auto', animation: 'homePulse 1.8s ease-in-out infinite' }} />
+                          <div style={{ width: '40%', height: '12px', borderRadius: '6px', background: 'rgba(0,0,0,0.05)', margin: '4px auto 0', animation: 'homePulse 1.8s ease-in-out 0.2s infinite' }} />
+                        </div>
+                        <div className="rank-badge" style={{ opacity: 0.3 }}>{i === 1 ? "Diamond" : i === 2 ? "Gold" : "Silver"}</div>
+                      </div>
+                    ))}
+                  </>
                 ) : (
                   /* สร้างการ์ดสำหรับ Top 3 */
                   Array.from({ length: 3 }).map((_, index) => {
@@ -1226,9 +1240,17 @@ function Home() {
               <div className="modal-body">
                 {statusLoading ? (
                   /* สถานะกำลังโหลด */
-                  <div style={{ textAlign: 'center', padding: '40px' }}>
-                    <div className="spinner" style={{ margin: '0 auto 16px' }}></div>
-                    <p>กำลังตรวจสอบสถานะ...</p>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px 0' }}>
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: '#f8fafc', borderRadius: '12px', border: '1px solid #f1f5f9' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                          <div style={{ width: `${100 + i * 20}px`, height: '14px', borderRadius: '7px', background: '#e2e8f0', animation: 'homePulse 1.8s ease-in-out infinite' }} />
+                          <div style={{ width: '60px', height: '10px', borderRadius: '5px', background: '#f1f5f9', animation: 'homePulse 1.8s ease-in-out 0.2s infinite' }} />
+                        </div>
+                        <div style={{ width: '80px', height: '28px', borderRadius: '8px', background: '#e2e8f0', animation: 'homePulse 1.8s ease-in-out 0.4s infinite' }} />
+                      </div>
+                    ))}
+                    <p style={{ textAlign: 'center', color: '#94a3b8', fontSize: '13px', marginTop: '4px' }}>กำลังตรวจสอบสถานะ...</p>
                   </div>
                 ) : orders.length > 0 ? (
                   /* รายการคำสั่งซื้อทั้งหมด */
