@@ -664,7 +664,7 @@ function Home() {
       className: "text-service",
       badge: "ข้อความ",
       title: "ส่งข้อความขึ้นจอ",
-      features: ["36 ตัวอักษร", "เลือกสี", "รวดเร็ว"],
+      features: ["50 ตัวอักษร", "เลือกสี", "รวดเร็ว"],
       price: "เริ่มต้น 1 บาท",
       icon: (
         <img src={iconText} alt="ส่งข้อความขึ้นจอ" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
