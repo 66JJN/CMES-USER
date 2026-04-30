@@ -129,7 +129,7 @@
   min-height:0;
   -webkit-user-select:none;user-select:none;
 }
-.service-card::before{content:'';position:absolute;inset:0;border-radius:20px;padding:1px;background:linear-gradient(135deg,rgba(139,92,246,.3),rgba(236,72,153,.2));-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:0;transition:opacity .3s}
+.service-card::before{content:'';position:absolute;inset:0;border-radius:20px;padding:1px;background:linear-gradient(135deg,rgba(139,92,246,.3),rgba(236,72,153,.2));-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:0;transition:opacity .3s}
 .service-card:active{transform:scale(.95)}
 .service-card:active::before{opacity:1}
 
@@ -152,17 +152,26 @@
   border:1px solid rgba(255,255,255,.08);
 }
 .service-badge{
-  background:rgba(255,255,255,.08);color:rgba(255,255,255,.7);
-  padding:4px 10px;border-radius:20px;font-size:.75rem;font-weight:600;
+  background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);
+  padding:4px 8px;border-radius:20px;font-size:.7rem;font-weight:600;
   border:1px solid rgba(255,255,255,.06);
+  white-space:nowrap;
 }
-.card-content h3{font-size:1rem;font-weight:700;color:#fff;margin-bottom:4px}
+.card-content{width:100%;display:flex;flex-direction:column;align-items:center}
+.card-content h3{
+  font-size:.95rem;font-weight:700;color:#fff;margin-bottom:6px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;
+}
 .card-content p{color:rgba(255,255,255,.45);line-height:1.3;margin-bottom:4px;font-size:.8rem}
-.card-features{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px;justify-content:center}
-.feature{font-size:.7rem;color:rgba(255,255,255,.5);padding:3px 7px;background:rgba(255,255,255,.05);border-radius:6px;white-space:nowrap}
-.card-footer{display:flex;justify-content:space-between;align-items:center;width:100%;padding-top:8px;border-top:1px solid rgba(255,255,255,.06)}
-.card-footer svg{color:rgba(255,255,255,.3);width:18px;height:18px}
-.price-from{font-weight:600;color:#10b981;font-size:.85rem}
+.card-features{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px;justify-content:center;width:100%}
+.feature{font-size:.65rem;color:rgba(255,255,255,.6);padding:3px 6px;background:rgba(255,255,255,.05);border-radius:6px;white-space:nowrap}
+.card-footer{display:flex;justify-content:space-between;align-items:center;width:100%;padding-top:8px;border-top:1px solid rgba(255,255,255,.06);margin-top:auto}
+.card-footer svg{color:rgba(255,255,255,.3);width:16px;height:16px;flex-shrink:0}
+.price-from{
+  font-weight:600;color:#10b981;font-size:.8rem;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  max-width:85%;text-align:left;
+}
 
 /* Gift items */
 .order-summary .gift-items-value,.summary-item .gift-items-value{display:block;text-align:right;white-space:normal}
@@ -207,7 +216,7 @@
 .close-button{background:rgba(255,255,255,.08);border:none;cursor:pointer;padding:10px;border-radius:12px;color:rgba(255,255,255,.5);transition:all .2s;min-width:48px;min-height:48px;display:flex;align-items:center;justify-content:center}
 .close-button:hover{background:rgba(255,255,255,.12);color:#fff}
 .modal-body{padding:16px 20px}
-.status-modal{}
+
 .perk-modal{padding:0}
 .perk-list{list-style:none;padding:0;margin:0 0 16px;display:grid;gap:10px;color:rgba(255,255,255,.8)}
 .perk-list li{background:rgba(255,255,255,.04);padding:14px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.05);font-size:1rem;line-height:1.5}
@@ -220,7 +229,7 @@
 .empty-state{text-align:center;padding:24px;color:rgba(255,255,255,.35)}
 .empty-state svg{margin-bottom:12px;color:rgba(255,255,255,.12)}
 .empty-state h4{margin-bottom:6px;color:rgba(255,255,255,.5);font-size:1rem}
-.no-order-modal{}
+
 .primary-btn{display:flex;align-items:center;gap:8px;padding:14px 24px;border-radius:14px;font-weight:600;cursor:pointer;transition:all .2s;border:none;font-size:1rem;background:linear-gradient(135deg,#8b5cf6,#7c3aed);color:#fff;min-height:48px}
 
 /* Status btn (hidden but keep style for any visible instances) */

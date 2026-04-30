@@ -649,7 +649,7 @@ function Home() {
       key: "image",
       enabled: status.imageOn,
       className: "image-service",
-      badge: "ภาพ + ข้อความ",
+      badge: "ภาพ",
       title: "ส่งรูปขึ้นจอ",
       features: ["JPG, PNG", "เพิ่มข้อความ", "เลือกสี"],
       price: "เริ่มต้น 1 บาท",
