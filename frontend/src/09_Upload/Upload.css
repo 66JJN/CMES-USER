@@ -1,1458 +1,783 @@
-/* ==================== CONTAINER หลัก ==================== */
-/* กล่องหลักของหน้า Upload - ใช้ gradient สีม่วงเป็นพื้นหลัง */
+/* ========================
+   Upload Page - Mobile-First Dark Glassmorphism
+   ======================== */
+
 .upload-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  min-height: 100dvh;
+  background: linear-gradient(180deg, #0a0e27 0%, #151338 50%, #0f0c29 100%);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  display: flex;
+  justify-content: center;
+  color: #fff;
 }
 
-/* Wrapper สำหรับจำกัดความกว้างและจัดกึ่งกลาง */
+.upload-container * {
+  box-sizing: border-box;
+}
+
 .upload-wrapper {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
+  width: 100%;
+  max-width: 430px;
+  padding: 12px 14px 32px;
 }
 
-/* ==================== HEADER: แถบหัวหน้า ==================== */
-/* แสดงปุ่มย้อนกลับ + หัวเรื่อง */
+/* ========================
+   Header & Back Button
+   ======================== */
 .upload-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 30px;
-  color: white;
+  margin-bottom: 20px;
 }
 
-/* ปุ่มย้อนกลับ - มีเอฟเฟกต์ hover เลื่อนซ้าย */
-.back-btn {
+.upload-container .back-btn {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px;
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  backdrop-filter: blur(10px);
-}
-
-.back-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-  transform: translateX(-5px);
-}
-
-/* หัวข้อหน้า Upload */
-.upload-header h1 {
-  margin: 0;
-  font-size: 28px;
-  font-weight: 600;
-  text-align: center;
-}
-
-/* ==================== MAIN CONTENT ==================== */
-/* พื้นที่เนื้อหาหลัก - จัดกึ่งกลาง */
-.upload-main {
-  display: flex;
   justify-content: center;
-}
-
-/* การ์ดเนื้อหาหลัก - พื้นหลังขาว มุมโค้ง มีเงา */
-.content-card {
-  background: white;
-  border-radius: 20px;
-  padding: 40px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
-  width: 100%;
-  max-width: 600px;
-}
-
-/* ==================== PACKAGE INFO: แสดงข้อมูลแพ็กเกจ ==================== */
-/* กล่องแสดงประเภท/เวลา/ราคา - พื้นหลังสีอ่อน */
-.package-info {
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 30px;
-  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.2s ease;
 }
 
-/* แต่ละบรรทัดของข้อมูลแพ็กเกจ (label + value) */
-.package-detail {
+.upload-container .back-btn:active {
+  transform: scale(0.95);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.upload-header h1 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0;
+  text-align: center;
+  color: #fff;
+}
+
+/* ========================
+   Main Content Card
+   ======================== */
+.upload-container .content-card {
+  background: rgba(255, 255, 255, 0.05) !important;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 22px;
+  padding: 24px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Package Info */
+.upload-container .package-info {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-radius: 16px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.upload-container .package-detail {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
 }
 
-.package-detail:last-child {
+.upload-container .package-detail:last-child {
   margin-bottom: 0;
 }
 
-/* ป้ายชื่อ (เช่น "ประเภท:") */
-.package-detail .label {
-  font-weight: 500;
-  color: #64748b;
+.upload-container .package-detail .label {
+  color: rgba(255, 255, 255, 0.6) !important;
+  font-size: 0.9rem;
 }
 
-/* ค่าข้อมูล (เช่น "รูปภาพ + ข้อความ") */
-.package-detail .value {
+.upload-container .package-detail .value {
+  color: #fff !important;
   font-weight: 600;
-  color: #1e293b;
+  font-size: 0.9rem;
 }
 
-/* ราคา - สีเขียว */
-.package-detail .price {
-  color: #059669;
-  font-size: 18px;
+.upload-container .package-detail .price {
+  color: #10b981 !important;
+  font-size: 1rem;
 }
 
-/* ==================== SECTIONS: ส่วนต่างๆ ในฟอร์ม ==================== */
-/* ระยะห่างระหว่างแต่ละส่วน */
-.upload-section,
-.text-section,
-.color-section {
-  margin-bottom: 30px;
-}
-
-.upload-section h3,
-.text-section h3,
-.color-section h3 {
-  margin: 0 0 16px 0;
-  font-size: 18px;
+/* Typography */
+.upload-container h3,
+.upload-container .upload-section h3,
+.upload-container .text-section-header h3,
+.upload-container .color-section h3,
+.upload-container .social-section h3,
+.upload-container .template-section h3 {
+  font-size: 1rem;
   font-weight: 600;
-  color: #1e293b;
+  margin: 0 0 12px 0;
+  color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* ==================== FILE UPLOAD: อัปโหลดไฟล์ ==================== */
-/* Container สำหรับ input file */
-.file-upload-container {
+/* ========================
+   File Upload
+   ======================== */
+.upload-container .file-upload-container {
   position: relative;
 }
 
-/* ซ่อน input file จริง (ใช้ label แทน) */
-.file-input {
+.upload-container .file-input {
   display: none;
 }
 
-/* Label ที่คลิกได้สำหรับเลือกไฟล์ - เส้นประสีฟ้า */
-.file-upload-label {
+.upload-container .file-upload-label {
   display: block;
-  padding: 40px 20px;
-  border: 2px dashed #cbd5e1;
-  border-radius: 12px;
+  padding: 32px 16px;
+  border: 2px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 16px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.3s ease;
-  background: #f8fafc;
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.2s ease;
 }
 
-.file-upload-label:hover {
-  border-color: #3b82f6;
-  background: #eff6ff;
+.upload-container .file-upload-label:active {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(139, 92, 246, 0.5);
 }
 
-/* ข้อความตัวอย่างในกล่องอัปโหลด (เมื่อยังไม่ได้เลือกไฟล์) */
-.file-placeholder {
+.upload-container .file-placeholder {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  color: #64748b;
+  color: rgba(255, 255, 255, 0.5);
 }
 
-.file-placeholder svg {
-  opacity: 0.5;
-}
-
-.file-placeholder span {
+.upload-container .file-placeholder span {
   font-weight: 500;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.8);
 }
 
-.file-placeholder small {
-  font-size: 12px;
-  opacity: 0.7;
+.upload-container .file-placeholder small {
+  font-size: 0.75rem;
 }
 
-/* แสดงเมื่อเลือกไฟล์แล้ว - สีเขียว มีไอคอนถูก */
-.file-selected {
+.upload-container .file-selected {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 12px;
-  color: #059669;
+  gap: 8px;
+  color: #10b981;
   font-weight: 500;
+  font-size: 0.9rem;
 }
 
-/* ==================== IMAGE PREVIEW: แสดงตัวอย่างรูปภาพ ==================== */
-/* Container สำหรับแสดงรูปที่เลือก */
-.image-preview-container {
-  position: relative;
-  margin-top: 20px;
-  border-radius: 12px;
-  overflow: hidden;
-  background: #f1f5f9;
-  width: 100%;
+/* ========================
+   Text Section & Buttons
+   ======================== */
+.upload-container .text-section-header {
   display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.preview-image {
-  width: 100%;
-  height: auto;
-  display: block;
-  object-fit: contain;
-  max-height: 400px;
-}
-
-/* ข้อความที่วางทับบนรูป */
-.preview-text-overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 18px;
-  font-weight: bold;
-  text-align: center;
-  z-index: 2;
-  max-width: 90%;
-}
-
-/* ==================== TEXT INPUT: กล่องพิมพ์ข้อความ ==================== */
-/* Container สำหรับ textarea และ character count */
-.text-input-container {
-  position: relative;
-}
-
-.text-input {
-  width: 100%;
-  min-height: 100px;
-  padding: 16px;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  font-size: 16px;
-  font-family: inherit;
-  resize: vertical;
-  transition: border-color 0.3s ease;
-}
-
-.text-input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-/* ตัวนับจำนวนตัวอักษร - แสดงมุมล่างขวา */
-.character-count {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  font-size: 12px;
-  color: #64748b;
-  background: white;
-  padding: 4px 8px;
-  border-radius: 6px;
-}
-
-.character-count .limit-reached {
-  color: #ef4444;
-  font-weight: 600;
-}
-
-/* ==================== CAPTION BUTTONS: ปุ่มสุ่ม + เลือก + AI ==================== */
-/* Header ของ text section - จัดเรียง h3 กับปุ่มต่างๆ */
-.text-section-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  margin-bottom: 16px;
+  flex-direction: column;
   gap: 12px;
-  flex-wrap: wrap;
+  margin-bottom: 12px;
 }
 
-.text-section-header h3 {
-  margin: 0 !important;
-  padding-top: 6px;
-}
-
-/* กลุ่มปุ่ม: สุ่ม + เลือก + AI Caption */
-.caption-btn-group {
+.upload-container .caption-btn-group {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
-  align-items: center;
 }
 
-/* ปุ่มสุ่มแคปชั่น - gradient เขียว */
-.random-caption-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 8px 14px;
-  background: linear-gradient(135deg, #10b981, #059669);
-  color: white;
-  border: none;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
-  white-space: nowrap;
-}
-
-.random-caption-btn:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.4);
-}
-
-.random-caption-btn:active {
-  transform: translateY(0) scale(0.98);
-}
-
-/* ปุ่มเลือกแคปชั่น - gradient ชมพู */
-.pick-caption-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 8px 14px;
-  background: linear-gradient(135deg, #f472b6, #ec4899);
-  color: white;
-  border: none;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.3);
-  white-space: nowrap;
-}
-
-.pick-caption-btn:hover {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 4px 16px rgba(236, 72, 153, 0.4);
-}
-
-.pick-caption-btn:active {
-  transform: translateY(0) scale(0.98);
-}
-
-/* ==================== CAPTION PICKER MODAL ==================== */
-/* Modal เลือกแคปชั่น - dark theme ตาม reference */
-.caption-picker-modal {
-  max-width: 520px;
-  background: linear-gradient(135deg, #2f3c72 0%, #623f83 100%) !important;
-  color: white;
-  max-height: 85vh;
-}
-
-.caption-picker-modal .modal-header {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 20px 24px 16px;
-}
-
-.caption-picker-modal .modal-header h3 {
-  color: white;
-  font-size: 22px;
-  font-weight: 700;
-}
-
-.caption-picker-modal .close-button {
-  color: rgba(255, 255, 255, 0.6);
-}
-
-.caption-picker-modal .close-button:hover {
-  color: white;
-  background: rgba(255, 255, 255, 0.1);
-}
-
-.caption-picker-body {
-  padding: 0 !important;
-  max-height: 65vh;
-  overflow-y: auto;
-}
-
-.caption-picker-body::-webkit-scrollbar {
-  width: 6px;
-}
-
-.caption-picker-body::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.caption-picker-body::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 3px;
-}
-
-/* หมวดหมู่แคปชั่น */
-.caption-category {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-/* หัวหมวดหมู่ - คลิกเพื่อเปิด/ปิด */
-.caption-category-header {
+.upload-container .random-caption-btn,
+.upload-container .pick-caption-btn,
+.upload-container .ai-caption-btn {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 16px 24px;
-  background: none;
+  gap: 6px;
+  padding: 8px 12px;
   border: none;
-  color: white;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  text-align: left;
-}
-
-.caption-category-header:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.caption-category-header.open {
-  background: rgba(255, 255, 255, 0.08);
-}
-
-/* ลูกศร chevron */
-.category-chevron {
-  transition: transform 0.3s ease;
-  flex-shrink: 0;
-}
-
-.category-chevron.rotate {
-  transform: rotate(180deg);
-}
-
-/* รายการแคปชั่นในแต่ละหมวด */
-.caption-list {
-  padding: 0 8px 8px;
-}
-
-.caption-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  gap: 12px;
-  transition: background 0.2s ease;
-  border-radius: 8px;
-  margin: 2px 0;
-}
-
-.caption-item:hover {
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.caption-item:last-child {
-  border-bottom: none;
-}
-
-/* ข้อความแคปชั่น */
-.caption-text {
-  flex: 1;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.9);
-  line-height: 1.4;
-}
-
-/* ปุ่มเลือก */
-.caption-select-btn {
-  padding: 6px 18px;
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 20px;
-  font-size: 13px;
+  border-radius: 12px;
+  font-size: 0.85rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
-  white-space: nowrap;
-  flex-shrink: 0;
+  color: #fff;
 }
 
-.caption-select-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: rgba(255, 255, 255, 0.4);
-  transform: scale(1.05);
+.upload-container .random-caption-btn {
+  background: rgba(16, 185, 129, 0.2) !important;
+  color: #10b981 !important;
 }
 
-.caption-select-btn:active {
-  transform: scale(0.95);
+.upload-container .pick-caption-btn {
+  background: rgba(236, 72, 153, 0.2) !important;
+  color: #ec4899 !important;
 }
 
-/* Responsive: มือถือ */
-@media (max-width: 768px) {
-  .caption-btn-group {
-    width: 100%;
-    justify-content: flex-end;
-  }
-  
-  .caption-picker-modal {
-    max-width: 95%;
-    max-height: 80vh;
-  }
-  
-  .caption-item {
-    padding: 10px 12px;
-  }
+.upload-container .ai-caption-btn {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.8), rgba(236, 72, 153, 0.8)) !important;
+  position: relative;
+  overflow: hidden;
+  color: #fff !important;
 }
 
-/* ปุ่ม AI Caption - gradient ม่วง-ฟ้า พร้อม glow effect */
-.ai-caption-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  background: linear-gradient(135deg, #8b5cf6, #6366f1, #3b82f6);
-  background-size: 200% 200%;
-  color: white;
-  border: none;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
-  white-space: nowrap;
-  animation: gradientShift 3s ease infinite;
-}
-
-/* Animation gradient ไหลไปมา */
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.ai-caption-btn:hover:not(:disabled) {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
-}
-
-.ai-caption-btn:active:not(:disabled) {
-  transform: translateY(0) scale(0.98);
-}
-
-/* สถานะ disabled - จางลง */
-.ai-caption-btn:disabled {
+.upload-container .ai-caption-btn:disabled {
   opacity: 0.5;
-  cursor: not-allowed;
-  animation: none;
+  filter: grayscale(1);
 }
 
-/* สถานะ loading - pulse effect */
-.ai-caption-btn.loading {
-  animation: aiPulse 1.5s ease-in-out infinite;
-  pointer-events: none;
+.upload-container .ai-caption-btn.loading {
+  animation: pulse 1.5s infinite;
 }
 
-@keyframes aiPulse {
-  0%, 100% { box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3); }
-  50% { box-shadow: 0 4px 20px rgba(99, 102, 241, 0.6); }
-}
-
-/* ไอคอนดาว */
-.ai-icon {
-  flex-shrink: 0;
-}
-
-/* Spinner หมุนตอน loading */
-.ai-spinner {
-  display: inline-block;
+.upload-container .ai-spinner {
   width: 14px;
   height: 14px;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top: 2px solid white;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
   border-radius: 50%;
-  animation: aiSpin 0.8s linear infinite;
-  flex-shrink: 0;
+  animation: spin 1s linear infinite;
 }
 
-@keyframes aiSpin {
-  100% { transform: rotate(360deg); }
+/* Text Input */
+.upload-container .text-input-container {
+  position: relative;
 }
 
-/* สถานะ cooldown - แสดง countdown (สีส้ม/amber) */
-.ai-caption-btn.cooldown {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  animation: cooldownPulse 2s ease-in-out infinite;
-  cursor: wait;
+.upload-container .text-input {
+  width: 100%;
+  min-height: 100px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 16px;
+  color: #fff !important;
+  font-family: inherit;
+  font-size: 0.95rem;
+  resize: vertical;
 }
 
-@keyframes cooldownPulse {
-  0%, 100% { opacity: 0.7; box-shadow: 0 2px 10px rgba(245, 158, 11, 0.3); }
-  50% { opacity: 1; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.5); }
+.upload-container .text-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
 }
 
-/* ==================== COLOR PICKER: เลือกสีข้อความอิสระ ==================== */
-.color-picker-group {
+.upload-container .text-input:focus {
+  outline: none;
+  border-color: rgba(139, 92, 246, 0.5) !important;
+}
+
+.upload-container .character-count {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4) !important;
+  background: none !important;
+}
+
+.upload-container .character-count .limit-reached {
+  color: #ef4444 !important;
+}
+
+/* ========================
+   Colors & Social Section
+   ======================== */
+.upload-container .color-picker-group {
   display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
+  gap: 16px;
 }
 
-.color-picker-item {
+.upload-container .color-picker-item {
   flex: 1;
-  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
-.color-picker-item label {
-  display: block;
-  font-weight: 500;
-  color: #475569;
-  margin-bottom: 8px;
-  font-size: 14px;
+.upload-container .color-picker-item label {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.6) !important;
 }
 
-.color-picker-row {
+.upload-container .color-picker-row {
   display: flex;
   align-items: center;
   gap: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.color-input {
-  width: 48px;
-  height: 48px;
-  border: 3px solid #e2e8f0;
+.upload-container .color-input {
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background: none;
+  padding: 0;
+}
+
+.upload-container .color-input::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+.upload-container .color-input::-webkit-color-swatch {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+}
+
+.upload-container .color-hex {
+  font-size: 0.85rem;
+  font-family: monospace;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Social Radio Options */
+.upload-container .social-radio-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.upload-container .social-radio {
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   cursor: pointer;
-  padding: 2px;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.2s ease;
+  color: #fff;
 }
 
-.color-input:hover {
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+.upload-container .social-radio input {
+  display: none;
 }
 
-.color-hex {
-  font-family: 'Courier New', monospace;
-  font-size: 14px;
-  color: #64748b;
-  background: #f1f5f9;
-  padding: 6px 12px;
-  border-radius: 8px;
-  letter-spacing: 1px;
+.upload-container .social-radio.selected {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.5);
 }
 
-/* ==================== TEMPLATE SELECTOR: เลือกเทมเพลตจัดวาง ==================== */
-.template-section {
-  margin-bottom: 1.5rem;
-}
-
-.template-options {
+.upload-container .social-radio .icon-label {
   display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
-.template-btn {
+.upload-container .social-input {
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(0, 0, 0, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 12px;
+  color: #fff !important;
+  font-size: 0.95rem;
+}
+
+.upload-container .social-input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}
+
+.upload-container .social-input:disabled {
+  opacity: 0.5;
+}
+
+.upload-container .social-preview-text {
+  text-align: center;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+/* ========================
+   Templates (Layouts)
+   ======================== */
+.upload-container .template-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.upload-container .template-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.upload-container .template-btn.active {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.5);
+  color: #fff;
+}
+
+/* ========================
+   Action Buttons
+   ======================== */
+.upload-container .action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.upload-container .primary-btn,
+.upload-container .secondary-btn {
+  width: 100%;
+  padding: 16px;
+  border-radius: 16px;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.upload-container .primary-btn {
+  background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%) !important;
+  color: #fff !important;
+  box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
+}
+
+.upload-container .primary-btn:active {
+  transform: scale(0.98);
+}
+
+.upload-container .secondary-btn {
+  background: rgba(255, 255, 255, 0.05) !important;
+  color: #fff !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.upload-container .secondary-btn:active {
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* ========================
+   Alert
+   ======================== */
+.upload-container .alert-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(239, 68, 68, 0.1) !important;
+  border: 1px solid rgba(239, 68, 68, 0.2) !important;
+  border-radius: 12px;
+  color: #f87171 !important;
+  font-size: 0.9rem;
+}
+
+/* ========================
+   Preview Container
+   ======================== */
+.upload-container .upload-preview-container {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 12px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  width: 100%;
+  overflow: hidden;
+  align-items: stretch;
+}
+
+.upload-container .upload-preview-image-box {
+  flex: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.4);
+}
+
+.upload-container .upload-preview-image-box img {
+  width: 100%;
+  height: auto;
+  max-height: 200px;
+  object-fit: contain;
+}
+
+.upload-container .upload-preview-sidebar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 12px;
+  gap: 12px;
+}
+
+.upload-container .upload-preview-container.layout-right {
+  flex-direction: row;
+}
+.upload-container .upload-preview-container.layout-left {
+  flex-direction: row-reverse;
+}
+.upload-container .upload-preview-container.layout-top {
+  flex-direction: column-reverse;
+}
+.upload-container .upload-preview-container.layout-bottom {
+  flex-direction: column;
+}
+.upload-container .upload-preview-container.layout-center {
+  position: relative;
+  display: block;
+}
+.upload-container .upload-preview-container.layout-center .upload-preview-sidebar {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+.upload-container .upload-preview-container.layout-center .upload-preview-image-box img {
+  max-height: 300px;
+}
+
+.upload-container .upload-social-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.upload-container .upload-text-display {
+  font-size: 1rem;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.upload-container .upload-qr-display {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 4px;
-  padding: 12px 16px;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
-  background: white;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 72px;
 }
 
-.template-btn:hover {
-  border-color: #3b82f6;
-  background: #eff6ff;
-  transform: translateY(-2px);
+.upload-container .upload-qr-display img {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  background: #fff;
+  padding: 4px;
 }
 
-.template-btn.active {
-  border-color: #3b82f6;
-  background: #dbeafe;
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+.upload-container .upload-qr-label {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.6);
 }
 
-.template-icon {
-  font-size: 20px;
-}
-
-.template-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #475569;
-}
-
-/* ==================== ALERT MESSAGE: ข้อความแจ้งเตือน ==================== */
-/* กล่องแสดง error หรือ warning (สีแดง) */
-.alert-message {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
-  background: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
+.upload-container .qr-preview img {
+  width: 100px;
+  height: 100px;
   border-radius: 8px;
-  margin-bottom: 20px;
-  font-size: 14px;
+  margin-top: 12px;
 }
 
-/* ==================== ACTION BUTTONS: ปุ่มดำเนินการ ==================== */
-/* Container สำหรับปุ่มต่างๆ - จัดชิดขวา */
-.action-buttons {
-  display: flex;
-  gap: 16px;
-  justify-content: flex-end;
-  margin-top: 30px;
-}
-
-.primary-btn,
-.secondary-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 24px;
-  border-radius: 10px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: none;
-  font-size: 16px;
-}
-
-/* ปุ่มหลัก - สีน้ำเงิน (ดำเนินการต่อ) */
-.primary-btn {
-  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-  color: white;
-}
-
-.primary-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
-}
-
-/* ปุ่มรอง - สีแดง (ข้อกำหนด) */
-.secondary-btn {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: white;
-  border: 1px solid #dc2626;
-  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2);
-}
-
-.secondary-btn:hover {
-  background: linear-gradient(135deg, #dc2626, #b91c1c);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
-}
-
-/* ==================== MODAL: หน้าต่าง Popup ==================== */
-/* พื้นหลังมืดทึบของ modal - มี blur effect */
-.modal-overlay {
+/* ========================
+   Modals
+   ======================== */
+.upload-container .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  backdrop-filter: blur(5px);
+  padding: 20px;
 }
 
-/* เนื้อหา modal - กล่องสีขาวมุมโค้ง */
-.modal-content {
-  background: white;
-  border-radius: 16px;
-  max-width: 500px;
-  width: 90%;
+.upload-container .modal-content {
+  width: 100%;
+  max-width: 400px;
+  background: #1e1e2d !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
   max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
 }
 
-/* ส่วนหัว modal - มีหัวข้อและปุ่มปิด */
-.modal-header {
+.upload-container .modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 24px 24px 0 24px;
-  border-bottom: 1px solid #f1f5f9;
-  margin-bottom: 20px;
 }
 
-.modal-header h3 {
+.upload-container .modal-header h3 {
   margin: 0;
-  font-size: 20px;
-  font-weight: 600;
-  color: #1e293b;
+  font-size: 1.1rem;
+  color: #fff !important;
 }
 
-/* ปุ่มปิด modal (X) */
-.close-button {
-  background: none;
-  border: none;
+.upload-container .close-button {
+  background: none !important;
+  border: none !important;
+  color: rgba(255, 255, 255, 0.5) !important;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 6px;
-  color: #64748b;
-  transition: all 0.2s ease;
+  padding: 4px;
+  border-radius: 50%;
+  display: flex;
 }
 
-.close-button:hover {
-  background: #f1f5f9;
-  color: #1e293b;
+.upload-container .close-button:active {
+  background: rgba(255, 255, 255, 0.1) !important;
 }
 
-/* เนื้อหาภายใน modal */
-.modal-body {
-  padding: 0 24px 20px;
+.upload-container .modal-body {
+  padding: 24px;
+  overflow-y: auto;
+  color: rgba(255, 255, 255, 0.8) !important;
+  font-size: 0.95rem;
+  line-height: 1.5;
 }
 
-
-/* ==================== PREVIEW MODAL: ยืนยันเนื้อหา ==================== */
-/* Modal สำหรับแสดงตัวอย่างก่อนยืนยัน */
-.preview-modal {
-  max-width: 700px;
-  max-height: 90vh;
+.upload-container .modal-actions {
+  padding: 16px 24px 24px;
   display: flex;
   flex-direction: column;
-}
-
-.preview-modal .modal-body {
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-  flex: 1;
-  min-height: 0;
-}
-
-.final-preview {
-  position: relative;
-  border-radius: 12px;
-  overflow: hidden;
-  margin-bottom: 20px;
-  background: #f1f5f9;
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.final-preview img {
-  width: 100%;
-  height: auto;
-  display: block;
-  object-fit: contain;
-  max-height: 500px;
-}
-
-.final-text-overlay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 18px;
-  font-weight: bold;
-  text-align: center;
-  max-width: 90%;
-}
-
-.text-only-preview {
-  background: linear-gradient(135deg, #1e293b, #334155);
-  padding: 60px 40px;
-  border-radius: 12px;
-  text-align: center;
-  margin-bottom: 20px;
-  min-height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.text-only-preview p {
-  margin: 0;
-  font-size: 28px;
-  font-weight: bold;
-  line-height: 1.4;
-}
-
-.preview-info {
-  background: #f8fafc;
-  padding: 16px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-}
-
-.preview-info p {
-  margin: 8px 0;
-  color: #475569;
-}
-
-.modal-actions {
-  display: flex;
   gap: 12px;
-  justify-content: flex-end;
-  padding: 20px 24px 24px;
-  border-top: 1px solid #f1f5f9;
-  flex-shrink: 0;
 }
 
-/* ==================== SOCIAL SECTION: เลือก Social Media ==================== */
-/* ส่วนเลือกช่องทางโซเชียลมีเดีย (IG, FB, Line, TikTok) */
-.social-section {
-  margin-bottom: 1.5rem;
-}
-
-.social-options {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-}
-
-.social-options label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.social-input {
-  margin-left: 0.5rem;
-  padding: 0.4rem 0.7rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.4rem;
-  font-size: 1rem;
-  max-width: 150px;
-}
-
-.social-preview-text {
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #374151;
-  background: #f3f4f6;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  word-break: break-all;
-}
-
-/* ข้อความ social ที่วางทับบนรูป */
-.preview-social-overlay {
-  position: absolute;
-  top: -40px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #fff;
-  padding: 6px 16px;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 32px;
-  z-index: 2;
-  max-width: 90%;
-  text-align: center;
-  word-break: break-all;
-}
-
-.social-radio-options {
-  display: flex;
-  gap: 1.5rem;
-  margin-bottom: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.social-radio {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  transition: border 0.2s;
-}
-
-.social-radio.selected {
-  border: 1.5px solid #dc2626;
-  background: #fef2f2;
-}
-
-.icon-label {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-weight: 500;
-}
-
-.social-input {
-  padding: 0.4rem 0.7rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.4rem;
-  font-size: 1rem;
-  max-width: 180px;
-}
-
-/* ==================== RESPONSIVE: รองรับหน้าจอขนาดต่างๆ ==================== */
-/* ปรับหน้าจอมือถือ (กว้างไม่เกิน 768px) */
-@media (max-width: 768px) {
-  .upload-wrapper {
-    padding: 10px;
-  }
-
-  .content-card {
-    padding: 20px;
-  }
-
-  .upload-header h1 {
-    font-size: 24px;
-  }
-
-  .action-buttons {
-    flex-direction: column;
-  }
-
-  .color-picker-group {
-    flex-direction: column;
-  }
-
-  .template-options {
-    justify-content: center;
-  }
-
-  .preview-image {
-    max-height: 300px;
-  }
-
-  .final-preview img {
-    max-height: 350px;
-  }
-
-  .preview-modal {
-    max-width: 95%;
-    margin: 20px;
-  }
-
-  .preview-text-overlay,
-  .final-text-overlay {
-    font-size: 16px;
-    padding: 6px 12px;
-  }
-
-  .text-only-preview {
-    padding: 40px 20px;
-    min-height: 150px;
-  }
-
-  .text-only-preview p {
-    font-size: 24px;
-  }
-}
-
-/* รูปภาพแนวตั้ง - ใช้ความกว้างเต็ม */
-@media (orientation: portrait) {
-
-  .preview-image,
-  .final-preview img {
-    max-width: 100%;
-    height: auto;
-  }
-}
-
-/* รูปภาพแนวนอน - จำกัดความสูง */
-@media (orientation: landscape) {
-
-  .preview-image,
-  .final-preview img {
-    max-height: 60vh;
-    width: auto;
-  }
-}
-
-/* ==================== PREVIEW LAYOUT: แสดงตัวอย่างรูป+ข้อความ ==================== */
-/* Container หลักสำหรับจัดเรียงรูปภาพ+ข้อความ */
-.upload-preview-container {
-  display: flex;
-  gap: 20px;
+.upload-container .preview-info {
   margin-top: 20px;
-  align-items: stretch;
-  background: #929292;
-  padding: 20px;
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.2);
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  max-width: 100%;
-  overflow-x: auto;
-  overflow-y: hidden;
-}
-
-/* ซ่อน scrollbar แต่ยังเลื่อนได้ (สำหรับความสวยงาม) */
-.upload-preview-container::-webkit-scrollbar {
-  height: 8px;
-}
-.upload-preview-container::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.1);
-  border-radius: 4px;
-}
-.upload-preview-container::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.3);
-  border-radius: 4px;
-}
-
-/* === Layout: ขวา (default) === */
-.upload-preview-container.layout-right {
-  flex-direction: row;
-}
-
-/* === Layout: ซ้าย === */
-.upload-preview-container.layout-left {
-  flex-direction: row-reverse;
-}
-
-/* === Layout: บน === */
-.upload-preview-container.layout-top {
-  flex-direction: column-reverse;
-}
-
-.upload-preview-container.layout-top .upload-preview-image-box {
-  width: 100%;
-  height: 300px;
-}
-
-.upload-preview-container.layout-top .upload-preview-sidebar {
-  max-width: none;
-  margin-left: 0;
-  flex-direction: row;
-  gap: 20px;
-}
-
-/* === Layout: ล่าง === */
-.upload-preview-container.layout-bottom {
-  flex-direction: column;
-}
-
-.upload-preview-container.layout-bottom .upload-preview-image-box {
-  width: 100%;
-  height: 300px;
-}
-
-.upload-preview-container.layout-bottom .upload-preview-sidebar {
-  max-width: none;
-  margin-left: 0;
-  flex-direction: row;
-  gap: 20px;
-}
-
-/* === Layout: กลาง (overlay) === */
-.upload-preview-container.layout-center {
-  position: relative;
-}
-
-.upload-preview-container.layout-center .upload-preview-image-box {
-  width: 100%;
-  height: 400px;
-}
-
-.upload-preview-container.layout-center .upload-preview-sidebar {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  max-width: none;
-  margin-left: 0;
-  background: rgba(0, 0, 0, 0.35);
-  border-radius: 12px;
-  z-index: 2;
-  padding: 20px;
-}
-
-/* กล่องแสดงรูปภาพด้านซ้าย - ขนาดคงที่ 300x375px */
-.upload-preview-image-box {
-  width: 300px;
-  height: 375px;
-  flex-shrink: 0;
-  background: #929292;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-}
-
-.upload-preview-image-box img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  display: block;
-}
-
-/* Sidebar ด้านขวา - แสดงข้อความและ QR Code */
-.upload-preview-sidebar {
-  flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-width: 200px;
-  max-width: 250px;
-  padding: 15px 10px;
-  margin-left: -30px;
-}
-
-/* Sidebar เมื่อมี QR Code - ปรับระยะห่าง */
-.upload-preview-sidebar.has-qr {
-  justify-content: center;
-  padding: 15px 10px;
-}
-
-/* ส่วนเนื้อหา - social + ข้อความ */
-.upload-preview-content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  width: 100%;
-  text-align: center;
-}
-
-/* แสดง social media (logo + username) */
-.upload-social-display {
-  font-weight: 700;
-  font-size: 18px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  color: white;
-}
-
-/* แสดงข้อความหลัก */
-.upload-text-display {
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1.5;
-  word-break: break-word;
-  white-space: pre-wrap;
-  color: white;
-}
-
-/* ส่วนแสดง QR Code (ถ้ามี) */
-.upload-qr-display {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   gap: 8px;
 }
 
-.upload-qr-display img {
-  width: 120px;
-  height: 120px;
-  border-radius: 8px;
-  background: white;
-  padding: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-}
-
-.upload-qr-label {
-  font-size: 12px;
-  color: #ffffff;
-  font-weight: 600;
-}
-
-@media (max-width: 768px) {
-  .upload-preview-container {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .upload-preview-image-box {
-    width: 100%;
-    max-width: 350px;
-  }
-}
-
-/* ==================== MODAL PREVIEW LAYOUT: แสดงตัวอย่างใน Modal ==================== */
-/* ใช้ขนาดคงที่ + กรอบคู่ + รักษาอัตราส่วนรูป */
-
-/* Container หลักสำหรับจัดเรียงซ้าย-ขวาใน Modal */
-.preview-layout-grid {
+.upload-container .preview-info p {
+  margin: 0;
   display: flex;
-  justify-content: center;
-  align-items: stretch;
-  gap: 40px;
-  padding: 20px;
-  flex-wrap: wrap;
+  justify-content: space-between;
+  color: rgba(255, 255, 255, 0.8) !important;
 }
 
-/* กรอบรูปภาพด้านซ้าย - ขนาดคงที่ + กรอบคู่ */
-.preview-image-frame {
-  width: 400px;
-  height: 500px;
-  flex-shrink: 0;
-  border: 2px solid #333;
-  outline: 2px solid #333;
-  outline-offset: 4px;
-  margin: 6px;
-  border-radius: 4px;
-  overflow: hidden;
-  background-color: #f5f5f5;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.upload-container .caption-picker-body {
+  padding: 0 !important;
 }
 
-.preview-image-fixed {
+.upload-container .caption-category-header {
   width: 100%;
-  height: 100%;
-  object-fit: contain;
-  /* ไม่ครอบตัด - คงอัตราส่วนเดิม */
-  object-position: center;
-  display: block;
-}
-
-/* ส่วนข้อมูลด้านขวา - แสดง Social ด้านบน + QR ด้านล่าง */
-.preview-info-sidebar {
   display: flex;
-  flex-direction: column;
   justify-content: space-between;
   align-items: center;
-  width: 300px;
-  height: 500px;
-  padding: 20px 10px;
-}
-
-/* กลุ่มข้อความด้านบน: Social + ข้อความหลัก */
-.preview-text-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-  text-align: center;
-  width: 100%;
-  flex-grow: 1;
-  justify-content: center;
-}
-
-.social-badge {
-  background: #f3f4f6;
-  padding: 10px 20px;
-  border-radius: 20px;
-  border: 1px solid #e5e7eb;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-weight: bold;
-  color: #333;
-  box-shadow: 0 2px 5px rgba(255, 255, 255, 0.05);
-}
-
-.main-text-display {
-  font-size: 1.2rem;
-  line-height: 1.5;
-  word-break: break-word;
-  padding: 10px;
-  background: rgba(255, 255, 255, 0.5);
-  border-radius: 8px;
-  font-weight: 500;
-}
-
-/* ส่วนล่าง: QR Code Box */
-.preview-qr-box {
-  width: 180px;
-  height: 180px;
-  border: 2px solid #333;
-  background: #fff;
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-}
-
-.preview-qr-box img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.qr-label {
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 8px;
+  padding: 16px 24px;
+  background: none !important;
+  border: none !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  color: #fff !important;
   font-weight: 600;
+  font-size: 1rem;
 }
 
-/* ==================== RESPONSIVE: หน้าจอมือถือ ==================== */
-
-/* ==================== MODAL VIEW: ปรับขนาดใน Modal ==================== */
-/* ปรับขนาดเนื้อหาแบบชัดเจน (ไม่ใช้ transform) */
-.upload-preview-container.modal-view {
-  width: 100%;
-  padding: 15px;
-  gap: 15px;
+.upload-container .category-chevron {
+  transition: transform 0.2s;
+  color: #fff !important;
 }
 
-/* ลดขนาดกล่องรูปภาพ จาก 300px เหลือ 240px */
-.upload-preview-container.modal-view .upload-preview-image-box {
-  width: 240px;
-  height: 300px;
+.upload-container .category-chevron.rotate {
+  transform: rotate(180deg);
 }
 
-/* Sidebar ปรับขนาดตามพื้นที่ว่าง */
-.upload-preview-container.modal-view .upload-preview-sidebar {
-  flex: 1;
-  min-width: 220px;
-  max-width: none;
-  margin-left: 0;
-  padding: 10px;
+.upload-container .caption-list {
+  padding: 8px 16px;
+  background: rgba(0, 0, 0, 0.2) !important;
 }
 
-.upload-preview-container.modal-view .upload-social-display {
-  font-size: 16px;
+.upload-container .caption-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+  gap: 12px;
 }
 
-.upload-preview-container.modal-view .upload-text-display {
-  font-size: 15px;
+.upload-container .caption-item:last-child {
+  border-bottom: none !important;
 }
 
-.upload-preview-container.modal-view .upload-qr-display img {
-  width: 100px;
-  height: 100px;
+.upload-container .caption-text {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.9) !important;
 }
 
-/* ==================== MEDIA QUERY: หน้าจอมือถือ (กว้างไม่เกิน 768px) ==================== */
-/* ปรับ layout เป็นแนวตั้งสำหรับหน้าจอเล็ก */
-@media (max-width: 768px) {
-  .preview-layout-grid {
-    flex-direction: column;
-    align-items: center;
-  }
+.upload-container .caption-select-btn {
+  padding: 6px 16px;
+  background: rgba(139, 92, 246, 0.2) !important;
+  color: #a78bfa !important;
+  border: none !important;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
 
-  /* ปรับขนาดกรอบรูปและ sidebar ให้เต็มความกว้าง */
-  .preview-image-frame,
-  .preview-info-sidebar {
-    width: 100%;
-    max-width: 350px;
-    height: 450px;
-  }
+/* Restrictions List */
+.upload-container .restrictions-content h4 {
+  color: #ef4444 !important;
+  margin-top: 0;
+}
 
-  /* Preview modal เต็มหน้าจอบนมือถือ */
-  .preview-modal {
-    width: 95%;
-    max-height: 85vh;
-    margin: auto;
-  }
+.upload-container .restrictions-content ul {
+  padding-left: 20px;
+}
 
-  .preview-modal .modal-body {
-    max-height: calc(85vh - 140px);
-    padding: 0 16px 16px;
-  }
+.upload-container .restrictions-content li {
+  margin-bottom: 8px;
+}
 
-  .modal-actions {
-    padding: 12px 16px 16px;
-  }
+.upload-container .warning-note {
+  margin-top: 20px;
+  padding: 12px;
+  background: rgba(245, 158, 11, 0.1) !important;
+  color: #fbbf24 !important;
+  border-radius: 12px;
+  font-size: 0.85rem;
 }
