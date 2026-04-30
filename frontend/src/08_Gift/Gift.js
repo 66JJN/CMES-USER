@@ -3,6 +3,7 @@
  * หน้าสำหรับเลือกและสั่งซื้อของขวัญส่งถึงโต๊ะต่างๆ ในงาน
  * มีระบบเลือกสินค้า คำนวณราคา และชำระเงิน
  */
+import { FiChevronLeft } from "react-icons/fi";
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Gift.css";
@@ -351,9 +352,7 @@ function Gift() {
 			<header className="gift-hero">
 				<div className="hero-left">
 					<button className="back-btn" onClick={() => navigate(-1)}>
-						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-							<path d="M19 12H5M12 19l-7-7 7-7" />
-						</svg>
+						<FiChevronLeft size={24} color="#ffffff" />
 					</button>
 					<div>
 						<p className="eyebrow">CMS LIVE EXPERIENCE</p>
@@ -365,256 +364,258 @@ function Gift() {
 					<span className="meta-pill">รองรับสูงสุด {tableLimit || "-"} โต๊ะ</span>
 					<span className="meta-pill ghost">{(settings.items || []).length} รายการพร้อมสั่ง</span>
 				</div>
-			</header>
+			</header >
 
-			<main className="gift-layout">
-				<section className="gift-panel">
-					<div className="panel-head">
-						<div>
-							<h2>เลือกสินค้า</h2>
-							<p>แตะปุ่ม + เพื่อเพิ่มจำนวนให้ครบตามที่ต้องการ</p>
+		<main className="gift-layout">
+			<section className="gift-panel">
+				<div className="panel-head">
+					<div>
+						<h2>เลือกสินค้า</h2>
+						<p>แตะปุ่ม + เพื่อเพิ่มจำนวนให้ครบตามที่ต้องการ</p>
+					</div>
+					<button className="ghost-btn" onClick={handleResetSelection} disabled={selectedItems.length === 0}>
+						รีเซ็ตการเลือก
+					</button>
+				</div>
+
+				<div className="gift-grid">
+					{(settings.items || []).length === 0 ? (
+						<div className="empty-state">
+							<p>ยังไม่มีสินค้าที่เปิดให้สั่ง</p>
 						</div>
-						<button className="ghost-btn" onClick={handleResetSelection} disabled={selectedItems.length === 0}>
-							รีเซ็ตการเลือก
-						</button>
+					) : (
+						(settings.items || []).map((item) => (
+							<div key={item.id} className={`gift-card ${quantities[item.id] ? "selected" : ""}`}>
+								{item.imageUrl && (
+									<div className="gift-card-image">
+										<img src={resolveImageSrc(item.imageUrl)} alt={item.name} />
+									</div>
+								)}
+								<div className="gift-card-header">
+									<div>
+										<h3>{item.name}</h3>
+										{item.description && <p>{item.description}</p>}
+									</div>
+									<span className="price-tag">{formatCurrency(item.price)}</span>
+								</div>
+								<div className="gift-card-footer">
+									<div className="quantity-control">
+										<button onClick={() => handleQuantityChange(item.id, -1)}>-</button>
+										<span>{quantities[item.id] || 0}</span>
+										<button onClick={() => handleQuantityChange(item.id, 1)}>+</button>
+									</div>
+								</div>
+							</div>
+						))
+					)}
+				</div>
+			</section>
+
+			<aside className="gift-summary">
+				<div className="summary-card">
+					<div className="panel-head compact">
+						<div>
+							<h2>รายละเอียดคำสั่งซื้อ</h2>
+							<p>ตรวจสอบข้อมูลก่อนกดไปหน้าชำระเงิน</p>
+						</div>
 					</div>
 
-					<div className="gift-grid">
-						{(settings.items || []).length === 0 ? (
-							<div className="empty-state">
-								<p>ยังไม่มีสินค้าที่เปิดให้สั่ง</p>
-							</div>
+					<label className="input-label">ชื่อผู้ส่ง (optional)</label>
+					<input
+						type="text"
+						className="input-field"
+						placeholder="ระบุชื่อหรือแหล่งที่มา"
+						value={senderName}
+						onChange={(e) => setSenderName(e.target.value)}
+					/>
+
+					<label className="input-label">เลขโต๊ะที่ต้องการส่ง</label>
+					<input
+						type="number"
+						className="input-field"
+						min="1"
+						max={tableLimit || undefined}
+						value={tableNumber}
+						onChange={(e) => setTableNumber(e.target.value)}
+						placeholder={tableLimit ? `1 - ${tableLimit}` : "ระบุเลขโต๊ะ"}
+					/>
+					{tableLimit > 0 && (
+						<small className="helper-text">รองรับสูงสุด {tableLimit} โต๊ะ</small>
+					)}
+
+					<label className="input-label">เบอร์โทรผู้ส่ง (สำหรับติดต่อกลับ)</label>
+					<input
+						type="tel"
+						className="input-field"
+						placeholder="0XX-XXX-XXXX"
+						value={senderPhone}
+						onChange={(e) => setSenderPhone(e.target.value)}
+						maxLength={10}
+					/>
+
+					<label className="input-label">ข้อความถึงโต๊ะ</label>
+					<textarea
+						className="input-field"
+						rows="3"
+						placeholder="ระบุข้อความเพิ่มเติม"
+						value={note}
+						onChange={(e) => setNote(e.target.value)}
+					/>
+
+					<div className="selected-items">
+						<div className="selected-head">
+							<h3>รายการที่เลือก</h3>
+							<span className="chip">{selectedItems.length} รายการ</span>
+						</div>
+						{selectedItems.length === 0 ? (
+							<p className="empty-text">ยังไม่มีการเลือกสินค้า</p>
 						) : (
-							(settings.items || []).map((item) => (
-								<div key={item.id} className={`gift-card ${quantities[item.id] ? "selected" : ""}`}>
-									{item.imageUrl && (
-										<div className="gift-card-image">
-											<img src={resolveImageSrc(item.imageUrl)} alt={item.name} />
+							<ul>
+								{selectedItems.map((item) => (
+									<li key={item.id}>
+										<span><strong>{item.name}</strong> x{item.quantity}</span>
+										<strong>{formatCurrency(item.price * item.quantity)}</strong>
+									</li>
+								))}
+							</ul>
+						)}
+					</div>
+
+					<div className="total-row">
+						<span>ยอดรวม</span>
+						<strong>{formatCurrency(totalPrice)}</strong>
+					</div>
+
+					{errorMessage && (
+						<div className="gift-alert">
+							{errorMessage}
+						</div>
+					)}
+
+					<button
+						className="gift-submit"
+						disabled={submitting || selectedItems.length === 0 || !tableNumber}
+						onClick={handleSubmit}
+					>
+						{submitting ? "กำลังสร้างคำสั่งซื้อ..." : "ไปหน้าชำระเงิน"}
+					</button>
+				</div>
+			</aside>
+		</main>
+
+	{/* Cyberpunk Confirmation Modal */ }
+	{
+		showConfirmModal && (
+			<div className="cyberpunk-modal-overlay" onClick={() => setShowConfirmModal(false)}>
+				<div className="cyberpunk-modal-card" onClick={(e) => e.stopPropagation()}>
+					{/* Header */}
+					<div className="cyberpunk-header">
+						<span className="neon-sparkle">✨</span>
+						<h2 className="neon-title">NEW GIFT INCOMING!</h2>
+						<span className="neon-sparkle">✨</span>
+					</div>
+
+					{/* Sender Avatar Section */}
+					<div className="cyberpunk-sender">
+						<div className="avatar-halo">
+							<div className="avatar-inner">
+								{userAvatar ? (
+									<img
+										src={userAvatar}
+										alt={senderName || 'User'}
+										className="avatar-image"
+										onError={(e) => {
+											e.target.style.display = 'none';
+											e.target.nextSibling.style.display = 'flex';
+										}}
+									/>
+								) : null}
+								<span
+									className="avatar-initial"
+									style={{ display: userAvatar ? 'none' : 'flex' }}
+								>
+									{(senderName || 'A').charAt(0).toUpperCase()}
+								</span>
+							</div>
+						</div>
+						<h3 className="sender-display">
+							⭐ คุณ {senderName || 'ผู้ใจดี'} ⭐
+						</h3>
+					</div>
+
+					{/* Action Indicator */}
+					<div className="cyberpunk-action">
+						⬇️ Sending to ⬇️
+					</div>
+
+					{/* Receiver Table */}
+					<div className="cyberpunk-receiver">
+						<div className="neon-table-number">โต๊ะ {tableNumber}</div>
+					</div>
+
+					{/* Divider */}
+					<div className="cyberpunk-divider"></div>
+
+					{/* Item Grid */}
+					<div className="cyberpunk-items">
+						{selectedItems
+							.sort((a, b) => (b.price * b.quantity) - (a.price * a.quantity)) // เรียงตามมูลค่ารวมสูงสุด
+							.map((item) => (
+								<div key={item.id} className="cyberpunk-item-box">
+									{item.imageUrl ? (
+										<img
+											src={resolveImageSrc(item.imageUrl)}
+											alt={item.name}
+											className="item-icon"
+										/>
+									) : (
+										<div className="item-icon-placeholder">
+											{item.name.charAt(0)}
 										</div>
 									)}
-									<div className="gift-card-header">
-										<div>
-											<h3>{item.name}</h3>
-											{item.description && <p>{item.description}</p>}
-										</div>
-										<span className="price-tag">{formatCurrency(item.price)}</span>
-									</div>
-									<div className="gift-card-footer">
-										<div className="quantity-control">
-											<button onClick={() => handleQuantityChange(item.id, -1)}>-</button>
-											<span>{quantities[item.id] || 0}</span>
-											<button onClick={() => handleQuantityChange(item.id, 1)}>+</button>
-										</div>
-									</div>
+									<span className="item-quantity-badge">x{item.quantity}</span>
+									<p className="item-name-label">{item.name}</p>
 								</div>
-							))
-						)}
+							))}
 					</div>
-				</section>
 
-				<aside className="gift-summary">
-					<div className="summary-card">
-						<div className="panel-head compact">
-							<div>
-								<h2>รายละเอียดคำสั่งซื้อ</h2>
-								<p>ตรวจสอบข้อมูลก่อนกดไปหน้าชำระเงิน</p>
-							</div>
+					{/* Divider */}
+					<div className="cyberpunk-divider"></div>
+
+					{/* Message */}
+					{note && (
+						<div className="cyberpunk-message">
+							<p>"{note}"</p>
 						</div>
+					)}
 
-						<label className="input-label">ชื่อผู้ส่ง (optional)</label>
-						<input
-							type="text"
-							className="input-field"
-							placeholder="ระบุชื่อหรือแหล่งที่มา"
-							value={senderName}
-							onChange={(e) => setSenderName(e.target.value)}
-						/>
+					{/* Total */}
+					<div className="cyberpunk-total">
+						<span>Total Price</span>
+						<strong>{formatCurrency(totalPrice)}</strong>
+					</div>
 
-						<label className="input-label">เลขโต๊ะที่ต้องการส่ง</label>
-						<input
-							type="number"
-							className="input-field"
-							min="1"
-							max={tableLimit || undefined}
-							value={tableNumber}
-							onChange={(e) => setTableNumber(e.target.value)}
-							placeholder={tableLimit ? `1 - ${tableLimit}` : "ระบุเลขโต๊ะ"}
-						/>
-						{tableLimit > 0 && (
-							<small className="helper-text">รองรับสูงสุด {tableLimit} โต๊ะ</small>
-						)}
-
-						<label className="input-label">เบอร์โทรผู้ส่ง (สำหรับติดต่อกลับ)</label>
-						<input
-							type="tel"
-							className="input-field"
-							placeholder="0XX-XXX-XXXX"
-							value={senderPhone}
-							onChange={(e) => setSenderPhone(e.target.value)}
-							maxLength={10}
-						/>
-
-						<label className="input-label">ข้อความถึงโต๊ะ</label>
-						<textarea
-							className="input-field"
-							rows="3"
-							placeholder="ระบุข้อความเพิ่มเติม"
-							value={note}
-							onChange={(e) => setNote(e.target.value)}
-						/>
-
-						<div className="selected-items">
-							<div className="selected-head">
-								<h3>รายการที่เลือก</h3>
-								<span className="chip">{selectedItems.length} รายการ</span>
-							</div>
-							{selectedItems.length === 0 ? (
-								<p className="empty-text">ยังไม่มีการเลือกสินค้า</p>
-							) : (
-								<ul>
-									{selectedItems.map((item) => (
-										<li key={item.id}>
-											<span><strong>{item.name}</strong> x{item.quantity}</span>
-											<strong>{formatCurrency(item.price * item.quantity)}</strong>
-										</li>
-									))}
-								</ul>
-							)}
-						</div>
-
-						<div className="total-row">
-							<span>ยอดรวม</span>
-							<strong>{formatCurrency(totalPrice)}</strong>
-						</div>
-
-						{errorMessage && (
-							<div className="gift-alert">
-								{errorMessage}
-							</div>
-						)}
-
+					{/* Action Buttons */}
+					<div className="cyberpunk-actions">
 						<button
-							className="gift-submit"
-							disabled={submitting || selectedItems.length === 0 || !tableNumber}
-							onClick={handleSubmit}
+							className="cyberpunk-btn cancel"
+							onClick={() => setShowConfirmModal(false)}
 						>
-							{submitting ? "กำลังสร้างคำสั่งซื้อ..." : "ไปหน้าชำระเงิน"}
+							ยกเลิก
+						</button>
+						<button
+							className="cyberpunk-btn confirm"
+							onClick={handleConfirmSubmit}
+							disabled={submitting}
+						>
+							{submitting ? 'กำลังดำเนินการ...' : 'ยืนยันและชำระเงิน'}
 						</button>
 					</div>
-				</aside>
-			</main>
-
-			{/* Cyberpunk Confirmation Modal */}
-			{showConfirmModal && (
-				<div className="cyberpunk-modal-overlay" onClick={() => setShowConfirmModal(false)}>
-					<div className="cyberpunk-modal-card" onClick={(e) => e.stopPropagation()}>
-						{/* Header */}
-						<div className="cyberpunk-header">
-							<span className="neon-sparkle">✨</span>
-							<h2 className="neon-title">NEW GIFT INCOMING!</h2>
-							<span className="neon-sparkle">✨</span>
-						</div>
-
-						{/* Sender Avatar Section */}
-						<div className="cyberpunk-sender">
-							<div className="avatar-halo">
-								<div className="avatar-inner">
-									{userAvatar ? (
-										<img
-											src={userAvatar}
-											alt={senderName || 'User'}
-											className="avatar-image"
-											onError={(e) => {
-												e.target.style.display = 'none';
-												e.target.nextSibling.style.display = 'flex';
-											}}
-										/>
-									) : null}
-									<span
-										className="avatar-initial"
-										style={{ display: userAvatar ? 'none' : 'flex' }}
-									>
-										{(senderName || 'A').charAt(0).toUpperCase()}
-									</span>
-								</div>
-							</div>
-							<h3 className="sender-display">
-								⭐ คุณ {senderName || 'ผู้ใจดี'} ⭐
-							</h3>
-						</div>
-
-						{/* Action Indicator */}
-						<div className="cyberpunk-action">
-							⬇️ Sending to ⬇️
-						</div>
-
-						{/* Receiver Table */}
-						<div className="cyberpunk-receiver">
-							<div className="neon-table-number">โต๊ะ {tableNumber}</div>
-						</div>
-
-						{/* Divider */}
-						<div className="cyberpunk-divider"></div>
-
-						{/* Item Grid */}
-						<div className="cyberpunk-items">
-							{selectedItems
-								.sort((a, b) => (b.price * b.quantity) - (a.price * a.quantity)) // เรียงตามมูลค่ารวมสูงสุด
-								.map((item) => (
-									<div key={item.id} className="cyberpunk-item-box">
-										{item.imageUrl ? (
-											<img
-												src={resolveImageSrc(item.imageUrl)}
-												alt={item.name}
-												className="item-icon"
-											/>
-										) : (
-											<div className="item-icon-placeholder">
-												{item.name.charAt(0)}
-											</div>
-										)}
-										<span className="item-quantity-badge">x{item.quantity}</span>
-										<p className="item-name-label">{item.name}</p>
-									</div>
-								))}
-						</div>
-
-						{/* Divider */}
-						<div className="cyberpunk-divider"></div>
-
-						{/* Message */}
-						{note && (
-							<div className="cyberpunk-message">
-								<p>"{note}"</p>
-							</div>
-						)}
-
-						{/* Total */}
-						<div className="cyberpunk-total">
-							<span>Total Price</span>
-							<strong>{formatCurrency(totalPrice)}</strong>
-						</div>
-
-						{/* Action Buttons */}
-						<div className="cyberpunk-actions">
-							<button
-								className="cyberpunk-btn cancel"
-								onClick={() => setShowConfirmModal(false)}
-							>
-								ยกเลิก
-							</button>
-							<button
-								className="cyberpunk-btn confirm"
-								onClick={handleConfirmSubmit}
-								disabled={submitting}
-							>
-								{submitting ? 'กำลังดำเนินการ...' : 'ยืนยันและชำระเงิน'}
-							</button>
-						</div>
-					</div>
 				</div>
-			)}
-		</div>
+			</div>
+		)
+	}
+		</div >
 	);
 }
 

@@ -101,7 +101,7 @@
 .report-header {
   margin-bottom: 2rem;
 }
-/* ปุ่มกลับหน้าก่อนหน้านี้ */.back-btn {
+/* ปุ่มกลับหน้าก่อนหน้านี้ */.back-btn { padding: 0; 
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;

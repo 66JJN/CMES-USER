@@ -1,6 +1,7 @@
 // ========================
 // Import Libraries
 // ========================
+import { FiChevronLeft } from "react-icons/fi";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import API_BASE_URL from "../config/apiConfig";
@@ -83,7 +84,7 @@ function Payment() {
     };
 
     fetchOrder();
-  }, [isGift, orderId]);
+  }, [isGift, orderId, shopId]);
 
   // ========================
   // useEffect: โหลดภาพ QR Code ชำระเงินจาก Admin
@@ -103,7 +104,7 @@ function Payment() {
       }
     };
     loadPaymentQr();
-  }, []);
+  }, [shopId]);
 
   // ========================
   // Form Handlers
@@ -310,10 +311,8 @@ function Payment() {
       <div className="payment-wrapper">
         <header className="payment-header">
           <button className="back-btn" onClick={handleGoBack}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-          </button>
+  <FiChevronLeft size={24} color="#ffffff" />
+</button>
           <h1>ชำระเงิน</h1>
           <div></div>
         </header>
@@ -324,7 +323,7 @@ function Payment() {
             <div className="order-summary">
               <div className="summary-header">
                 <div className="summary-icon">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
                     <path d="M9 12l2 2 4-4" />
                     <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3" />
                     <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3" />

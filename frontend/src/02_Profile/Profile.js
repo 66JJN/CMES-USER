@@ -1,5 +1,6 @@
 // Profile.js — show next-change-date always (handles bad/missing lastBirthdayEdit)
 import React, { useState, useEffect, useMemo } from "react";
+import { FiChevronLeft } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import "./Profile.css";
 import API_BASE_URL from "../config/apiConfig";
@@ -634,9 +635,7 @@ function Profile() {
       <div className="profile-wrapper">
         <header className="profile-header">
           <button className="back-btn" onClick={handleGoBack}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M19 12H5M12 19l-7-7 7-7"/>
-            </svg>
+            <FiChevronLeft size={24} color="#ffffff" />
           </button>
           <h1 className="page-title">โปรไฟล์</h1>
           <div />
@@ -651,7 +650,7 @@ function Profile() {
                   <img src={previewUrl || tempUser.avatar || user.avatar} alt="Avatar" className="avatar-image" />
                 ) : (
                   <div className="avatar-placeholder">
-                    <svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="1.5">
                       <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                       <circle cx="12" cy="7" r="4" />
                     </svg>

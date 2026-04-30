@@ -1,5 +1,6 @@
 // ==================== IMPORTS ====================
 // นำเข้า React hooks สำหรับจัดการ state และ side effects
+import { FiChevronLeft } from "react-icons/fi";
 import React, { useState, useEffect } from "react";
 // นำเข้า hooks สำหรับการนำทาง (routing)
 import { useLocation, useNavigate } from "react-router-dom";
@@ -840,10 +841,8 @@ function Upload() {
         {/* ==================== HEADER: แถบหัวเรื่อง ==================== */}
         <header className="upload-header">
           <button className="back-btn" onClick={handleGoBack}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M19 12H5M12 19l-7-7 7-7" />
-            </svg>
-          </button>
+  <FiChevronLeft size={24} color="#ffffff" />
+</button>
           <h1>สร้างเนื้อหา</h1>
           <div></div>
         </header>
@@ -884,7 +883,7 @@ function Upload() {
                   <label htmlFor="file-upload" className="file-upload-label">
                     {image ? (
                       <div className="file-selected">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
                           <path d="M20 6L9 17l-5-5" />
                         </svg>
                         <span>เลือกไฟล์แล้ว: {image.name}</span>
