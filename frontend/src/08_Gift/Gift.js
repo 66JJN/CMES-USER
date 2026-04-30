@@ -102,7 +102,7 @@ function Gift() {
 			}
 		};
 		checkGiftStatus();
-	}, []);
+	}, [shopId]);
 
 	/**
 	 * โหลดข้อมูลสินค้าและการตั้งค่าจาก API
@@ -135,7 +135,7 @@ function Gift() {
 		};
 
 		loadSettings();
-	}, [statusChecked, giftDisabled]);
+	}, [statusChecked, giftDisabled, shopId]);
 
 	const tableLimit = settings.tableCount || 0;
 
