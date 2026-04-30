@@ -215,7 +215,7 @@
 .modal-header h3{font-size:1.05rem;font-weight:700;color:#fff}
 .close-button{background:rgba(255,255,255,.08);border:none;cursor:pointer;padding:10px;border-radius:12px;color:rgba(255,255,255,.5);transition:all .2s;min-width:48px;min-height:48px;display:flex;align-items:center;justify-content:center}
 .close-button:hover{background:rgba(255,255,255,.12);color:#fff}
-.modal-body{padding:16px 20px}
+.modal-body{padding:16px 20px; padding-bottom:calc(16px + env(safe-area-inset-bottom))}
 
 .perk-modal{padding:0}
 .perk-list{list-style:none;padding:0;margin:0 0 16px;display:grid;gap:10px;color:rgba(255,255,255,.8)}
@@ -266,4 +266,20 @@
   .service-cards{gap:14px}
   .service-card{padding:18px 16px}
   .service-icon{width:68px;height:68px;border-radius:18px}
+}
+
+/* Custom Scrollbar for Modal */
+.modal-content::-webkit-scrollbar {
+  width: 6px;
+}
+.modal-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+}
+.modal-content::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+}
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
 }

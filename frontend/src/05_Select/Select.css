@@ -83,6 +83,12 @@
   background: rgba(255, 255, 255, 0.1);
 }
 
+.back-btn svg {
+  stroke: #fff;
+  width: 20px;
+  height: 20px;
+}
+
 .header-content {
   text-align: center;
   flex: 1;

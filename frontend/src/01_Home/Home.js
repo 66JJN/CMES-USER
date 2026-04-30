@@ -1205,7 +1205,48 @@ function Home() {
           </div>
         </footer>
 
-        {/* ===== Modal: รายละเอียดสถานะคำสั่งซื้อทั้งหมด ===== */}
+        </div>
+
+      {/* ===== Bottom Navigation Bar ===== */}
+      <nav className="bottom-nav">
+        <div className="bottom-nav-inner">
+          <button className="bottom-nav-item active" type="button">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            <span>หน้าหลัก</span>
+          </button>
+          <button className="bottom-nav-item" type="button" onClick={() => setShowPerkModal(true)}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span>VIP</span>
+          </button>
+          <button className="bottom-nav-item" type="button" onClick={handleCheckStatus} style={{ position: 'relative' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+              <path d="M9 14l2 2 4-4"/>
+            </svg>
+            {orders.length > 0 && <span className="bottom-nav-badge" />}
+            <span>สถานะ</span>
+          </button>
+          <button className="bottom-nav-item" type="button" onClick={() => isLoggedIn ? navigate(`/profile?shopId=${shopId}`) : navigate('/')}>
+            {profileImage ? (
+              <img src={profileImage} alt="โปรไฟล์" className="bottom-nav-avatar" onError={(e) => { e.target.onerror = null; setProfileImage(null); }} />
+            ) : (
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            )}
+            <span>{isLoggedIn ? "โปรไฟล์" : "เข้าสู่ระบบ"}</span>
+          </button>
+        </div>
+      </nav>
+    
+      {/* ===== Modal: รายละเอียดสถานะคำสั่งซื้อทั้งหมด ===== */}
         {showModal && (
           <div className="modal-overlay" onClick={handleCloseModal}>
             <div className="modal-content status-modal" onClick={(e) => e.stopPropagation()}>
@@ -1268,15 +1309,15 @@ function Home() {
                               stat?.status === 'completed' ? '#d1fae5' : '#f3f4f6';
 
                       return (
-                        <div key={ord.orderId || index} style={{ background: '#fff', borderRadius: '16px', border: '1px solid #e2e8f0', overflow: 'hidden' }}>
+                        <div key={ord.orderId || index} style={{ background: 'rgba(255, 255, 255, 0.05)', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)', overflow: 'hidden', backdropFilter: 'blur(10px)' }}>
                           {/* ===== ส่วน Compact (แสดงเสมอ) ===== */}
                           <div style={{ padding: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer' }}
                             onClick={() => setExpandedOrderId(isExpanded ? null : ord.orderId)}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                              <div style={{ fontSize: '15px', fontWeight: '700', color: '#1e293b' }}>
+                              <div style={{ fontSize: '15px', fontWeight: '700', color: '#fff' }}>
                                 รายการที่ {orders.length - index} • {getOrderTypeLabel(ord.type)}
                               </div>
-                              <div style={{ fontSize: '13px', color: '#64748b' }}>
+                              <div style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.6)' }}>
                                 ราคา: {ord.price === 0 ? 'ฟรี' : `฿${ord.price}`}
                                 {ord.type === 'gift' && ord.tableNumber ? ` • โต๊ะ #${ord.tableNumber}` : ''}
                               </div>
@@ -1288,13 +1329,13 @@ function Home() {
                               }}>
                                 {stat?.statusText || '...'}
                               </span>
-                              <span style={{ color: '#94a3b8', fontSize: '16px', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0)' }}>▼</span>
+                              <span style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '16px', transition: 'transform 0.2s', transform: isExpanded ? 'rotate(180deg)' : 'rotate(0)' }}>▼</span>
                             </div>
                           </div>
 
                           {/* ===== ส่วน Expanded (กดดูเพิ่มเติม) ===== */}
                           {isExpanded && (
-                            <div style={{ borderTop: '1px solid #f1f5f9', padding: '16px', background: '#f8fafc' }}>
+                            <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.1)', padding: '16px', background: 'rgba(0, 0, 0, 0.2)' }}>
                               {/* สถานะ */}
                               {stat && (
                                 <div style={{
@@ -1302,7 +1343,7 @@ function Home() {
                                   borderLeft: `4px solid ${statusColor}`, display: 'flex', justifyContent: 'space-between', alignItems: 'center'
                                 }}>
                                   <div>
-                                    <span style={{ fontWeight: '700', color: '#334155' }}>สถานะ: </span>
+                                    <span style={{ fontWeight: '700', color: 'rgba(10, 11, 78, 1)' }}>สถานะ: </span>
                                     <span style={{ fontWeight: '700', color: statusColor }}>{stat.statusText}</span>
                                   </div>
                                 </div>
@@ -1445,7 +1486,7 @@ function Home() {
                                   <span className="item-label" style={{ display: 'block', marginBottom: '6px' }}>รูปภาพที่ส่ง:</span>
                                   <img src={stat.order.mediaUrl} alt="อัปโหลด" style={{
                                     width: '100%', maxHeight: '200px', objectFit: 'contain',
-                                    borderRadius: '10px', border: '1px solid #e2e8f0', background: '#fff'
+                                    borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.1)', background: 'transparent'
                                   }} />
                                 </div>
                               )}
@@ -1457,7 +1498,7 @@ function Home() {
                                   disabled={deletingOrderId === ord.orderId}
                                   style={{
                                     flex: 1, padding: '10px', borderRadius: '10px', border: '1px solid #fecaca',
-                                    background: '#fff', color: '#ef4444', fontWeight: '600', fontSize: '14px',
+                                    background: 'rgba(239, 68, 68, 0.1)', color: '#f87171', fontWeight: '600', fontSize: '14px',
                                     cursor: deletingOrderId === ord.orderId ? 'not-allowed' : 'pointer', opacity: deletingOrderId === ord.orderId ? 0.5 : 1
                                   }}
                                 >
@@ -1515,46 +1556,6 @@ function Home() {
             </div>
           </div>
         )}
-      </div>
-
-      {/* ===== Bottom Navigation Bar ===== */}
-      <nav className="bottom-nav">
-        <div className="bottom-nav-inner">
-          <button className="bottom-nav-item active" type="button">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-              <polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
-            <span>หน้าหลัก</span>
-          </button>
-          <button className="bottom-nav-item" type="button" onClick={() => setShowPerkModal(true)}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-            </svg>
-            <span>VIP</span>
-          </button>
-          <button className="bottom-nav-item" type="button" onClick={handleCheckStatus} style={{ position: 'relative' }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
-              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
-              <path d="M9 14l2 2 4-4"/>
-            </svg>
-            {orders.length > 0 && <span className="bottom-nav-badge" />}
-            <span>สถานะ</span>
-          </button>
-          <button className="bottom-nav-item" type="button" onClick={() => isLoggedIn ? navigate(`/profile?shopId=${shopId}`) : navigate('/')}>
-            {profileImage ? (
-              <img src={profileImage} alt="โปรไฟล์" className="bottom-nav-avatar" onError={(e) => { e.target.onerror = null; setProfileImage(null); }} />
-            ) : (
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                <circle cx="12" cy="7" r="4"/>
-              </svg>
-            )}
-            <span>{isLoggedIn ? "โปรไฟล์" : "เข้าสู่ระบบ"}</span>
-          </button>
-        </div>
-      </nav>
     </div>
   );
 }

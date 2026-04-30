@@ -500,22 +500,18 @@ function Payment() {
         {/* Success Modal */}
         {showSuccessModal && (
           <div className="modal-overlay">
-            <div className="modal-content" style={{ maxWidth: 420, textAlign: "center" }}>
-              <h3 style={{ marginBottom: 12 }}>ชำระเงินสำเร็จ</h3>
-              <p style={{ marginBottom: 24 }}>ระบบได้รับข้อมูลแล้ว ขอบคุณค่ะ</p>
+            <div className="modal-content payment-confirm">
+              <div className="success-check">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+              </div>
+              <h3>ชำระเงินสำเร็จ</h3>
+              <p>ระบบได้รับข้อมูลแล้ว ขอบคุณค่ะ</p>
               <button
+                className="primary-btn"
                 onClick={() => {
                   navigate(`/home${shopId ? `?shopId=${shopId}` : ''}`);
-                }}
-                style={{
-                  background: "#2563eb",
-                  color: "#fff",
-                  padding: "10px 22px",
-                  borderRadius: "8px",
-                  fontWeight: 600,
-                  border: "none",
-                  cursor: "pointer",
-                  width: "100%"
                 }}
               >
                 ไปหน้าหลัก
