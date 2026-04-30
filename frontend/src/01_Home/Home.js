@@ -978,8 +978,6 @@ function Home() {
                   })
                 )}
               </div>
-              {/* ปุ่มดูสิทธิพิเศษ */}
-              <button className="rank-cta" onClick={() => setShowPerkModal(true)}>ดูสิทธิพิเศษสำหรับพรีเมี่ยม</button>
             </div>
           </div>
 

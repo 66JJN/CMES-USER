@@ -41,20 +41,86 @@
 /* Hide header nav - moved to bottom nav */
 .header-nav{display:none}
 
-/* ===== HIDE sections - moved to bottom nav ===== */
-.hero-section{display:none}
+/* Hide hero text - not needed on main screen */
+.hero-content{display:none}
 .status-section{display:none}
 .home-footer{display:none}
-.home-main{flex:1;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.home-main{flex:1;display:flex;flex-direction:column;overflow:hidden}
 
-/* ===== SERVICE CARDS: 2x2 grid, center of screen ===== */
+/* ===== VIP RANK PANEL - Dark Theme (Match Service Cards) ===== */
+.rank-panel.premium{
+  max-width:100%;margin:0 0 12px;
+  background:rgba(255,255,255,.06);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-radius:18px;padding:16px;
+  border:1px solid rgba(255,255,255,.08);
+  color:#fff;flex-shrink:0;
+  box-shadow:0 4px 20px rgba(0,0,0,.2);
+}
+.rank-panel-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.rank-panel-header > div { gap:2px!important; } 
+.rank-panel-header span{font-size:1.1rem!important;font-weight:800!important}
+.rank-panel-header small{font-size:.65rem!important;color:rgba(255,255,255,.45)!important}
+
+.rank-total{text-align:center;background:rgba(255,255,255,.06);border-radius:12px;padding:6px 10px;border:1px solid rgba(255,255,255,.06)}
+.rank-total label{display:block;font-size:.6rem;color:rgba(255,255,255,.6);margin-bottom:2px;font-weight:600}
+.rank-total strong{font-size:1.2rem!important;color:#10b981;line-height:1}
+
+.rank-panel-body{display:flex;justify-content:center;gap:8px;align-items:flex-end;width:100%}
+.rank-card{
+  border-radius:14px;padding:10px 6px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;
+  flex:1 1 0;min-width:0;
+  box-shadow:0 4px 12px rgba(0,0,0,.1);
+  position:relative;
+}
+.rank-card.position-1{order:2;transform:translateY(-12px);padding:12px 8px;z-index:2}
+.rank-card.position-2{order:1}
+.rank-card.position-3{order:3}
+
+/* Tier Colors: matching the dark vibe but keeping distinct highlights */
+.rank-card.tier-1{background:linear-gradient(135deg,rgba(139,92,246,.12),rgba(168,85,247,.06));border:1px solid rgba(139,92,246,.2);color:#e9d5ff}
+.rank-card.tier-2{background:linear-gradient(135deg,rgba(251,191,36,.1),rgba(245,158,11,.05));border:1px solid rgba(251,191,36,.15);color:#fef3c7}
+.rank-card.tier-3{background:linear-gradient(135deg,rgba(148,163,184,.08),rgba(100,116,139,.04));border:1px solid rgba(148,163,184,.12);color:#e2e8f0}
+
+.rank-profile{position:relative;display:flex;flex-direction:column;align-items:center;margin-bottom:8px}
+.rank-card.tier-1 .rank-profile img{width:56px;height:56px;border:2px solid rgba(139,92,246,.5);box-shadow:0 4px 10px rgba(0,0,0,.2)}
+.rank-card.tier-2 .rank-profile img, .rank-card.tier-3 .rank-profile img{width:46px;height:46px;border:1.5px solid rgba(255,255,255,.2);box-shadow:0 4px 8px rgba(0,0,0,.1)}
+.rank-profile img{border-radius:50%;object-fit:cover;background:#fff}
+
+.rank-index{
+  position:absolute;bottom:-10px;
+  min-width:28px;padding:2px 8px;border-radius:999px;
+  color:#fff;font-weight:800;font-size:.65rem;text-align:center;
+  box-shadow:0 2px 6px rgba(0,0,0,.2);
+}
+.rank-card.tier-1 .rank-index{background:linear-gradient(135deg,#8b5cf6,#7c3aed)}
+.rank-card.tier-2 .rank-index{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.rank-card.tier-3 .rank-index{background:linear-gradient(135deg,#64748b,#475569)}
+
+.rank-details{display:flex;flex-direction:column;gap:1px;text-align:center;width:100%;margin-bottom:4px}
+.rank-details strong{font-size:.75rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;display:block}
+.rank-details span{font-size:.7rem;font-weight:700}
+
+.rank-card.tier-1 .rank-details strong{color:#c4b5fd}
+.rank-card.tier-1 .rank-details span{color:#a78bfa}
+.rank-card.tier-2 .rank-details strong{color:#fcd34d}
+.rank-card.tier-2 .rank-details span{color:#fbbf24}
+.rank-card.tier-3 .rank-details strong{color:#94a3b8}
+.rank-card.tier-3 .rank-details span{color:#cbd5e1}
+
+.rank-badge{padding:3px 8px;border-radius:999px;font-size:.55rem;font-weight:800;text-transform:uppercase;letter-spacing:0.5px}
+.rank-card.tier-1 .rank-badge{background:rgba(139,92,246,.15);color:#c4b5fd}
+.rank-card.tier-2 .rank-badge{background:rgba(251,191,36,.15);color:#fcd34d}
+.rank-card.tier-3 .rank-badge{background:rgba(148,163,184,.1);color:#94a3b8}
+
+/* CTA removed */
 .service-cards{
   display:grid;grid-template-columns:repeat(2,1fr);
-  gap:12px;width:100%;
+  gap:10px;width:100%;
 }
 .service-card{
   background:rgba(255,255,255,.06);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
-  border-radius:20px;padding:16px 14px;cursor:pointer;
+  border-radius:18px;padding:12px 10px;cursor:pointer;
   transition:transform .15s,box-shadow .15s;
   border:1px solid rgba(255,255,255,.08);
   position:relative;overflow:hidden;
@@ -175,8 +241,7 @@
 .no-order-icon{font-size:1.4rem}
 .order-info{text-align:center;padding:12px}
 
-/* Rank panel (hidden on main, visible if needed in modal) */
-.rank-panel.premium{display:none}
+/* Rank panel is now visible on main screen */
 
 /* Profile menu wrapper hidden - using bottom nav */
 .profile-menu-wrapper{position:relative;z-index:10}
