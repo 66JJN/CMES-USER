@@ -814,41 +814,6 @@
   padding: 0 24px 20px;
 }
 
-.restrictions-content h4 {
-  color: #dc2626;
-  margin-bottom: 16px;
-  font-size: 16px;
-}
-
-.restrictions-content ul {
-  list-style: none;
-  padding: 0;
-}
-
-.restrictions-content li {
-  padding: 8px 0;
-  border-bottom: 1px solid #f1f5f9;
-  color: #475569;
-  position: relative;
-  padding-left: 20px;
-}
-
-.restrictions-content li:before {
-  content: "•";
-  color: #dc2626;
-  position: absolute;
-  left: 0;
-}
-
-.warning-note {
-  background: #fff7ed;
-  border: 1px solid #fed7aa;
-  border-radius: 8px;
-  padding: 16px;
-  margin-top: 20px;
-  color: #c2410c;
-  font-size: 14px;
-}
 
 /* ==================== PREVIEW MODAL: ยืนยันเนื้อหา ==================== */
 /* Modal สำหรับแสดงตัวอย่างก่อนยืนยัน */

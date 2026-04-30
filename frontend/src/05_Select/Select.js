@@ -157,7 +157,7 @@ function Select() {
             <h3>เลือกแพ็กเกจเวลา</h3>
             <div className="packages-grid">
               {packages.length === 0 ? (
-                <div style={{ textAlign: "center", color: "#888", fontSize: "1.2rem", marginTop: "32px" }}>
+                <div style={{ textAlign: "center", color: "rgba(255, 255, 255, 0.5)", fontSize: "1rem", marginTop: "32px" }}>
                   ไม่มีแพ็คเกจสำหรับประเภทนี้
                 </div>
               ) : (
