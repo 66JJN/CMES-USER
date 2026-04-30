@@ -586,7 +586,7 @@ function Home() {
         fetch(`${ADMIN_API_URL}/api/user-delete-order/${o.orderId}?shopId=${shopId}`, {
           method: 'DELETE',
           headers: { 'x-shop-id': shopId }
-        }).catch(() => {}) // ignore errors
+        }).catch(() => { }) // ignore errors
       ));
       // ล้าง localStorage ทั้งหมด
       localStorage.setItem('orders', '[]');
@@ -1219,8 +1219,8 @@ function Home() {
                       onClick={handleDeleteAllOrders}
                       disabled={deletingOrderId === 'all'}
                       style={{
-                        background: 'none', border: '1px solid #fecaca', borderRadius: '8px',
-                        color: '#ef4444', padding: '6px 12px', fontSize: '12px', fontWeight: '600',
+                        background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.25)', borderRadius: '8px',
+                        color: '#f87171', padding: '6px 12px', fontSize: '12px', fontWeight: '600',
                         cursor: deletingOrderId === 'all' ? 'not-allowed' : 'pointer',
                         opacity: deletingOrderId === 'all' ? 0.5 : 1, whiteSpace: 'nowrap'
                       }}
@@ -1518,6 +1518,45 @@ function Home() {
           </div>
         )}
       </div>
+
+      {/* ===== Bottom Navigation Bar ===== */}
+      <nav className="bottom-nav">
+        <div className="bottom-nav-inner">
+          <button className="bottom-nav-item active" type="button">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            <span>หน้าหลัก</span>
+          </button>
+          <button className="bottom-nav-item" type="button" onClick={() => setShowPerkModal(true)}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            <span>VIP</span>
+          </button>
+          <button className="bottom-nav-item" type="button" onClick={handleCheckStatus} style={{ position: 'relative' }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+              <rect x="8" y="2" width="8" height="4" rx="1" ry="1"/>
+              <path d="M9 14l2 2 4-4"/>
+            </svg>
+            {orders.length > 0 && <span className="bottom-nav-badge" />}
+            <span>สถานะ</span>
+          </button>
+          <button className="bottom-nav-item" type="button" onClick={() => isLoggedIn ? navigate(`/profile?shopId=${shopId}`) : navigate('/')}>
+            {profileImage ? (
+              <img src={profileImage} alt="โปรไฟล์" className="bottom-nav-avatar" onError={(e) => { e.target.onerror = null; setProfileImage(null); }} />
+            ) : (
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            )}
+            <span>{isLoggedIn ? "โปรไฟล์" : "เข้าสู่ระบบ"}</span>
+          </button>
+        </div>
+      </nav>
     </div>
   );
 }

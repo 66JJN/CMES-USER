@@ -182,7 +182,7 @@
 
 /* Card Header */
 /* หัวข้อของ card มี pulse dot และหัวข้อ */
-.card-header {
+.report-card .card-header {
   text-align: center;
   margin-bottom: 2.5rem;
   position: relative;
