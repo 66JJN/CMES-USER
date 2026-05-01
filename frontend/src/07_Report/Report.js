@@ -204,8 +204,9 @@ function Report() {
         {/* Header - ส่วนหัวพร้อมปุ่มย้อนกลับ */}
         <header className="report-header">
           <button className="back-btn" onClick={handleBack}>
-            <span className="back-icon">←</span>
-            <span>ย้อนกลับ</span>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
           </button>
           <div className="header-content">
             <h1>🔧 Report Center</h1>

@@ -731,7 +731,33 @@ function Home() {
           </div>
 
           {/* เมนูนำทาง: ล็อกอิน/ลงทะเบียน หรือโปรไฟล์ */}
-          <nav className="header-nav">
+          <nav className="header-nav" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {/* ปุ่ม Help / Report (เข้าถึงง่ายจากหน้าหลัก) */}
+            <button
+              onClick={() => navigate(`/report?shopId=${shopId}`)}
+              title="ช่วยเหลือ / แจ้งปัญหา"
+              style={{
+                background: 'rgba(255, 255, 255, 0.15)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '50%',
+                width: '38px',
+                height: '38px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                cursor: 'pointer',
+                backdropFilter: 'blur(5px)',
+                transition: 'all 0.2s'
+              }}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fcd34d" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+            </button>
+
             {isLoggedIn ? (
               /* แสดงเมนูโปรไฟล์เมื่อล็อกอินแล้ว */
               <div className="profile-menu-wrapper">
@@ -1491,8 +1517,26 @@ function Home() {
                                 </div>
                               )}
 
-                              {/* ปุ่มลบรายการ (ทุกสถานะ) */}
+                              {/* ปุ่มลบรายการ และ แจ้งปัญหา */}
                               <div style={{ display: 'flex', gap: '10px', marginTop: '14px' }}>
+                                <button
+                                  onClick={(e) => { 
+                                    e.stopPropagation(); 
+                                    navigate(`/report?shopId=${shopId}&orderId=${ord.orderId}&type=${ord.type}`); 
+                                  }}
+                                  style={{
+                                    flex: 1, padding: '10px', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.2)',
+                                    background: 'rgba(255, 255, 255, 0.1)', color: '#fff', fontWeight: '600', fontSize: '14px',
+                                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
+                                  }}
+                                >
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                                  </svg>
+                                  แจ้งปัญหา
+                                </button>
                                 <button
                                   onClick={(e) => { e.stopPropagation(); handleDeleteOrder(ord.orderId); }}
                                   disabled={deletingOrderId === ord.orderId}

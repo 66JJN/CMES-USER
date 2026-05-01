@@ -91,7 +91,7 @@
 /* ===== HEADER: Compact top bar, logo + name only ===== */
 .home-header {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
   padding: 12px 16px;
   margin-bottom: 12px;
