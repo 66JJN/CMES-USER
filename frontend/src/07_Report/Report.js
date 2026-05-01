@@ -218,9 +218,11 @@ function Report() {
           <div className="report-card">
             {/* Card Header - หัวข้อการ์ด */}
             <div className="card-header">
-              <div className="pulse-dot"></div>
-              <h2>แจ้งปัญหาหรือแชร์ไอเดีย</h2>
-              <span className="subtitle">เราพร้อมฟังและปรับปรุง</span>
+              <div className="card-header-title">
+                <div className="pulse-dot"></div>
+                <h2>แจ้งปัญหาหรือแชร์ไอเดีย</h2>
+              </div>
+              <p className="subtitle">เราพร้อมฟังและปรับปรุง</p>
             </div>
 
             {/* Content Grid - แบ่งหน้าจอเป็น 2 ส่วน: ฟอร์ม (ซ้าย) + เทคนิค (ขวา) */}
@@ -376,9 +378,8 @@ function Report() {
                   <h4>📞 ช่องทางติดต่อด่วน</h4>
                   <p>ถ้าต้องการความช่วยเหลือทันที สามารถติดต่อทีมงานได้ที่</p>
                   <ul>
-                    <li><span>Line:</span> @digitalsignage</li>
-                    <li><span>Email:</span> support@cms.com</li>
-                    <li><span>โทร:</span> 091-234-5678</li>
+                    <li><span>Email:</span> pyaksda@gmail.com</li>
+                    <li><span>โทร:</span> 095-218-6772</li>
                   </ul>
                   <small>ทีมงานตอบกลับทุกวัน 09:00-22:00 น.</small>
                 </div>

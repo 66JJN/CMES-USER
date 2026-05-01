@@ -102,8 +102,17 @@
 }
 
 .report-container .card-header {
-  text-align: center;
+  text-align: left;
   position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.report-container .card-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 0.25rem;
 }
 
 .report-container .pulse-dot {
@@ -111,7 +120,7 @@
   height: 8px;
   background: #10b981;
   border-radius: 50%;
-  margin: 0 auto 0.5rem;
+  margin: 0;
   animation: pulse 2s infinite;
 }
 
@@ -125,12 +134,13 @@
   font-size: 1.1rem;
   color: #fff;
   font-weight: 600;
-  margin: 0 0 0.25rem 0;
+  margin: 0;
 }
 
 .report-container .subtitle {
   color: rgba(255, 255, 255, 0.5);
   font-size: 0.85rem;
+  margin: 0;
 }
 
 /* Form Layout */
