@@ -34,59 +34,55 @@ function App() {
   if (authLoading) {
     return (
       <div style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-        background: "linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #d946ef 100%)",
-        color: "white",
-        gap: "24px",
+        height: '100dvh',
+        width: '100%',
+        background: 'linear-gradient(180deg, #0a0e27 0%, #151338 50%, #0f0c29 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif",
       }}>
-        {/* Animated Logo Placeholder */}
         <div style={{
-          width: '72px', height: '72px', borderRadius: '20px',
-          background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          border: '1px solid rgba(255,255,255,0.25)',
-          animation: 'skeletonPulse 1.8s ease-in-out infinite',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '20px',
+          width: '100%',
+          maxWidth: '430px',
+          padding: '0 24px',
         }}>
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2">
-            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-            <line x1="8" y1="21" x2="16" y2="21" />
-            <line x1="12" y1="17" x2="12" y2="21" />
-          </svg>
-        </div>
-        {/* Skeleton Text Bars */}
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
+          {/* Logo Icon */}
           <div style={{
-            width: '180px', height: '14px', borderRadius: '7px',
-            background: 'rgba(255,255,255,0.2)',
-            animation: 'skeletonPulse 1.8s ease-in-out infinite',
-          }} />
+            width: '72px', height: '72px', borderRadius: '20px',
+            background: 'rgba(139, 92, 246, 0.15)',
+            backdropFilter: 'blur(10px)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            border: '1px solid rgba(139, 92, 246, 0.3)',
+          }}>
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="rgba(196, 181, 253, 0.8)" strokeWidth="2">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+              <line x1="8" y1="21" x2="16" y2="21" />
+              <line x1="12" y1="17" x2="12" y2="21" />
+            </svg>
+          </div>
+          {/* App Name */}
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ color: '#fff', fontWeight: 700, fontSize: '1.2rem', marginBottom: '4px' }}>CMES</div>
+            <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>Digital Signage System</div>
+          </div>
+          {/* Spinner */}
           <div style={{
-            width: '120px', height: '10px', borderRadius: '5px',
-            background: 'rgba(255,255,255,0.12)',
-            animation: 'skeletonPulse 1.8s ease-in-out 0.2s infinite',
+            width: '36px', height: '36px', borderRadius: '50%',
+            border: '3px solid rgba(139, 92, 246, 0.2)',
+            borderTopColor: '#8b5cf6',
+            animation: 'appSpin 0.8s linear infinite',
           }} />
+          <style>{`
+            @keyframes appSpin {
+              to { transform: rotate(360deg); }
+            }
+          `}</style>
         </div>
-        {/* Spinner */}
-        <div style={{
-          width: '32px', height: '32px', borderRadius: '50%',
-          border: '3px solid rgba(255,255,255,0.15)',
-          borderTopColor: 'rgba(255,255,255,0.8)',
-          animation: 'appSpin 0.8s linear infinite',
-        }} />
-        <style>{`
-          @keyframes skeletonPulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-          }
-          @keyframes appSpin {
-            to { transform: rotate(360deg); }
-          }
-        `}</style>
       </div>
     );
   }
