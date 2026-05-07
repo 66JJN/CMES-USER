@@ -741,9 +741,9 @@ function Profile() {
 
             <div className="profile-actions">
               <button
-                className={`save-btn ${!birthdayError ? "active" : "disabled"}`}
+                className={`save-btn ${(hasChanges && !birthdayError) ? "active" : "disabled"}`}
                 onClick={handleSave}
-                disabled={!!birthdayError}
+                disabled={!hasChanges || !!birthdayError}
               >
                 บันทึก
               </button>
