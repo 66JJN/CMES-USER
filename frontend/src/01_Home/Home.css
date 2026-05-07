@@ -597,11 +597,11 @@
   font-weight: 600;
   color: #10b981;
   font-size: .8rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 85%;
   text-align: left;
+  white-space: normal;
+  line-height: 1.4;
+  padding-right: 8px;
+  flex: 1;
 }
 
 /* Gift items */
