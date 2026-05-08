@@ -1,5 +1,7 @@
 # CMES-USER - Customer Management & E-Commerce System
 
+![React](https://img.shields.io/badge/React-19-blue?logo=react) ![Node.js](https://img.shields.io/badge/Node.js-Express-green?logo=node.js) ![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-green?logo=mongodb) ![AI](https://img.shields.io/badge/AI-Gemini%202.5-orange?logo=google) ![Deploy](https://img.shields.io/badge/Frontend-Vercel-black?logo=vercel) ![Deploy](https://img.shields.io/badge/Backend-Render-purple?logo=render) ![Socket.IO](https://img.shields.io/badge/Realtime-Socket.IO-white?logo=socket.io) ![Cloudinary](https://img.shields.io/badge/Storage-Cloudinary-blue?logo=cloudinary)
+
 A modern React/Node.js full-stack application for customer management with integrated e-commerce system, gift rewards, and real-time features.
 
 ## 🎯 Features
