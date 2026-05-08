@@ -65,11 +65,11 @@
 
 
 <p align="center">
-  <img src="docs/screenshots/home.png" width="250" alt="Home" />
+  <img src="docs/screenshots/Home.png" width="250" alt="Home" />
   &nbsp;&nbsp;
-  <img src="docs/screenshots/upload.png" width="250" alt="Upload" />
+  <img src="docs/screenshots/Upload.png" width="250" alt="Upload" />
   &nbsp;&nbsp;
-  <img src="docs/screenshots/payment.png" width="250" alt="Payment" />
+  <img src="docs/screenshots/Payment.png" width="250" alt="Payment" />
 </p>
 
 
