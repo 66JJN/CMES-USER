@@ -314,5 +314,5 @@ ISC License — feel free to use and modify.
 ---
 
 <p align="center">
-  Made with ❤️ by <a href="https://github.com/66JJN">pyaksda</a>
+  Made with ❤️ by <a href="https://github.com/66JJN">SUPHAKON SAEPAN</a>
 </p>
