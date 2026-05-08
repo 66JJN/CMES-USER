@@ -316,7 +316,7 @@ ISC License — feel free to use and modify.
 <p align="center">
   Originally built with ❤️ by 
   <a href="https://github.com/66JJN">SUPHAKON</a> 
-  &amp; BORIWAT
+  &amp; <a href="https://github.com/Boriwat-wtm">BORIWAT</a>
   <br />
   This repo is a rebuilt &amp; extended version by 
   <a href="https://github.com/66JJN">SUPHAKON</a>
