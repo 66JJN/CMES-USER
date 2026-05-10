@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Report.css";
 import API_BASE_URL from "../config/apiConfig";
@@ -25,8 +25,24 @@ function Report() {
   const [message, setMessage] = useState("");        // ข้อความแจ้งเตือน (success/error)
   const [isSubmitting, setIsSubmitting] = useState(false);  // สถานะกำลังส่งข้อมูล
   const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);  // แสดง animation สำเร็จ
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false); // สถานะเปิด/ปิด dropdown
+  
+  const dropdownRef = useRef(null); // อ้างอิง dropdown สำหรับปิดเมื่อคลิกด้านนอก
 
   const MAX_DETAIL_LENGTH = 500;  // จำกัดความยาวรายละเอียดสูงสุด
+
+  // ปิด dropdown เมื่อคลิกพื้นที่อื่น
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   /**
    * ฟังก์ชันย้อนกลับไปหน้าก่อนหน้า
@@ -236,25 +252,56 @@ function Report() {
                     <span className="required-dot">*</span>
                   </label>
 
-                  {/* Custom Select Dropdown */}
-                  <div className="custom-select">
-                    <select
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      className="select-input"
-                      required
+                  {/* Custom UI Dropdown แทนที่ select แบบเดิม */}
+                  <div className="custom-select-container" ref={dropdownRef}>
+                    <div 
+                      className={`select-trigger ${isDropdownOpen ? 'open' : ''} ${!category ? 'placeholder' : ''}`}
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     >
-                      {problemTypes.map((type) => (
-                        <option
-                          key={type.value}
-                          value={type.value}
-                          disabled={type.disabled}
-                        >
-                          {type.emoji} {type.label}
-                        </option>
-                      ))}
-                    </select>
-                    <div className="select-arrow">⌄</div>
+                      {category ? (
+                        <span className="selected-value">
+                          <span className="emoji">{problemTypes.find(t => t.value === category)?.emoji}</span>
+                          {problemTypes.find(t => t.value === category)?.label}
+                        </span>
+                      ) : (
+                        <span className="selected-value">
+                          <span className="emoji">{problemTypes[0].emoji}</span>
+                          {problemTypes[0].label}
+                        </span>
+                      )}
+                      <div className={`select-arrow ${isDropdownOpen ? 'open' : ''}`}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M6 9l6 6 6-6"/>
+                        </svg>
+                      </div>
+                    </div>
+                    
+                    {isDropdownOpen && (
+                      <div className="custom-options-container">
+                        {problemTypes.filter(type => type.value !== "").map((type) => (
+                          <div
+                            key={type.value}
+                            className={`custom-option ${category === type.value ? 'selected' : ''}`}
+                            onClick={() => {
+                              setCategory(type.value);
+                              setIsDropdownOpen(false);
+                              if (message && message.includes("ประเภทปัญหา")) {
+                                setMessage("");
+                              }
+                            }}
+                          >
+                            <span className="option-emoji">{type.emoji}</span>
+                            <div className="option-text">
+                              <span className="option-label">{type.label}</span>
+                              <span className="option-desc">{type.description}</span>
+                            </div>
+                            {category === type.value && (
+                              <span className="check-icon">✓</span>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* แสดงคำอธิบายประเภทที่เลือก (ถ้ามีการเลือก) */}
