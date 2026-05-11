@@ -4,6 +4,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { io } from "socket.io-client";
 import "./Select.css";
 import { REALTIME_URL } from "../config/apiConfig";
+// นำเข้าไอคอนรูปภาพสำหรับแสดงประเภทบริการ (เหมือนหน้า Home)
+import iconImage from "../01_Home/icons/icon-image.png";
+import iconText from "../01_Home/icons/icon-text.png";
+import iconBirthday from "../01_Home/icons/icon-birthday.png";
 
 function Select() {
   const navigate = useNavigate();
@@ -18,6 +22,13 @@ function Select() {
   const [showRestrictions, setShowRestrictions] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [packages, setPackages] = useState([]);
+
+  // เลือกไอคอนตามประเภทบริการ
+  const typeIconMap = {
+    image: iconImage,
+    text: iconText,
+    birthday: iconBirthday,
+  };
 
   useEffect(() => {
     const shopId = new URLSearchParams(window.location.search).get("shopId") || localStorage.getItem("shopId") || "";
@@ -111,21 +122,11 @@ function Select() {
           <div className="service-info">
             <div className="service-type">
               <div className="type-icon">
-                {type === "image" ? (
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
-                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <path d="M21 15l-5-5L5 21" />
-                  </svg>
-                ) : (
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14,2 14,8 20,8" />
-                    <line x1="16" y1="13" x2="8" y2="13" />
-                    <line x1="16" y1="17" x2="8" y2="17" />
-                    <line x1="10" y1="9" x2="8" y2="9" />
-                  </svg>
-                )}
+                <img
+                  src={typeIconMap[type] || iconImage}
+                  alt={type === "image" ? "รูปภาพ + ข้อความ" : type === "text" ? "ข้อความเท่านั้น" : "อวยพรวันเกิด"}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }}
+                />
               </div>
               <div className="type-details">
                 <h2>

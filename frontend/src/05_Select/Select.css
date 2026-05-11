@@ -146,6 +146,7 @@
   justify-content: center;
   flex-shrink: 0;
   border: 1px solid rgba(139, 92, 246, 0.3);
+  overflow: hidden;
 }
 
 .type-details h2 {
