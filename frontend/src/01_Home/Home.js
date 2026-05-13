@@ -970,10 +970,12 @@ function Home() {
                     const entry = leaderboard[index];
 
                     // ดึงคะแนนตามประเภทอันดับ (daily/monthly/alltime)
+                    // ★ สำหรับวันที่ในอดีต backend ส่ง points จาก RankingHistory aggregate
+                    //   สำหรับวันปัจจุบัน backend ส่ง dailyPoints/monthlyPoints จาก Ranking collection
                     let points = 0;
                     if (entry) {
-                      if (rankingType === "daily") points = entry.dailyPoints || 0;
-                      else if (rankingType === "monthly") points = entry.monthlyPoints || 0;
+                      if (rankingType === "daily") points = entry.dailyPoints ?? entry.points ?? 0;
+                      else if (rankingType === "monthly") points = entry.monthlyPoints ?? entry.points ?? 0;
                       else points = entry.points || 0;
                     }
 
