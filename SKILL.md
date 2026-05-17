@@ -2,6 +2,7 @@
 
 > **CMES** (Content Management & Entertainment System) — ระบบ Digital Signage สำหรับร้านเหล้า/ผับ/บาร์
 > Repo นี้คือ **User-facing** app: ให้ลูกค้าอัปโหลดรูป/ข้อความ/ของขวัญขึ้นจอ, ชำระเงิน, ดูโปรไฟล์
+> 📎 Design System → ดูที่ [`DESIGN.md`](./DESIGN.md)
 
 ---
 
@@ -16,6 +17,7 @@
 | **Database** | MongoDB Atlas (database: `cmes-user`) |
 | **File Storage** | Cloudinary |
 | **Realtime** | Socket.IO (เชื่อมไปยัง Admin server) |
+| **Auth** | JWT + Google OAuth |
 
 ---
 
@@ -87,8 +89,8 @@ CMES-USER/
 │   │   └── auth.js           # Legacy auth (JSON-based)
 │   └── package.json
 │
-├── README.md
-└── SKILL.md                  # ← ไฟล์นี้
+├── SKILL.md                  # ← ไฟล์นี้ (Coding rules & architecture)
+└── DESIGN.md                 # ← Design system & visual patterns
 ```
 
 ### Naming Convention — Page Folders
@@ -97,83 +99,16 @@ CMES-USER/
 
 ---
 
-## 4. Design System & Styling
+## 4. Authentication Pattern
 
-### 4.1 Design Theme
-| Property | Value |
-|----------|-------|
-| **Mode** | Dark mode only |
-| **Background** | `linear-gradient(180deg, #0a0e27, #151338, #0f0c29)` |
-| **Primary Color** | Purple — `#8b5cf6` / `rgba(139, 92, 246, *)` |
-| **Accent Colors** | Pink `#ec4899`, Cyan `#06b6d4`, Amber `#fbbf24` |
-| **Success** | Green `#10b981` |
-| **Danger** | Red `#ef4444` |
-| **Font** | `'Inter', -apple-system, BlinkMacSystemFont, sans-serif` |
-| **Max Width** | `430px` (mobile-optimized) |
-| **Border Radius** | Cards: `18px`, Buttons: `12-16px`, Badges: `999px` |
-
-### 4.2 CSS Patterns
-```css
-/* ★ Glassmorphism Card — ใช้ทั่วทั้ง app */
-.card {
-  background: rgba(255, 255, 255, .06);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, .08);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, .2);
-}
-
-/* ★ Gradient border effect (pseudo-element) */
-.card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 20px;
-  padding: 1px;
-  background: linear-gradient(135deg, rgba(139, 92, 246, .3), rgba(236, 72, 153, .2));
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity .3s;
-}
-
-/* ★ Floating animated background shapes */
-.shape {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(60px);
-  animation: float 12s ease-in-out infinite;
-}
-```
-
-### 4.3 Layout Pattern
-- **Container**: `100dvh`, `flex-direction: column`, `overflow: hidden`
-- **Wrapper**: `max-width: 430px`, `flex: 1`, scroll content area
-- **Bottom Nav**: Fixed bottom bar, `z-index: 100`, blur background
-- **Modals**: Bottom sheet style (`slideUp` animation), `max-height: 85vh`
-
-### 4.4 CSS Rules
-- ใช้ **Vanilla CSS** ไฟล์แยกต่อ component (ไม่ใช้ Tailwind ใน runtime)
-- Import Google Fonts ที่ต้นไฟล์ CSS: `@import url('https://fonts.googleapis.com/css2?family=Inter...')`
-- ใช้ `100dvh` แทน `100vh` สำหรับ mobile viewport
-- ซ่อน scrollbar: `-ms-overflow-style: none; scrollbar-width: none;`
-- Touch-friendly: `-webkit-tap-highlight-color: transparent`
-- Active state ใช้ `transform: scale(.95)` แทน `:hover`
-
----
-
-## 5. Authentication Pattern
-
-### 5.1 Flow
+### 4.1 Flow
 1. User เปิด app ด้วย URL: `https://app.com/?shopId=xxx`
 2. `App.js` → `useEffect` → ดักจับ `shopId` จาก URL → เก็บใน `localStorage`
 3. `initializeAuth()` ตรวจ token ใน `localStorage` → verify กับ backend
 4. ถ้า token valid → redirect ไป `/home` (via `PublicRoute`)
 5. ถ้าไม่มี token → อยู่หน้า Register `/`
 
-### 5.2 Auth Service (`authService.js`) — Central Auth Utility
+### 4.2 Auth Service (`authService.js`) — Central Auth Utility
 ```javascript
 // ★ ทุก API call ต้องผ่าน authService
 import API_BASE_URL from './config/apiConfig';
@@ -214,7 +149,7 @@ export const apiCall = async (endpoint, options = {}) => {
 };
 ```
 
-### 5.3 Route Guards
+### 4.3 Route Guards
 ```javascript
 // ProtectedRoute — ต้อง login
 export const ProtectedRoute = ({ children }) => {
@@ -232,23 +167,33 @@ export const PublicRoute = ({ children }) => {
 };
 ```
 
-### 5.4 Auth Rules
+### 4.4 Auth Rules
 - **401 Handling**: ลบ token + redirect ไป Register **เฉพาะ** 401
-- **Network errors**: **ไม่ลบ** token — เพื่อไม่ให้ user หลุดเมื่อ server ชั่วคราวล่ม
-- **Token storage**: `localStorage` — key: `token`, `user`, `shopId`
+- **Network errors / 500**: **ไม่ลบ** token — เพื่อไม่ให้ user หลุดเมื่อ server ชั่วคราวล่ม
+- **Token storage**: `localStorage` — keys: `token`, `user`, `shopId`
+- **Google OAuth**: ใช้ `@react-oauth/google` → ได้ credential → ส่ง backend verify → ได้ JWT token
+
+### 4.5 Token Deletion Decision Tree
+```
+Response received?
+├── YES → Status 401?
+│   ├── YES → ลบ token + redirect (session expired จริง)
+│   └── NO (500, 503, etc.) → เก็บ token ไว้
+└── NO (Network error, timeout) → เก็บ token ไว้
+```
 
 ---
 
-## 6. API Pattern
+## 5. API Pattern
 
-### 6.1 Multi-tenant — shopId ทุก Request
+### 5.1 Multi-tenant — shopId ทุก Request
 ```
 ทุก API request ต้องมี shopId 2 ที่:
 1. Query parameter: ?shopId=xxx
 2. Header: x-shop-id: xxx
 ```
 
-### 6.2 Response Format
+### 5.2 Response Format
 ```json
 // Success
 { "success": true, "data": { ... } }
@@ -260,7 +205,7 @@ export const PublicRoute = ({ children }) => {
 { "status": "error", "message": "Error description" }
 ```
 
-### 6.3 Error Codes (AI Caption)
+### 5.3 Error Codes (AI Caption)
 ```json
 {
   "success": false,
@@ -269,7 +214,7 @@ export const PublicRoute = ({ children }) => {
 }
 ```
 
-### 6.4 API Base URLs (`config/apiConfig.js`)
+### 5.4 API Base URLs (`config/apiConfig.js`)
 ```javascript
 const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || 'https://cmes-user-5b5h.onrender.com';
 export const ADMIN_API_URL = process.env.REACT_APP_ADMIN_API_URL || 'https://cmes-admin.onrender.com';
@@ -278,19 +223,19 @@ export const REALTIME_URL = ADMIN_API_URL; // Socket.IO ใช้ Admin server
 
 ---
 
-## 7. Backend Patterns
+## 6. Backend Patterns
 
-### 7.1 Server Structure
+### 6.1 Server Structure
 - **Single file**: `server.js` เป็น entry point หลัก — มีทุก route (ยกเว้น auth)
 - **Auth routes**: แยกใน `routes/auth-mongodb.js`
 - **Middleware**: `middleware/authMiddleware.js`
 
-### 7.2 MongoDB Connection
+### 6.2 MongoDB Connection
 ```javascript
 mongoose.connect(MONGODB_URI, { dbName: 'cmes-user' });
 ```
 
-### 7.3 Mongoose Models — ES Modules
+### 6.3 Mongoose Models — ES Modules
 ```javascript
 import mongoose from "mongoose";
 
@@ -306,7 +251,7 @@ const userSchema = new mongoose.Schema({
 export default mongoose.model("User", userSchema);
 ```
 
-### 7.4 Auth Middleware
+### 6.4 Auth Middleware
 ```javascript
 // Required auth — return 401 if no token
 export const verifyAuthToken = (req, res, next) => { ... };
@@ -315,7 +260,7 @@ export const verifyAuthToken = (req, res, next) => { ... };
 export const optionalAuth = (req, res, next) => { ... };
 ```
 
-### 7.5 File Upload — Cloudinary
+### 6.5 File Upload — Cloudinary
 ```javascript
 import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
@@ -332,11 +277,11 @@ const avatarStorage = new CloudinaryStorage({
 const uploadAvatar = multer({ storage: avatarStorage, limits: { fileSize: 20 * 1024 * 1024 } });
 ```
 
-### 7.6 Cross-service Communication
+### 6.6 Cross-service Communication
 - User backend → Admin backend ผ่าน HTTP `fetch(ADMIN_API_BASE + '/api/...')`
 - ตัวอย่าง: Report, Gift settings, Stat slip
 
-### 7.7 CORS Configuration
+### 6.7 CORS Configuration
 ```javascript
 const allowedOrigins = [
   'http://localhost:3000',                    // User Frontend (Dev)
@@ -348,9 +293,24 @@ const allowedOrigins = [
 ].filter(Boolean);
 ```
 
+### 6.8 Backend Route Pattern
+```javascript
+// ★ ทุก route ใช้ middleware + shopId
+app.get('/api/resource', verifyAuthToken, async (req, res) => {
+  try {
+    const shopId = req.headers['x-shop-id'] || req.query.shopId;
+    const data = await Model.find({ shopId }).sort({ createdAt: -1 });
+    res.json({ success: true, data });
+  } catch (err) {
+    console.error('GET /api/resource error:', err);
+    res.status(500).json({ success: false, message: 'เกิดข้อผิดพลาด' });
+  }
+});
+```
+
 ---
 
-## 8. Key Features & Business Logic
+## 7. Key Features & Business Logic
 
 | Feature | Description |
 |---------|-------------|
@@ -366,7 +326,7 @@ const allowedOrigins = [
 
 ---
 
-## 9. Environment Variables
+## 8. Environment Variables
 
 ### Frontend (`frontend/.env`)
 ```env
@@ -393,7 +353,7 @@ ADMIN_FRONTEND_URL=https://cmesadminfrontend.vercel.app
 
 ---
 
-## 10. Development Commands
+## 9. Development Commands
 
 ```bash
 # Frontend (port 3000)
@@ -406,7 +366,7 @@ cd backend && npm start      # production
 
 ---
 
-## 11. Important Rules for AI
+## 10. Important Rules for AI
 
 ### DO ✅
 - **ใช้ `authService.js`** สำหรับทุก API call — อย่า fetch/axios ตรง
@@ -418,6 +378,8 @@ cd backend && npm start      # production
 - **Handle 401** → clear token + redirect (**เฉพาะ 401 เท่านั้น**)
 - **Cloudinary** สำหรับ file upload — ไม่เก็บไฟล์ใน local filesystem
 - **ใช้ `100dvh`** แทน `100vh`
+- **อ้างอิง `DESIGN.md`** สำหรับสี, component styles, animation ก่อน hardcode CSS
+- **แยก CSS file** ต่อ page — `Home.css`, `Register.css`, etc.
 
 ### DON'T ❌
 - **อย่าลบ token** เมื่อเจอ network error หรือ 500 — แค่ 401 เท่านั้น
@@ -428,29 +390,35 @@ cd backend && npm start      # production
 - **อย่าเพิ่ม dependencies** โดยไม่จำเป็น
 - **อย่าเก็บ sensitive data** ใน client-side code
 - **อย่าลบ comments ภาษาไทย** ที่มีอยู่เดิม — เป็น documentation
+- **อย่าใช้ `100vh`** — ใช้ `100dvh` เสมอสำหรับ mobile viewport
+- **อย่า hardcode สี** — อ้างอิง DESIGN.md
 
 ---
 
-## 12. Common Bugs & Solutions
+## 11. Common Bugs & Solutions
 
 | Bug | สาเหตุ | วิธีแก้ |
 |-----|--------|---------|
 | Render crash (exit status 1) | ไม่มี env variable ที่จำเป็น | เช็ค `.env` ใน Render dashboard — ต้องมี `MONGODB_URI`, `JWT_SECRET`, `CLOUDINARY_*` |
-| Gemini 429 Rate Limit | ใช้ model เก่า / key ผิด / quota เต็ม | ใช้ `gemini-2.5-flash` เท่านั้น, เช็ค API key ใน Google AI Studio |
+| Gemini 429 Rate Limit | ใช้ model อื่นที่ quota = 0 | ★ ใช้ `gemini-2.5-flash` เท่านั้น — model อื่น quota เป็น 0 |
 | CORS error | origin ไม่อยู่ใน whitelist | เพิ่ม URL ใน `allowedOrigins` ใน `server.js` |
 | Socket ไม่ connect | shopId ไม่ถูกส่งตอน handshake | เช็ค `handshake.query.shopId` — ต้องมีค่า |
 | Production ไม่แสดง packages | ไม่ส่ง `shopId` ใน API call | ทุก API ต้องมี `?shopId=xxx` + header `x-shop-id` |
 | Token หาย / user หลุด | ลบ token ตอน network error | **ลบ token เฉพาะ 401 เท่านั้น** — network error ให้เก็บ token ไว้ |
 | รูปไม่แสดงบน production | ใช้ local file path แทน Cloudinary URL | ใช้ `req.file.path` (Cloudinary URL) ไม่ใช่ `req.file.filename` |
 | OCR อ่านสลิปไม่ได้ | ตัวเลขไทยไม่ถูกแปลง | ใช้ `thaiToArabic()` แปลง ๐-๙ → 0-9 ก่อนเทียบ |
+| Ranking past date แสดง 0 | frontend อ่าน `dailyPoints` แต่ aggregate ใช้ `points` | ใช้ `entry.dailyPoints ?? entry.points ?? 0` |
+| Monthly ranking ไม่หายหลัง clear DB | ลบแค่ `rankinghistories` แต่ `rankings` ยังอยู่ | ต้องลบทั้ง 2 collection พร้อมกัน |
+| Google login ไม่ทำงาน | `GOOGLE_CLIENT_ID` ไม่ตรงกัน frontend/backend | ต้องใช้ Client ID เดียวกันทั้ง 2 ฝั่ง |
+| SightEngine ไม่ทำงาน | ไม่มี env หรือ quota หมด | เช็ค `SIGHTENGINE_API_USER` + `SIGHTENGINE_API_SECRET` ใน .env — free tier 2,000 รูป/เดือน |
 
 ---
 
-## 13. AI Caption (Gemini)
+## 12. AI Caption (Gemini)
 
 | Setting | Value |
 |---------|-------|
-| **Model** | `gemini-2.5-flash` (primary) → `gemini-2.0-flash` → `gemini-2.0-flash-lite` (fallback) |
+| **Model** | `gemini-2.5-flash` เท่านั้น — model อื่น quota = 0 |
 | **Free Tier Limit** | ~20 RPD (requests per day) |
 | **Rate Limit per User** | 30 วินาที cooldown (frontend enforce) |
 | **Max Caption Length** | 36 ตัวอักษร |
@@ -473,3 +441,65 @@ cd backend && npm start      # production
 | `API_ERROR` | Gemini error อื่นๆ | AI ไม่สามารถสร้างแคปชั่นได้ |
 | `EMPTY_RESPONSE` | Gemini ตอบเปล่า | AI ไม่สามารถวิเคราะห์รูปภาพได้ |
 | `SERVER_ERROR` | Server crash | เกิดข้อผิดพลาดในการสร้างแคปชั่น |
+
+---
+
+## 13. React Component Pattern
+
+```javascript
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { apiCall, getShopId, getUser } from "../authService";
+import "./PageName.css";
+
+function PageName() {
+  const navigate = useNavigate();
+  const shopId = getShopId();
+  const user = getUser();
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!shopId) return;
+    fetchData();
+  }, [shopId]);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const result = await apiCall('/api/endpoint');
+      if (result.success) setData(result.data);
+    } catch (err) {
+      console.error("Fetch error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="page-container">
+      <div className="page-wrapper">
+        {/* Content */}
+      </div>
+    </div>
+  );
+}
+
+export default PageName;
+```
+
+---
+
+## 14. Deployment Checklist
+
+| Step | Detail |
+|------|--------|
+| **1. Backend env** | ตั้ง env variables ทั้งหมดใน Render dashboard |
+| **2. Frontend env** | ตั้ง `REACT_APP_*` env ใน Vercel project settings |
+| **3. CORS** | เพิ่ม production URL ใน `allowedOrigins` ของ `server.js` |
+| **4. MongoDB** | เพิ่ม Render IP ใน MongoDB Atlas Network Access |
+| **5. Cloudinary** | ตรวจสอบ API key + cloud name ตรงกัน |
+| **6. Google OAuth** | `GOOGLE_CLIENT_ID` ต้องตรงกัน frontend + backend |
+| **7. Gemini** | ใช้ `gemini-2.5-flash` เท่านั้น — model อื่น quota = 0 |
+| **8. Build** | Frontend: `npm run build` (Vercel ทำให้อัตโนมัติ) |
+| **9. Start** | Backend: `npm start` (ไม่ใช่ `npm run dev`) |
