@@ -17,20 +17,6 @@ import iconText from "./icons/icon-text.png";
 import iconGift from "./icons/icon-gift.png";
 import iconBirthday from "./icons/icon-birthday.png";
 
-// สไตล์สำหรับแสดงข้อความประกาศพิเศษ (เช่น ระบบปิดบริการชั่วคราว)
-const NOTICE_STYLE = {
-  width: "100%",
-  height: "180px",
-  background: "rgba(30,41,59,0.85)",
-  color: "#fff",
-  fontSize: "2rem",
-  fontWeight: "bold",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  borderRadius: "18px",
-};
-
 // ฟังก์ชันแปลงตัวเลขเป็นรูปแบบเงินสกุลไทย (เช่น 1000 -> 1,000)
 const formatCurrency = (value) => Number(value || 0).toLocaleString("th-TH");
 
@@ -635,14 +621,6 @@ function Home() {
   // weeklyTotal: สำรองไว้ใช้ในอนาคต (ยอดรวม leaderboard)
   // const weeklyTotal = useMemo(() => leaderboard.reduce((sum, entry) => sum + Number(entry.points || 0), 0), [leaderboard]);
 
-  // ฟังก์ชันสร้าง element ข้อความประกาศ
-  const renderNotice = (message) => <div style={NOTICE_STYLE}>{message}</div>;
-
-  // ตรวจสอบสถานะเพื่อแสดงข้อความประกาศที่เหมาะสม
-  const inactiveImageAndText = !status.imageOn && !status.textOn; // ฟีเจอร์รูป+ข้อความปิดทั้งคู่
-  const showGiftOnlyNotice = inactiveImageAndText && status.giftOn; // เหลือแค่ของขวัญ
-  const showAllDisabledNotice = inactiveImageAndText && !status.giftOn; // ปิดทุกอย่าง
-
   // ===== ข้อมูลการ์ดบริการทั้งหมด =====
   const serviceCards = [
     {
@@ -1011,107 +989,120 @@ function Home() {
 
           {/* ===== ส่วนการ์ดบริการ (Service Cards) ===== */}
           <div className="service-cards">
-            {status.systemOn ? (
-              <>
-                {/* การ์ดบริการ Image, Text, Gift (กรองตามสถานะ) */}
-                {serviceCards
-                  .filter((card) => card.enabled)
-                  .map((card) => (
-                    <div key={card.key} className={`service-card ${card.className}`} onClick={card.onClick}>
-                      <div className="card-header">
-                        <div className="service-icon">{card.icon}</div>
-                        <div className="service-badge">{card.badge}</div>
-                      </div>
-                      <div className="card-content">
-                        <h3>{card.title}</h3>
-                        <div className="card-features">
-                          {card.features.map((feature) => (
-                            <span key={feature} className="feature">
-                              {feature}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      <div className="card-footer">
-                        <span className="price-from">{card.price}</span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                          <path d="M5 12h14M12 5l7 7-7 7" />
-                        </svg>
-                      </div>
-                    </div>
-                  ))}
-
-                {/* การ์ดพิเศษวันเกิด (แสดงต่างหากเปิดใช้งาน) */}
-                {status.birthdayOn && (
-                  <div
-                    className="service-card birthday-service"
-                    onClick={handleBirthdayCardClick}
-                    style={{
-                      cursor: !isLoggedIn || isBirthday === false || !birthdayEligibility.eligible ? "not-allowed" : "pointer",
-                      pointerEvents: !isLoggedIn || isBirthday === false || !birthdayEligibility.eligible ? "none" : "auto",
-                      background:
-                        !isLoggedIn || isBirthday === false || !birthdayEligibility.eligible
-                          ? "linear-gradient(90deg, #cbd5e1, #94a3b8)"
-                          : "linear-gradient(90deg, #fbbf24, #f472b6)",
-                      color: "#fff",
-                      opacity: !isLoggedIn || isBirthday === false || !birthdayEligibility.eligible ? 0.7 : 1,
-                    }}
-                  >
-                    <div className="card-header">
-                      <div className="service-icon">
-                        <img src={iconBirthday} alt="อวยพรวันเกิด" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
-                      </div>
-                      <div className="service-badge">วันเกิด</div>
-                    </div>
-                    <div className="card-content">
-                      <h3>อวยพรวันเกิด {isLoggedIn && birthdayEligibility.eligible && isBirthday && "🎉 ฟรี!"}</h3>
-                      <div className="card-features">
-                        {isLoggedIn && !birthdayEligibility.eligible ? (
-                          <>
-                            <span className="feature">💰 ใช้จ่ายแล้ว ฿{birthdayEligibility.totalSpent.toLocaleString()}</span>
-                            <span className="feature">🎯 ต้องใช้ครบ ฿{birthdayEligibility.required.toLocaleString()}</span>
-                            <span className="feature">📈 เหลืออีก ฿{(birthdayEligibility.required - birthdayEligibility.totalSpent).toLocaleString()}</span>
-                          </>
-                        ) : isLoggedIn && birthdayEligibility.eligible && !isBirthday ? (
-                          <>
-                            <span className="feature">✅ ใช้จ่ายครบแล้ว ฿{birthdayEligibility.totalSpent.toLocaleString()}</span>
-                            <span className="feature">🎂 รอวันเกิดเพื่อใช้งานฟรี</span>
-                            <span className="feature">📸 รองรับ JPG, PNG</span>
-                          </>
-                        ) : (
-                          <>
-                            <span className="feature">🎉 สิทธิ์ฟรีสำหรับเจ้าของวันเกิด</span>
-                            <span className="feature">📸 รองรับ JPG, PNG</span>
-                            <span className="feature">💬 เพิ่มข้อความได้</span>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                    <div className="card-footer">
-                      <span className="price-from">
-                        {!isLoggedIn
-                          ? "เข้าสู่ระบบเพื่อรับสิทธิ์"
-                          : !birthdayEligibility.eligible
-                            ? `ใช้จ่ายครบ ฿${birthdayEligibility.required.toLocaleString()} เพื่อปลดล็อก`
-                            : isBirthday
-                              ? "✨ พร้อมใช้งาน - ฟรีในวันเกิด!"
-                              : "✅ พร้อมแล้ว - รอวันเกิดของคุณ"}
-                      </span>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                        <path d="M5 12h14M12 5l7 7-7 7" />
-                      </svg>
+            {/* การ์ดบริการ Image, Text, Gift (แสดงเสมอ แต่แสดงสถานะปิดถ้าถูกปิด) */}
+            {serviceCards.map((card) => {
+              const isSystemDisabled = !status.systemOn || !card.enabled;
+              return (
+                <div 
+                  key={card.key} 
+                  className={`service-card ${card.className} ${isSystemDisabled ? 'disabled' : ''}`} 
+                  onClick={isSystemDisabled ? null : card.onClick}
+                >
+                  <div className="card-header">
+                    <div className="service-icon">{card.icon}</div>
+                    <div className="service-badge">{card.badge}</div>
+                  </div>
+                  <div className="card-content">
+                    <h3>{card.title}</h3>
+                    <div className="card-features">
+                      {card.features.map((feature) => (
+                        <span key={feature} className="feature">
+                          {feature}
+                        </span>
+                      ))}
                     </div>
                   </div>
-                )}
+                  <div className="card-footer">
+                    <span className="price-from">{card.price}</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                  {/* Overlay กรณีปิดใช้งานโดยแอดมิน */}
+                  {isSystemDisabled && (
+                    <div className="service-card-disabled-overlay">
+                      <span className="disabled-badge">ปิดใช้งานชั่วคราว</span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
 
-                {/* ข้อความแจ้งเตือนเมื่อฟีเจอร์บางอย่างปิด */}
-                {showGiftOnlyNotice && renderNotice("ฟังก์ชันส่งรูป/ข้อความปิดชั่วคราว • ยังสามารถส่งของขวัญได้")}
-                {showAllDisabledNotice && renderNotice("ขณะนี้ฟังก์ชันการส่งทั้งหมดปิดใช้งานชั่วคราว")}
-              </>
-            ) : (
-              /* ข้อความแจ้งเตือนเมื่อระบบปิดทั้งหมด */
-              renderNotice("ขณะนี้ระบบปิดให้บริการชั่วคราว")
-            )}
+            {/* การ์ดพิเศษวันเกิด (แสดงเสมอ มีสถานะปิดใช้งาน) */}
+            {(() => {
+              const isSystemDisabled = !status.systemOn || !status.birthdayOn;
+              const isNotEligible = !isLoggedIn || isBirthday === false || !birthdayEligibility.eligible;
+              const cannotClick = isSystemDisabled || isNotEligible;
+              
+              return (
+                <div
+                  className={`service-card birthday-service ${isSystemDisabled ? 'disabled' : ''}`}
+                  onClick={cannotClick ? null : handleBirthdayCardClick}
+                  style={{
+                    cursor: cannotClick ? "not-allowed" : "pointer",
+                    // ถ้าโดนแอดมินปิด ให้ใช้ style default ของ disabled
+                    ...( !isSystemDisabled && {
+                      background: isNotEligible
+                        ? "linear-gradient(90deg, #cbd5e1, #94a3b8)"
+                        : "linear-gradient(90deg, #fbbf24, #f472b6)",
+                      opacity: isNotEligible ? 0.7 : 1,
+                    }),
+                    color: "#fff",
+                  }}
+                >
+                  <div className="card-header">
+                    <div className="service-icon">
+                      <img src={iconBirthday} alt="อวยพรวันเกิด" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit' }} />
+                    </div>
+                    <div className="service-badge">วันเกิด</div>
+                  </div>
+                  <div className="card-content">
+                    <h3>อวยพรวันเกิด {isLoggedIn && birthdayEligibility.eligible && isBirthday && "🎉 ฟรี!"}</h3>
+                    <div className="card-features">
+                      {isLoggedIn && !birthdayEligibility.eligible ? (
+                        <>
+                          <span className="feature">💰 ใช้จ่ายแล้ว ฿{birthdayEligibility.totalSpent.toLocaleString()}</span>
+                          <span className="feature">🎯 ต้องใช้ครบ ฿{birthdayEligibility.required.toLocaleString()}</span>
+                          <span className="feature">📈 เหลืออีก ฿{(birthdayEligibility.required - birthdayEligibility.totalSpent).toLocaleString()}</span>
+                        </>
+                      ) : isLoggedIn && birthdayEligibility.eligible && !isBirthday ? (
+                        <>
+                          <span className="feature">✅ ใช้จ่ายครบแล้ว ฿{birthdayEligibility.totalSpent.toLocaleString()}</span>
+                          <span className="feature">🎂 รอวันเกิดเพื่อใช้งานฟรี</span>
+                          <span className="feature">📸 รองรับ JPG, PNG</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="feature">🎉 สิทธิ์ฟรีสำหรับเจ้าของวันเกิด</span>
+                          <span className="feature">📸 รองรับ JPG, PNG</span>
+                          <span className="feature">💬 เพิ่มข้อความได้</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  <div className="card-footer">
+                    <span className="price-from">
+                      {!isLoggedIn
+                        ? "เข้าสู่ระบบเพื่อรับสิทธิ์"
+                        : !birthdayEligibility.eligible
+                          ? `ใช้จ่ายครบ ฿${birthdayEligibility.required.toLocaleString()} เพื่อปลดล็อก`
+                          : isBirthday
+                            ? "✨ พร้อมใช้งาน - ฟรีในวันเกิด!"
+                            : "✅ พร้อมแล้ว - รอวันเกิดของคุณ"}
+                    </span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                  {/* Overlay กรณีปิดใช้งานโดยแอดมิน */}
+                  {isSystemDisabled && (
+                    <div className="service-card-disabled-overlay">
+                      <span className="disabled-badge">ปิดใช้งานชั่วคราว</span>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
           </div>
 
           {/* ===== ข้อความแจ้งเตือนชั่วคราว (Toast Notification) ===== */}
