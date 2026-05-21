@@ -87,11 +87,11 @@
 ## 🏗 Architecture
 
 ```
-┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
-│   CMES-USER      │     │   CMES-USER      │     │   CMES-ADMIN     │
-│   Frontend       │────▶│   Backend        │────▶│   Backend        │
-│   (React/Vercel) │     │   (Express/Render)│     │   (Express/Render)│
-└──────────────────┘     └──────────────────┘     └──────────────────┘
+┌──────────────────┐      ┌──────────────────┐     ┌───────────────────┐
+│   CMES-USER      │      │   CMES-USER      │     │   CMES-ADMIN      │
+│   Frontend       │────▶│   Backend        │────▶│   Backend         │
+│   (React/Vercel) │      │  (Express/Render)│     │   (Express/Render)│
+└──────────────────┘      └──────────────────┘     └───────────────────┘
         │                        │                        │
         │                  ┌─────┴─────┐            ┌─────┴─────┐
         │                  │ MongoDB   │            │ Socket.IO │
@@ -99,7 +99,7 @@
         │                  └───────────┘            └───────────┘
         │                        │
         │                  ┌─────┴─────┐
-        └─────────────────▶│ Cloudinary│
+        └────────────────▶│ Cloudinary│
                            │ (Storage) │
                            └───────────┘
 ```
