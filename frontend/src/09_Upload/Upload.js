@@ -1,6 +1,7 @@
 // ==================== IMPORTS ====================
 // นำเข้า React hooks สำหรับจัดการ state และ side effects
 import { FiChevronLeft } from "react-icons/fi";
+import { showToast } from "../authService";
 import React, { useState, useEffect } from "react";
 // นำเข้า hooks สำหรับการนำทาง (routing)
 import { useLocation, useNavigate } from "react-router-dom";
@@ -532,7 +533,7 @@ function Upload() {
             localStorage.removeItem("uploadFormDraft");
             localStorage.removeItem("uploadFormImage");
 
-            alert("✅ อัปโหลดสำเร็จ!");
+            showToast("✅ อัปโหลดสำเร็จ!", "success");
             navigate(`/home${shopId ? `?shopId=${shopId}` : ''}`);  // กลับไปหน้าหลัก
           } else {
             const errText = await response.text();

@@ -4,7 +4,7 @@ import { FiChevronLeft } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import "./Profile.css";
 import API_BASE_URL from "../config/apiConfig";
-import { handleUnauthorized, logoutUser } from "../authService";
+import { handleUnauthorized, logoutUser, showToast } from "../authService";
 
 // Custom Modal Component
 const CustomModal = ({ isOpen, onClose, title, message, type = "info", onConfirm, showCancel = false, confirmText = "ตรวจสอบ", cancelText = "ยกเลิก", isLoading = false }) => {
@@ -336,13 +336,13 @@ function Profile() {
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert("โปรดเลือกไฟล์รูปภาพเท่านั้น");
+      showToast("โปรดเลือกไฟล์รูปภาพเท่านั้น", "error");
       return;
     }
 
     // ตรวจสอบขนาดไฟล์ (ไม่เกิน 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert("ขนาดไฟล์ต้องไม่เกิน 5 MB");
+      showToast("ขนาดไฟล์ต้องไม่เกิน 5 MB", "error");
       return;
     }
 

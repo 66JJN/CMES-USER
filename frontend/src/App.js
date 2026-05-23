@@ -11,6 +11,8 @@ import Report from "./07_Report/Report";
 import Gift from "./08_Gift/Gift";
 import { ProtectedRoute, PublicRoute } from "./ProtectedRoute";
 import { initializeAuth } from "./authService";
+import Toast from "./Toast";
+import "./Toast.css";
 
 function App() {
   const [authLoading, setAuthLoading] = useState(true);
@@ -127,6 +129,7 @@ function App() {
           element={<ProtectedRoute><Gift /></ProtectedRoute>}
         />
       </Routes>
+      <Toast />
     </BrowserRouter>
   );
 }

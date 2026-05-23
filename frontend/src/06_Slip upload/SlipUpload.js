@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
 import API_BASE_URL from "../config/apiConfig";
+import { showToast } from "../authService";
 
 /**
  * Component สำหรับอัปโหลดและตรวจสอบสลิปการชำระเงิน
@@ -24,7 +25,7 @@ function SlipUpload({ price, onSuccess }) {
 
   const handleUploadSlipAndVerify = async () => {
     if (!slipFile) {
-      alert("กรุณาเลือกไฟล์สลิปก่อน");
+      showToast("กรุณาเลือกไฟล์สลิปก่อน", "error");
       return;
     }
 
@@ -46,11 +47,11 @@ function SlipUpload({ price, onSuccess }) {
         onSuccess && onSuccess();
       } else {
         setPaymentStatus("failed");
-        alert(response.data.message || "สลิปไม่ถูกต้องหรือจำนวนเงินไม่ตรง");
+        showToast(response.data.message || "สลิปไม่ถูกต้องหรือจำนวนเงินไม่ตรง", "error");
       }
     } catch (error) {
       setPaymentStatus("failed");
-      alert("เกิดข้อผิดพลาดในการตรวจสอบสลิป");
+      showToast("เกิดข้อผิดพลาดในการตรวจสอบสลิป", "error");
     }
 
     setIsVerifyingSlip(false);

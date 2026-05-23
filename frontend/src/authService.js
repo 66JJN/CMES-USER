@@ -262,4 +262,17 @@ export const initializeAuth = async () => {
     return null;
   }
 };
+export default initializeAuth;
+
+// ===== Toast Notification Trigger =====
+/**
+ * @param {string} message - ข้อความที่ต้องการแสดง
+ * @param {'success' | 'error' | 'info'} type - ประเภทของ toast
+ */
+export const showToast = (message, type = 'success') => {
+  const event = new CustomEvent('show-toast', {
+    detail: { message, type }
+  });
+  window.dispatchEvent(event);
+};
 
