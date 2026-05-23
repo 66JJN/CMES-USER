@@ -1587,8 +1587,19 @@ function Home() {
                     <li key={index}>{perk}</li>
                   ))}
                 </ul>
-                {/* ปุ่ม CTA เริ่มต้นสนับสนุน */}
-                <button className="primary-btn perk-action" onClick={() => navigate("/select?type=image")}>เริ่มต้นสนับสนุน</button>
+                {/* ปุ่ม CTA เริ่มต้นสนับสนุน — fallback ตามฟีเจอร์ที่ Admin เปิด */}
+                {(() => {
+                  // ลำดับ fallback: image → text → gift → birthday
+                  const target = status.imageOn ? `/select?type=image&shopId=${shopId}`
+                    : status.textOn ? `/select?type=text&shopId=${shopId}`
+                    : status.giftOn ? `/gift?shopId=${shopId}`
+                    : status.birthdayOn ? `/select?type=birthday&shopId=${shopId}`
+                    : null;
+                  if (!target) return null; // ปิดทั้ง 4 → ซ่อนปุ่ม
+                  return (
+                    <button className="primary-btn perk-action" onClick={() => navigate(target)}>เริ่มต้นสนับสนุน</button>
+                  );
+                })()}
               </div>
             </div>
           </div>
