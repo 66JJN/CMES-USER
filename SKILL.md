@@ -502,4 +502,18 @@ export default PageName;
 | **6. Google OAuth** | `GOOGLE_CLIENT_ID` ต้องตรงกัน frontend + backend |
 | **7. Gemini** | ใช้ `gemini-2.5-flash` เท่านั้น — model อื่น quota = 0 |
 | **8. Build** | Frontend: `npm run build` (Vercel ทำให้อัตโนมัติ) |
-| **9. Start** | Backend: `npm start` (ไม่ใช่ `npm run dev`) |
+---
+
+## 15. Standard Engineering Skills (9arm-style)
+
+เพื่อรักษามาตรฐานงานวิศวกรรมให้สูงอยู่เสมอ โปรเจคนี้ได้นำระเบียบปฏิบัติต่อไปนี้มาใช้:
+
+| Skill | Description | Location |
+|-------|-------------|----------|
+| **Debug Mantra** | ระเบียบ 4 ขั้นในการไล่บัค (Reproduce -> Trace -> Falsify -> Ledger) | [`docs/skills/debug-mantra.md`](./docs/skills/debug-mantra.md) |
+| **Post-mortem** | การบันทึกรายละเอียดการแก้บัคสำคัญ เพื่อเป็นความรู้ให้ทีม | [`docs/skills/post-mortem.md`](./docs/skills/post-mortem.md) |
+| **Scrutินize** | การรีวิวแผนงานหรือโค้ดจากมุมมองคนนอก (Intent-first review) | [`docs/skills/scrutinize.md`](./docs/skills/scrutinize.md) |
+| **Management Talk** | การสื่อสารงานเทคนิคให้ผู้บริหารหรือคนนอกเข้าใจ | [`docs/skills/management-talk.md`](./docs/skills/management-talk.md) |
+
+### การจดบันทึก Post-mortem
+เมื่อมีการแก้บัคที่มีความสำคัญหรือซับซ้อน ให้สร้างไฟล์บันทึกไว้ที่ [`docs/postmortems/`](./docs/postmortems/) โดยใช้ Template จากไฟล์ skill ด้านบน
