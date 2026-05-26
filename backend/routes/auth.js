@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { JWT_SECRET } from "../middleware/authMiddleware.js"; // 🛡️ ใช้ secret จาก middleware กลาง
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const router = express.Router();
@@ -28,15 +29,14 @@ function saveUsers(users) {
   fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
 }
 
+// ใช้ JWT_SECRET จาก authMiddleware (ไม่ hardcode)
 function generateToken(userId) {
-  const secret = process.env.JWT_SECRET || "your-secret-key-change-this";
-  return jwt.sign({ userId }, secret, { expiresIn: "7d" });
+  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: "7d" });
 }
 
 function verifyToken(token) {
-  const secret = process.env.JWT_SECRET || "your-secret-key-change-this";
   try {
-    return jwt.verify(token, secret);
+    return jwt.verify(token, JWT_SECRET);
   } catch (error) {
     return null;
   }

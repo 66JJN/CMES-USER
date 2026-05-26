@@ -5,6 +5,7 @@ import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import User from "../models/User.js";
 import fetch from "node-fetch";
+import { JWT_SECRET } from "../middleware/authMiddleware.js"; // 🛡️ ใช้ secret จาก middleware กลาง
 
 dotenv.config();
 
@@ -28,16 +29,14 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// Utility functions
+// Utility functions — ใช้ JWT_SECRET จาก authMiddleware (ไม่ hardcode)
 function generateToken(userId) {
-  const secret = process.env.JWT_SECRET || "your-secret-key-change-this";
-  return jwt.sign({ userId }, secret, { expiresIn: "7d" });
+  return jwt.sign({ userId }, JWT_SECRET, { expiresIn: "7d" });
 }
 
 function verifyToken(token) {
-  const secret = process.env.JWT_SECRET || "your-secret-key-change-this";
   try {
-    return jwt.verify(token, secret);
+    return jwt.verify(token, JWT_SECRET);
   } catch (error) {
     return null;
   }

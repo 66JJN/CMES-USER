@@ -22,6 +22,9 @@ import authRoutes from "./routes/auth-mongodb.js";
 import { optionalAuth } from "./middleware/authMiddleware.js";
 import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
+import helmet from 'helmet'; // 🛡️ Security headers
+import rateLimit from 'express-rate-limit'; // 🛡️ Rate limiting
+import { mongoSanitize } from './middleware/securityMiddleware.js'; // 🛡️ NoSQL Injection Prevention
 
 // กำหนด __filename และ __dirname สำหรับ ES modules
 const __filename = fileURLToPath(import.meta.url);
@@ -59,6 +62,57 @@ app.use(cors({
   allowedHeaders: ['Content-Type', 'Authorization', 'x-shop-id']
 }));
 
+// ===== 🛡️ SECURITY MIDDLEWARE =====
+// Helmet — เพิ่ม security headers อัตโนมัติ (X-Content-Type-Options, X-Frame-Options, etc.)
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' }, // อนุญาต Cloudinary images
+  contentSecurityPolicy: false // ปิด CSP เพื่อไม่ block frontend resources
+}));
+
+// Rate Limiting — ป้องกันการยิง API ซ้ำๆ
+// ⚠️ ปรับค่าสำหรับร้านเหล้า: ลูกค้าหลายคนใช้ WiFi เดียวกัน (IP เดียว)
+const globalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 นาที
+  max: 500, // max 500 requests ต่อ IP ต่อ 15 นาที
+  message: { success: false, message: 'คำขอมากเกินไป กรุณารอสักครู่' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 15, // login/register/OTP: max 15 ครั้งต่อ 15 นาที
+  message: { success: false, message: 'พยายามเข้าสู่ระบบมากเกินไป กรุณารอ 15 นาที' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const uploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 50, // upload: max 50 ครั้งต่อ 15 นาที
+  message: { success: false, message: 'อัปโหลดมากเกินไป กรุณารอสักครู่' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const aiCaptionLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10, // AI: max 10 ครั้งต่อ 15 นาที (ประหยัด Gemini quota)
+  message: { success: false, message: 'ใช้ AI บ่อยเกินไป กรุณารอสักครู่' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+// ใช้ rate limit กับ API routes
+app.use('/api/', globalLimiter);
+app.use('/api/auth', authLimiter);
+app.use('/send-otp', authLimiter);
+app.use('/verify-otp', authLimiter);
+app.use('/api/upload', uploadLimiter);
+app.use('/upload', uploadLimiter);
+app.use('/api/upload-avatar', uploadLimiter);
+app.use('/verify-slip', uploadLimiter);
+app.use('/api/generate-caption', aiCaptionLimiter);
 
 // กำหนดพอร์ตของเซิร์ฟเวอร์ (ค่าเริ่มต้น 5002)
 const port = process.env.PORT ? Number(process.env.PORT) : 5002;
@@ -74,6 +128,9 @@ app.use(bodyParser.json({ limit: '20mb' }));
 app.use(express.static("uploads"));
 // ใช้ Express JSON middleware (เพิ่ม limit เป็น 20MB สำหรับรูป base64)
 app.use(express.json({ limit: '20mb' }));
+
+// 🛡️ NoSQL Injection Prevention — ลบ MongoDB operators จาก input
+app.use(mongoSanitize);
 
 // ===== การเชื่อมต่อ MONGODB DATABASE =====
 // URI สำหรับเชื่อมต่อ MongoDB
