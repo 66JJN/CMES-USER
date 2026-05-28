@@ -11,7 +11,7 @@
     &nbsp;&nbsp;·&nbsp;&nbsp;
     <a href="#-quick-start">Quick Start</a>
     &nbsp;&nbsp;·&nbsp;&nbsp;
-    <a href="./SKILL.md">SKILL.md</a>
+    <a href="./docs/SKILL.md">SKILL.md</a>
   </p>
 </p>
 
@@ -240,16 +240,34 @@ CMES-USER/
 │   │   ├── authService.js    # ★ Central auth + API utility
 │   │   ├── ProtectedRoute.js # Route guards
 │   │   └── App.js            # Router + auth init
+│   ├── postcss.config.js     # PostCSS config (moved)
+│   ├── tailwind.config.js    # Tailwind config (moved)
 │   └── package.json
 │
 ├── backend/
 │   ├── server.js             # ★ Express + all API routes
 │   ├── routes/auth-mongodb.js# Auth endpoints
-│   ├── middleware/            # JWT verification
+│   ├── middleware/           # JWT verification
 │   ├── models/               # User, GiftOrder, Report
+│   ├── tessdata/             # ★ Tesseract isolated language models
+│   │   ├── eng.traineddata
+│   │   └── tha.traineddata
+│   ├── requirements.txt      # Python requirements (moved)
 │   └── package.json
 │
-├── SKILL.md                  # AI coding guidelines
+├── scripts/                  # ★ Dedicated setup script folder
+│   ├── setup.sh              # Installation script for Linux/macOS (moved)
+│   └── setup.ps1             # Installation script for Windows (moved)
+│
+├── docs/                     # ★ Project documentation folder
+│   ├── screenshots/          # App screenshots
+│   ├── AUTH_SETUP.md         # Auth implementation guide
+│   ├── BUGLOG.md             # Change history & bug tracking
+│   ├── DESIGN.md             # System design specifications
+│   ├── GOOGLE_OAUTH_SETUP.md # Google Login OAuth setup guide
+│   ├── QUICK_START.md        # Rapid onboarding handbook
+│   ├── START_HERE.txt        # Initial onboarding check-in summary
+│   └── SKILL.md              # AI coding guidelines
 └── README.md                 # ← You are here
 ```
 

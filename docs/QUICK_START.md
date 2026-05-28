@@ -158,7 +158,7 @@ User data stored in `backend/users-data.json`:
 
 | File | Purpose |
 |------|---------|
-| `backend/routes/auth.js` | Auth endpoints |
+| `backend/routes/auth-mongodb.js` | Auth endpoints |
 | `backend/middleware/authMiddleware.js` | Token verification |
 | `frontend/src/authService.js` | Frontend API calls |
 | `frontend/src/ProtectedRoute.js` | Route protection |
@@ -236,8 +236,8 @@ Redirect to /home
 
 For complete documentation, see:
 - `AUTH_SETUP.md` - Detailed setup guide
-- `IMPLEMENTATION_SUMMARY.md` - What was implemented
-- `backend/routes/auth.js` - Source code comments
+- `START_HERE.txt` - Summary of what was implemented
+- `backend/routes/auth-mongodb.js` - Source code comments
 
 ## 💡 Tips
 
