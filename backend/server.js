@@ -645,7 +645,12 @@ app.post("/api/ocr", uploadGeneric.single("image"), async (req, res) => {
     const { data: { text } } = await Tesseract.recognize(
       req.file.path,
       "tha+eng",
-      { langPath: path.join(__dirname, 'tessdata'), langpath: path.join(__dirname, 'tessdata') }
+      { 
+        langPath: path.join(__dirname, 'tessdata'), 
+        langpath: path.join(__dirname, 'tessdata'),
+        cachePath: path.join(__dirname, 'tessdata'),
+        gzip: false
+      }
     );
     res.json({ status: "ok", text });
   } catch (err) {
@@ -677,7 +682,12 @@ app.post("/verify-slip", uploadSlip.single("slip"), async (req, res) => {
     const { data: { text } } = await Tesseract.recognize(
       req.file.path, // Cloudinary URL (Tesseract supports URLs)
       "tha+eng",
-      { langPath: path.join(__dirname, 'tessdata'), langpath: path.join(__dirname, 'tessdata') }
+      { 
+        langPath: path.join(__dirname, 'tessdata'), 
+        langpath: path.join(__dirname, 'tessdata'),
+        cachePath: path.join(__dirname, 'tessdata'),
+        gzip: false
+      }
     );
     const textArabic = thaiToArabic(text);
     const cleanText = textArabic.replace(/[\s,\,\.]/g, "");
