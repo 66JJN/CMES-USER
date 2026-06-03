@@ -704,7 +704,7 @@ function Home() {
             </div>
             <div className="brand-text">
               <h1 style={{ fontSize: '1.2rem', marginBottom: '2px' }}>{shopProfile.name}</h1>
-              <p>Digital Signage System</p>
+              <p>CMES</p>
             </div>
           </div>
 

@@ -70,7 +70,7 @@ function App() {
           {/* App Name */}
           <div style={{ textAlign: 'center' }}>
             <div style={{ color: '#fff', fontWeight: 700, fontSize: '1.2rem', marginBottom: '4px' }}>CMES</div>
-            <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>Digital Signage System</div>
+            <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '0.8rem' }}>Content Management and Engagement System</div>
           </div>
           {/* Spinner */}
           <div style={{
