@@ -32,6 +32,7 @@ const __dirname = path.dirname(__filename);
 
 // สร้าง Express application
 const app = express();
+app.set('trust proxy', 1);
 
 // ===== การตั้งค่า CORS (Cross-Origin Resource Sharing) =====
 // รองรับทั้งสภาพแวดล้อม Development และ Production
@@ -69,11 +70,11 @@ app.use(helmet({
   contentSecurityPolicy: false // ปิด CSP เพื่อไม่ block frontend resources
 }));
 
-// Rate Limiting — ป้องกันการยิง API ซ้ำๆ
-// ⚠️ ปรับค่าสำหรับร้านเหล้า: ลูกค้าหลายคนใช้ WiFi เดียวกัน (IP เดียว)
+const isDev = process.env.NODE_ENV === 'development';
+
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 นาที
-  max: 500, // max 500 requests ต่อ IP ต่อ 15 นาที
+  max: isDev ? 100000 : 10000,
   message: { success: false, message: 'คำขอมากเกินไป กรุณารอสักครู่' },
   standardHeaders: true,
   legacyHeaders: false
@@ -81,7 +82,7 @@ const globalLimiter = rateLimit({
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 15, // login/register/OTP: max 15 ครั้งต่อ 15 นาที
+  max: isDev ? 1000 : 100,
   message: { success: false, message: 'พยายามเข้าสู่ระบบมากเกินไป กรุณารอ 15 นาที' },
   standardHeaders: true,
   legacyHeaders: false
@@ -89,7 +90,7 @@ const authLimiter = rateLimit({
 
 const uploadLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 50, // upload: max 50 ครั้งต่อ 15 นาที
+  max: isDev ? 1000 : 200,
   message: { success: false, message: 'อัปโหลดมากเกินไป กรุณารอสักครู่' },
   standardHeaders: true,
   legacyHeaders: false
@@ -97,7 +98,7 @@ const uploadLimiter = rateLimit({
 
 const aiCaptionLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10, // AI: max 10 ครั้งต่อ 15 นาที (ประหยัด Gemini quota)
+  max: isDev ? 500 : 50,
   message: { success: false, message: 'ใช้ AI บ่อยเกินไป กรุณารอสักครู่' },
   standardHeaders: true,
   legacyHeaders: false
