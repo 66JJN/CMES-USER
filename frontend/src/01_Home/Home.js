@@ -38,7 +38,7 @@ const getOrderTypeLabel = (type, options = { includeEmoji: true }) => {
 function Home() {
   // ดึง shopId จาก URL
   const shopId = new URLSearchParams(window.location.search).get("shopId") || localStorage.getItem("shopId") || "";
-  console.log("[Home] shopId:", shopId);
+  // console.log("[Home] shopId:", shopId);
 
   // ===== Navigation & Refs =====
   const navigate = useNavigate(); // สำหรับนำทางไปหน้าอื่น
@@ -263,15 +263,15 @@ function Home() {
     const fetchPerks = async () => {
       try {
         const API_URL = ADMIN_API_URL;
-        console.log("[Home] 📥 Fetching perks from:", `${API_URL}/api/config/perks?shopId=${shopId}`);
+        // console.log("[Home] 📥 Fetching perks from:", `${API_URL}/api/config/perks?shopId=${shopId}`);
         const response = await fetch(`${API_URL}/api/config/perks?shopId=${shopId}`, {
           headers: { "x-shop-id": shopId }
         });
         if (response.ok) {
           const data = await response.json();
-          console.log("[Home] 📦 Perks fetched:", data);
+          // console.log("[Home] 📦 Perks fetched:", data);
           if (data.success && data.perks) {
-            console.log("[Home] ✅ Setting initial perks:", data.perks.length, "items");
+            // console.log("[Home] ✅ Setting initial perks:", data.perks.length, "items");
             setPerks(data.perks);
           }
         } else {
@@ -343,19 +343,19 @@ function Home() {
 
     // รับฟังการเปลี่ยนประเภทอันดับที่ Admin กำหนด (daily/monthly/alltime)
     socketInstance.on("publicRankingTypeUpdated", (data) => {
-      console.log("[User] Public ranking type updated:", data.type);
+      // console.log("[User] Public ranking type updated:", data.type);
       setRankingType(data.type);
     });
 
     // รับฟังการอัปเดตรายการสิทธิพิเศษ (perks) จาก Admin
     socketInstance.on("perksUpdated", (data) => {
-      console.log("[User] 🔥 Perks updated via Socket.IO:", data.perks);
+      // console.log("[User] 🔥 Perks updated via Socket.IO:", data.perks);
       if (data && data.perks && Array.isArray(data.perks)) {
-        console.log("[User] ✅ Setting new perks:", data.perks.length, "items");
+        // console.log("[User] ✅ Setting new perks:", data.perks.length, "items");
         setPerks(data.perks);
         // Force update ถ้า modal เปิดอยู่
         if (showPerkModal) {
-          console.log("[User] 🔄 Perk modal is open, will re-render with new perks");
+          // console.log("[User] 🔄 Perk modal is open, will re-render with new perks");
         }
       } else {
         console.warn("[User] ⚠️ Invalid perks data received:", data);
