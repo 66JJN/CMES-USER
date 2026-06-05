@@ -130,7 +130,7 @@
 | **Frontend** | React 19, React Router 7, Vanilla CSS (Dark glassmorphism) |
 | **Backend** | Node.js, Express 4, ES Modules |
 | **Database** | MongoDB Atlas + Mongoose 8 |
-| **Auth** | JWT + bcryptjs + Google OAuth |
+| **Auth** | JWT + bcryptjs + Google OAuth + Trust Proxy Rate Limiting |
 | **AI** | Google Gemini 2.5 Flash (caption generation) |
 | **OCR** | Tesseract.js 5 (slip verification) |
 | **Realtime** | Socket.IO 4 |
@@ -248,7 +248,8 @@ CMES-USER/
 │   ├── server.js             # ★ Express + all API routes
 │   ├── routes/auth-mongodb.js# Auth endpoints
 │   ├── middleware/           # JWT verification
-│   ├── models/               # User, GiftOrder, Report
+│   ├── models/               # User, GiftOrder
+│   ├── uploads/              # Local uploads buffer
 │   ├── tessdata/             # ★ Tesseract isolated language models
 │   │   ├── eng.traineddata
 │   │   └── tha.traineddata
@@ -261,6 +262,7 @@ CMES-USER/
 │
 ├── docs/                     # ★ Project documentation folder
 │   ├── screenshots/          # App screenshots
+│   ├── skills/               # Developer skills (debug-mantra, post-mortem, etc.)
 │   ├── AUTH_SETUP.md         # Auth implementation guide
 │   ├── BUGLOG.md             # Change history & bug tracking
 │   ├── DESIGN.md             # System design specifications
