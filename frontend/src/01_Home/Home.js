@@ -185,6 +185,9 @@ function Home() {
 
   // ===== useEffect: โหลดข้อมูลผู้ใช้และคำสั่งซื้อเมื่อเปิดหน้า Home =====
   useEffect(() => {
+    if (shopId) {
+      localStorage.setItem("shopId", shopId);
+    }
     // ฟังก์ชันตรวจสอบและดึง avatar ที่ถูกต้อง
     const getValidAvatar = () => {
       const val = localStorage.getItem("avatar");
@@ -312,9 +315,9 @@ function Home() {
 
   // ===== useEffect: เชื่อมต่อ Socket.IO สำหรับรับข้อมูล realtime =====
   useEffect(() => {
+    if (!shopId) return;
     // เชื่อมต่อกับ Realtime Server จาก Admin Backend
-    const currentShopId = localStorage.getItem("shopId") || "";
-    const socketInstance = io(REALTIME_URL, { query: { shopId: currentShopId } });
+    const socketInstance = io(REALTIME_URL, { query: { shopId } });
     socketRef.current = socketInstance;
 
     // รับฟังการอัปเดตการตั้งค่าระบบจาก Admin
@@ -368,7 +371,7 @@ function Home() {
     // Cleanup: ตัดการเชื่อมต่อเมื่อ component unmount
     return () => socketInstance.disconnect();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [shopId]);
 
   // ===== useEffect: ดึงสถานะระบบล่าสุดจาก backend เมื่อเข้าหน้า Home =====
   useEffect(() => {

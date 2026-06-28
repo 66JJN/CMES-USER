@@ -1,3 +1,6 @@
+import dns from "dns";
+dns.setServers(["8.8.8.8", "1.1.1.1"]);
+
 // นำเข้าและกำหนดค่า environment variables จากไฟล์ .env
 import dotenv from "dotenv";
 dotenv.config();
@@ -1112,8 +1115,24 @@ let config = {
 };
 
 // API ดึงข้อมูลการตั้งค่าปัจจุบันของระบบ
-app.get("/api/status", (req, res) => {
-  res.json(config);
+app.get("/api/status", async (req, res) => {
+  try {
+    const shopId = req.query.shopId || req.headers['x-shop-id'] || '';
+    if (!shopId) {
+      return res.status(400).json({ success: false, message: "Missing shopId" });
+    }
+    const response = await fetch(`${ADMIN_API_BASE}/api/status?shopId=${shopId}`, {
+      headers: { 'x-shop-id': shopId }
+    });
+    if (!response.ok) {
+      throw new Error(`Admin returned status ${response.status}`);
+    }
+    const adminConfig = await response.json();
+    res.json(adminConfig);
+  } catch (err) {
+    console.error("Error fetching system status from Admin:", err);
+    res.json(config); // fallback to local config
+  }
 });
 
 // จัดการการเชื่อมต่อ Socket.IO
