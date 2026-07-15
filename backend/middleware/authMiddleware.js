@@ -7,8 +7,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const usersFile = path.join(__dirname, "../users-data.json");
 
 // 🛡️ JWT Secret — ต้องตั้งใน .env เพื่อความปลอดภัย
 // ถ้าไม่ตั้ง จะใช้ random secret (token หมดอายุทุกครั้งที่ restart)
@@ -60,15 +58,3 @@ export const optionalAuth = (req, res, next) => {
 
 // Export JWT_SECRET สำหรับใช้ใน routes (sign token)
 export { JWT_SECRET };
-
-export const getCurrentUser = (req) => {
-  try {
-    if (!req.userId) return null;
-
-    const data = fs.readFileSync(usersFile, "utf8");
-    const users = JSON.parse(data);
-    return users[req.userId] || null;
-  } catch (error) {
-    return null;
-  }
-};

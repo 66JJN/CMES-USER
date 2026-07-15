@@ -21,7 +21,7 @@ import http from "http";
 import { Server as SocketIoServer } from "socket.io";
 import mongoose from "mongoose";
 import authRoutes from "./routes/auth-mongodb.js";
-// import Report from "./models/Report.js";  // ลบแล้ว — ไม่ save ลง cmes-user.reports อีกต่อไป
+import GiftOrder from "./models/GiftOrder.js";
 import { optionalAuth } from "./middleware/authMiddleware.js";
 import { v2 as cloudinary } from 'cloudinary';
 import { CloudinaryStorage } from 'multer-storage-cloudinary';
@@ -177,97 +177,6 @@ if (!fs.existsSync("uploads")) {
 }
 
 // ===== ระบบจัดการข้อมูลผู้ใช้ (User Management) =====
-// ไฟล์ JSON สำหรับเก็บข้อมูลผู้ใช้
-const usersFile = path.join(__dirname, "users-data.json");
-
-// ฟังก์ชันโหลดข้อมูลผู้ใช้จากไฟล์ JSON
-function loadUsers() {
-  try {
-    if (fs.existsSync(usersFile)) {
-      const data = fs.readFileSync(usersFile, "utf8");
-      return JSON.parse(data);
-    }
-  } catch (e) {
-    console.error("Error loading users:", e);
-  }
-  return {};
-}
-
-// ฟังก์ชันบันทึกข้อมูลผู้ใช้ลงไฟล์ JSON
-function saveUsers(users) {
-  fs.writeFileSync(usersFile, JSON.stringify(users, null, 2));
-}
-
-// API ตรวจสอบหมายเลขโทรศัพท์ว่ามีในระบบหรือไม่
-app.get("/api/check-phone", (req, res) => {
-  try {
-    const phone = req.query.phone;
-    if (!phone) {
-      return res.status(400).json({ success: false, message: "Phone number required" });
-    }
-    const users = loadUsers();
-    const userExists = !!users[phone];
-    if (userExists) {
-      res.json({ success: true, exists: true, user: users[phone] });
-    } else {
-      res.json({ success: true, exists: false, message: "Phone not registered yet" });
-    }
-  } catch (err) {
-    console.error("[Backend /api/check-phone] Error:", err);
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// API ดึงข้อมูลโปรไฟล์ผู้ใช้
-app.get("/api/user-profile", (req, res) => {
-  try {
-    // ดึง token จาก Authorization header
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) {
-      return res.status(401).json({ success: false, message: "No token" });
-    }
-    const phone = Buffer.from(token, "base64").toString("utf8");
-    const users = loadUsers();
-    const userData = users[phone];
-    if (!userData) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
-    res.json({ success: true, user: userData });
-  } catch (err) {
-    console.error("Error getting user profile:", err);
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
-
-// API อัปเดตข้อมูลโปรไฟล์ผู้ใช้
-app.post("/api/update-profile", (req, res) => {
-  try {
-    // ดึง token เพื่อระบุตัวตนผู้ใช้
-    const token = req.headers.authorization?.split(" ")[1];
-    if (!token) {
-      return res.status(401).json({ success: false, message: "No token" });
-    }
-    const phone = Buffer.from(token, "base64").toString("utf8");
-    const { username, email, birthday, avatar } = req.body;
-    const users = loadUsers();
-    if (!users[phone]) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
-    users[phone] = {
-      ...users[phone],
-      username: username || users[phone].username || "",
-      email: email || users[phone].email || "",
-      birthday: birthday || users[phone].birthday || "",
-      avatar: avatar || users[phone].avatar || null,
-      lastUpdated: new Date().toISOString()
-    };
-    saveUsers(users);
-    res.json({ success: true, user: users[phone] });
-  } catch (err) {
-    console.error("Error updating profile:", err);
-    res.status(500).json({ success: false, error: err.message });
-  }
-});
 
 // API ตรวจสอบว่าวันนี้เป็นวันเกิดของผู้ใช้หรือไม่
 app.get("/api/check-birthday", async (req, res) => {
@@ -1167,10 +1076,10 @@ app.get("/api/gifts", async (req, res) => {
 });
 
 // API สร้างคำสั่งซื้อของขวัญ
-app.post("/api/gifts/order", async (req, res) => {
+app.post("/api/gifts/order", optionalAuth, async (req, res) => {
   try {
     // ดึงข้อมูลคำสั่งซื้อจาก request body
-    const { items, tableNumber, note, senderName, senderPhone } = req.body;
+    const { items, tableNumber, note, senderName, senderPhone, userId } = req.body;
     if (!Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ success: false, message: "กรุณาเลือกรายการสินค้า" });
     }
@@ -1208,21 +1117,38 @@ app.post("/api/gifts/order", async (req, res) => {
       return res.status(400).json({ success: false, message: "ยอดรวมไม่ถูกต้อง" });
     }
 
-    const order = {
-      id: `gift-${Date.now()}`,
+    const order = new GiftOrder({
+      orderId: `gift-${Date.now()}`,
       senderName: senderName?.trim() || "Guest",
       senderPhone: senderPhone?.trim() || null,
       tableNumber: table,
       note: note ? note.trim() : "",
-      items: validItems,
+      items: validItems.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity
+      })),
       totalPrice,
       status: "pending_payment",
-      createdAt: new Date().toISOString()
+      userId: req.userId || userId || null
+    });
+
+    await order.save();
+
+    const responseOrder = {
+      id: order.orderId,
+      senderName: order.senderName,
+      senderPhone: order.senderPhone,
+      tableNumber: order.tableNumber,
+      note: order.note,
+      items: order.items,
+      totalPrice: order.totalPrice,
+      status: order.status,
+      createdAt: order.createdAt
     };
 
-    giftOrders.push(order);
-    saveGiftOrders();
-    res.json({ success: true, order });
+    res.json({ success: true, order: responseOrder });
   } catch (error) {
     console.error("Create gift order failed", error);
     res.status(500).json({ success: false, message: "ไม่สามารถสร้างคำสั่งซื้อ" });
@@ -1230,17 +1156,34 @@ app.post("/api/gifts/order", async (req, res) => {
 });
 
 // API ดึงข้อมูลคำสั่งซื้อของขวัญด้วย orderId
-app.get("/api/gifts/order/:orderId", (req, res) => {
-  const { orderId } = req.params;
-  const order = giftOrders.find((item) => item.id === orderId);
-  if (!order) {
-    return res.status(404).json({ success: false, message: "ไม่พบคำสั่งซื้อ" });
+app.get("/api/gifts/order/:orderId", async (req, res) => {
+  try {
+    const { orderId } = req.params;
+    const order = await GiftOrder.findOne({ orderId });
+    if (!order) {
+      return res.status(404).json({ success: false, message: "ไม่พบคำสั่งซื้อ" });
+    }
+
+    const responseOrder = {
+      id: order.orderId,
+      senderName: order.senderName,
+      senderPhone: order.senderPhone,
+      tableNumber: order.tableNumber,
+      note: order.note,
+      items: order.items,
+      totalPrice: order.totalPrice,
+      status: order.status,
+      createdAt: order.createdAt
+    };
+
+    res.json({ success: true, order: responseOrder });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
   }
-  res.json({ success: true, order });
 });
 
 // API ยืนยันการชำระเงินสำหรับคำสั่งซื้อของขวัญและส่งข้อมูลไปยัง Admin
-app.post("/api/gifts/order/:orderId/confirm", async (req, res) => {
+app.post("/api/gifts/order/:orderId/confirm", optionalAuth, async (req, res) => {
   const { orderId } = req.params;
   const { userId, email, avatar } = req.body; // รับข้อมูล user จาก frontend
   const shopId = req.headers['x-shop-id'] || ''; // รับ shopId จาก header เพื่อส่งต่อไปยัง Admin
@@ -1250,29 +1193,36 @@ app.post("/api/gifts/order/:orderId/confirm", async (req, res) => {
   console.log("[Gift Order Confirm] email:", email);
   console.log("[Gift Order Confirm] avatar:", avatar);
 
-  const order = giftOrders.find((item) => item.id === orderId);
-  if (!order) {
-    return res.status(404).json({ success: false, message: "ไม่พบคำสั่งซื้อ" });
-  }
-  if (order.status !== "pending_payment") {
-    return res.status(400).json({ success: false, message: "คำสั่งซื้ออยู็ในสถานะที่ไม่สามารถยืนยันได้" });
-  }
-
-  order.status = "awaiting_admin";
-  order.paidAt = new Date().toISOString();
-  saveGiftOrders();
-
   try {
+    const order = await GiftOrder.findOne({ orderId });
+    if (!order) {
+      return res.status(404).json({ success: false, message: "ไม่พบคำสั่งซื้อ" });
+    }
+    if (order.status !== "pending_payment") {
+      return res.status(400).json({ success: false, message: "คำสั่งซื้ออยู่ในสถานะที่ไม่สามารถยืนยันได้" });
+    }
+
+    order.status = "awaiting_admin";
+    if (req.userId || userId) {
+      order.userId = req.userId || userId;
+    }
+    await order.save();
+
     const payload = {
-      orderId: order.id,
+      orderId: order.orderId,
       sender: order.senderName,
       senderPhone: order.senderPhone || null,
-      userId: userId || null,
+      userId: order.userId || null,
       email: email || null,
       avatar: avatar || null,
       tableNumber: order.tableNumber,
       note: order.note,
-      items: order.items,
+      items: order.items.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity
+      })),
       totalPrice: order.totalPrice
     };
 
@@ -1290,19 +1240,37 @@ app.post("/api/gifts/order/:orderId/confirm", async (req, res) => {
     if (!adminResponse.ok) {
       console.error("[Gift Order Confirm] Admin response not OK:", adminResponse.status);
       order.status = "pending_payment";
-      delete order.paidAt;
-      saveGiftOrders();
+      await order.save();
       const message = await adminResponse.text();
       return res.status(502).json({ success: false, message: message || "ส่งข้อมูลไปยังฝั่งแอดมินไม่สำเร็จ" });
     }
 
     console.log("[Gift Order Confirm] Successfully sent to admin");
-    res.json({ success: true, order });
+    
+    const responseOrder = {
+      id: order.orderId,
+      senderName: order.senderName,
+      senderPhone: order.senderPhone,
+      tableNumber: order.tableNumber,
+      note: order.note,
+      items: order.items,
+      totalPrice: order.totalPrice,
+      status: order.status,
+      createdAt: order.createdAt
+    };
+
+    res.json({ success: true, order: responseOrder });
   } catch (error) {
     console.error("Confirm gift order failed", error);
-    order.status = "pending_payment";
-    delete order.paidAt;
-    saveGiftOrders();
+    try {
+      const order = await GiftOrder.findOne({ orderId });
+      if (order) {
+        order.status = "pending_payment";
+        await order.save();
+      }
+    } catch (e) {
+      // ignore
+    }
     res.status(500).json({ success: false, message: "ไม่สามารถแจ้งฝั่งแอดมินได้" });
   }
 });
