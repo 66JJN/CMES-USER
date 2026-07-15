@@ -44,6 +44,7 @@ export async function fetchGiftSettings(shopId) {
  * Send confirmed gift order details to the Admin backend.
  */
 export async function sendGiftOrderToAdmin(shopId, payload) {
+  // 30s timeout: Admin needs time for AI moderation + queue processing
   return fetchWithTimeout(`${ADMIN_API_BASE}/api/gifts/order`, {
     method: "POST",
     headers: {
@@ -51,7 +52,7 @@ export async function sendGiftOrderToAdmin(shopId, payload) {
       "x-shop-id": shopId || "",
     },
     body: JSON.stringify(payload),
-  });
+  }, 30000);
 }
 
 /**

@@ -11,6 +11,10 @@ const giftOrderSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    senderPhone: {
+      type: String,
+      default: null,
+    },
     tableNumber: {
       type: Number,
       required: true,
