@@ -12,10 +12,10 @@ import "../07_Report/Report.css";
 // นำเข้าไอคอนสำหรับผู้ใช้ที่ไม่มีรูปโปรไฟล์
 import unknownPersonIcon from "../data-icon/unknown-person-icon.png";
 // นำเข้าไอคอนรูปภาพสำหรับการ์ดบริการ
-import iconImage from "./icons/icon-image.png";
-import iconText from "./icons/icon-text.png";
-import iconGift from "./icons/icon-gift.png";
-import iconBirthday from "./icons/icon-birthday.png";
+import iconImage from "./icons/icon-image.webp";
+import iconText from "./icons/icon-text.webp";
+import iconGift from "./icons/icon-gift.webp";
+import iconBirthday from "./icons/icon-birthday.webp";
 
 // ฟังก์ชันแปลงตัวเลขเป็นรูปแบบเงินสกุลไทย (เช่น 1000 -> 1,000)
 const formatCurrency = (value) => Number(value || 0).toLocaleString("th-TH");
