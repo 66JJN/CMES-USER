@@ -5,9 +5,9 @@ import { io } from "socket.io-client";
 import "./Select.css";
 import { REALTIME_URL } from "../config/apiConfig";
 // นำเข้าไอคอนรูปภาพสำหรับแสดงประเภทบริการ (เหมือนหน้า Home)
-import iconImage from "../01_Home/icons/icon-image.png";
-import iconText from "../01_Home/icons/icon-text.png";
-import iconBirthday from "../01_Home/icons/icon-birthday.png";
+import iconImage from "../01_Home/icons/icon-image.webp";
+import iconText from "../01_Home/icons/icon-text.webp";
+import iconBirthday from "../01_Home/icons/icon-birthday.webp";
 
 function Select() {
   const navigate = useNavigate();
