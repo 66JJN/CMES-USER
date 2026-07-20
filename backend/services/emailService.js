@@ -3,12 +3,9 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const BREVO_API_KEY = process.env.BREVO_API_KEY;
-const EMAIL_FROM = process.env.EMAIL_FROM || "pyaksda@gmail.com";
-
 /**
- * Sends an email using the Brevo HTTP API.
- * Bypasses all SMTP blocks on host platforms like Render.
+ * Sends an email using Google Apps Script HTTP Web App proxy.
+ * Completely bypasses SMTP port blocking on hosts like Render and DMARC alignment restrictions.
  * 
  * @param {Object} options
  * @param {string} options.to - Recipient email address
@@ -16,39 +13,38 @@ const EMAIL_FROM = process.env.EMAIL_FROM || "pyaksda@gmail.com";
  * @param {string} options.html - HTML content of the email
  */
 export async function sendEmail({ to, subject, html }) {
-  if (!BREVO_API_KEY) {
-    throw new Error("Missing BREVO_API_KEY in environment variables");
+  const GMAIL_SCRIPT_URL = process.env.GMAIL_SCRIPT_URL;
+  // Use JWT_SECRET in .env for authentication (matches the script)
+  const SECRET_KEY =
+    process.env.JWT_SECRET ||
+    "336d4fc2c44e87dfacc204a32a3f1e47479fed76699a0d8b195dfdb3231529df286d6ef4a28bc029ce2a148e171f7bc8f9483b3729f7c51c3a2da4541f4f6c33";
+
+  if (!GMAIL_SCRIPT_URL) {
+    throw new Error("Missing GMAIL_SCRIPT_URL in environment variables");
   }
 
-  const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+  console.log(`[AppsScript] Sending email to ${to} via Google script proxy...`);
+
+  const response = await fetch(GMAIL_SCRIPT_URL, {
     method: "POST",
     headers: {
-      accept: "application/json",
-      "content-type": "application/json",
-      "api-key": BREVO_API_KEY,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      sender: {
-        name: "CMES Support",
-        email: EMAIL_FROM,
-      },
-      to: [
-        {
-          email: to,
-        },
-      ],
+      key: SECRET_KEY,
+      to: to,
       subject: subject,
-      htmlContent: html,
+      html: html,
     }),
   });
 
   const data = await response.json();
 
-  if (!response.ok) {
-    console.error("[Brevo Error] API returned error response:", data);
-    throw new Error(data.message || `Brevo API returned status ${response.status}`);
+  if (!data.success) {
+    console.error("[AppsScript Error] Google Script returned error response:", data);
+    throw new Error(data.error || "Google Script failed to send email");
   }
 
-  console.log(`[Brevo Success] Email sent successfully to ${to}. Message ID: ${data.messageId}`);
+  console.log(`[AppsScript Success] Email sent successfully to ${to}`);
   return data;
 }
