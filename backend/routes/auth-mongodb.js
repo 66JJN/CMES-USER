@@ -1,11 +1,11 @@
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import nodemailer from "nodemailer";
 import dotenv from "dotenv";
 import User from "../models/User.js";
 import fetch from "node-fetch";
 import { JWT_SECRET } from "../middleware/authMiddleware.js"; // 🛡️ ใช้ secret จาก middleware กลาง
+import { sendEmail } from "../services/emailService.js";
 
 dotenv.config();
 
@@ -17,17 +17,6 @@ const ADMIN_API_BASE = (process.env.ADMIN_API_BASE || "https://cmes-admin-server
 // OTP Storage (In-memory)
 // Format: email -> { otp: "123456", expires: Date }
 const otpStore = new Map();
-
-// Nodemailer Transporter
-const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
 
 // Utility functions — ใช้ JWT_SECRET จาก authMiddleware (ไม่ hardcode)
 function generateToken(userId) {
@@ -70,23 +59,22 @@ router.post("/send-email-otp", async (req, res) => {
     // Store OTP
     otpStore.set(email, { otp, expires });
 
-    // Send Email
-    const mailOptions = {
-      from: process.env.EMAIL_USER || "CMES Support",
+    // Send Email via Resend HTTP API
+    const emailHtml = `
+      <div style="font-family: Arial, sans-serif; padding: 20px;">
+        <h2>รหัสยืนยันของคุณ</h2>
+        <p>รหัสยืนยัน (OTP) สำหรับการลงทะเบียนคือ:</p>
+        <h1 style="color: #4CAF50; letter-spacing: 5px;">${otp}</h1>
+        <p>รหัสนี้จะหมดอายุใน 5 นาที</p>
+        <p>หากคุณไม่ได้ทำรายการนี้ โปรดเพิกเฉยต่ออีเมลนี้</p>
+      </div>
+    `;
+
+    await sendEmail({
       to: email,
       subject: "รหัสยืนยันการลงทะเบียน (CMES)",
-      html: `
-        <div style="font-family: Arial, sans-serif; padding: 20px;">
-          <h2>รหัสยืนยันของคุณ</h2>
-          <p>รหัสยืนยัน (OTP) สำหรับการลงทะเบียนคือ:</p>
-          <h1 style="color: #4CAF50; letter-spacing: 5px;">${otp}</h1>
-          <p>รหัสนี้จะหมดอายุใน 5 นาที</p>
-          <p>หากคุณไม่ได้ทำรายการนี้ โปรดเพิกเฉยต่ออีเมลนี้</p>
-        </div>
-      `,
-    };
-
-    await transporter.sendMail(mailOptions);
+      html: emailHtml,
+    });
 
     res.json({ success: true, message: "ส่งรหัส OTP ไปยังอีเมลแล้ว" });
 
