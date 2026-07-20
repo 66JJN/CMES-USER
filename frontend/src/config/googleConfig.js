@@ -1,12 +1,13 @@
-// Google OAuth Configuration
-// Update this file with your actual Google Client ID
-
+/**
+ * Google OAuth Configuration
+ * Priority: process.env.REACT_APP_GOOGLE_CLIENT_ID -> hardcoded fallback client ID
+ */
 export const GOOGLE_CONFIG = {
   // Get your Client ID from: https://console.cloud.google.com/
   // Select your project > APIs & Services > Credentials > OAuth 2.0 Client IDs
   clientId: process.env.REACT_APP_GOOGLE_CLIENT_ID || "588733956605-6d07pgmirpkobtnjj28d68im5qk4u851.apps.googleusercontent.com",
   
-  // These should match your Google Cloud Console settings
+  // Authorized redirect URIs for Google OAuth callback flow
   redirectUris: [
     // ===== LOCAL DEVELOPMENT =====
     "http://localhost:3000",              // Admin Frontend

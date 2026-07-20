@@ -42,134 +42,23 @@ export const handleUnauthorized = () => {
   window.location.href = shopId ? `/?shopId=${shopId}` : "/";
 };
 
-// ===== Authentication Calls =====
-export const registerUser = async (username, email, password) => {
-  const shopId = getShopId();
-  const response = await fetch(`${API_BASE_URL}/api/auth/register?shopId=${shopId}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-shop-id": shopId
-    },
-    body: JSON.stringify({ username, email, password }),
-  });
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.message || "Registration failed");
-  }
-  return data;
-};
-
-export const loginUser = async (email, password) => {
-  const shopId = getShopId();
-  const response = await fetch(`${API_BASE_URL}/api/auth/login?shopId=${shopId}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-shop-id": shopId
-    },
-    body: JSON.stringify({ email, password }),
-  });
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.message || "Login failed");
-  }
-  return data;
-};
-
-export const logoutUser = async () => {
-  const token = getToken();
-  const shopId = getShopId();
-  await fetch(`${API_BASE_URL}/api/auth/logout?shopId=${shopId}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-      "x-shop-id": shopId
-    },
-  });
-  removeToken();
-  removeUser();
-};
-
-export const verifyToken = async (token) => {
-  const shopId = getShopId();
-  const response = await fetch(`${API_BASE_URL}/api/auth/verify-token?shopId=${shopId}`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-shop-id": shopId
-    },
-    body: JSON.stringify({ token }),
-  });
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.message || "Token verification failed");
-  }
-  return data;
-};
-
-export const getUserProfile = async () => {
-  const token = getToken();
-  const shopId = getShopId();
-  if (!token) {
-    throw new Error("No token found");
-  }
-
-  const response = await fetch(`${API_BASE_URL}/api/auth/profile?shopId=${shopId}`, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-      "x-shop-id": shopId
-    },
-  });
-  const data = await response.json();
-  if (response.status === 401) {
-    handleUnauthorized();
-    throw new Error("Session expired");
-  }
-  if (!response.ok) {
-    throw new Error(data.message || "Failed to get profile");
-  }
-  return data;
-};
-
-export const updateUserProfile = async (updates) => {
-  const token = getToken();
-  const shopId = getShopId();
-  if (!token) {
-    throw new Error("No token found");
-  }
-
-  const response = await fetch(`${API_BASE_URL}/api/auth/profile?shopId=${shopId}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${token}`,
-      "x-shop-id": shopId
-    },
-    body: JSON.stringify(updates),
-  });
-  const data = await response.json();
-  if (response.status === 401) {
-    handleUnauthorized();
-    throw new Error("Session expired");
-  }
-  if (!response.ok) {
-    throw new Error(data.message || "Failed to update profile");
-  }
-  return data;
-};
-
 // ===== API Helper with Token =====
+/**
+ * Generic fetch wrapper for CMES API calls.
+ * Automatically injects the shopId header/query and handles token injection and auth failures.
+ * 
+ * @param {string} endpoint - API path (e.g. '/api/auth/profile')
+ * @param {Object} options - Standard fetch options + custom options
+ * @param {boolean} options.skipRedirect - If true, does not redirect to login on 401
+ */
 export const apiCall = async (endpoint, options = {}) => {
+  const { skipRedirect = false, ...fetchOptions } = options;
   const token = getToken();
   const shopId = getShopId();
   const headers = {
     "Content-Type": "application/json",
     "x-shop-id": shopId,
-    ...options.headers,
+    ...fetchOptions.headers,
   };
 
   if (token) {
@@ -178,12 +67,12 @@ export const apiCall = async (endpoint, options = {}) => {
 
   const urlSeparator = endpoint.includes('?') ? '&' : '?';
   const response = await fetch(`${API_BASE_URL}${endpoint}${urlSeparator}shopId=${shopId}`, {
-    ...options,
+    ...fetchOptions,
     headers,
   });
 
   const data = await response.json();
-  if (response.status === 401) {
+  if (response.status === 401 && !skipRedirect) {
     handleUnauthorized();
     throw new Error("Session expired");
   }
@@ -191,6 +80,65 @@ export const apiCall = async (endpoint, options = {}) => {
     throw new Error(data.message || "API call failed");
   }
   return data;
+};
+
+// ===== Authentication Calls =====
+export const registerUser = async (username, email, password) => {
+  return apiCall("/api/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ username, email, password }),
+    skipRedirect: true,
+  });
+};
+
+export const loginUser = async (email, password) => {
+  return apiCall("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+    skipRedirect: true,
+  });
+};
+
+export const logoutUser = async () => {
+  try {
+    await apiCall("/api/auth/logout", {
+      method: "POST",
+      skipRedirect: true,
+    });
+  } catch (err) {
+    console.warn("[Auth] Logout API call failed, clearing local token anyway:", err.message);
+  }
+  removeToken();
+  removeUser();
+};
+
+export const verifyToken = async (token) => {
+  return apiCall("/api/auth/verify-token", {
+    method: "POST",
+    body: JSON.stringify({ token }),
+    skipRedirect: true,
+  });
+};
+
+export const getUserProfile = async () => {
+  const token = getToken();
+  if (!token) {
+    throw new Error("No token found");
+  }
+  return apiCall("/api/auth/profile", {
+    method: "GET",
+  });
+};
+
+export const updateUserProfile = async (updates) => {
+  const token = getToken();
+  if (!token) {
+    throw new Error("No token found");
+  }
+  return apiCall("/api/auth/profile", {
+    method: "PUT",
+    body: JSON.stringify(updates),
+  });
 };
 
 // ===== Check Authentication =====

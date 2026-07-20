@@ -4,12 +4,14 @@ import { isAuthenticated } from "./authService";
 
 /**
  * ProtectedRoute Component
- * ป้องกันการเข้าถึงหน้าที่ต้องเข้าสู่ระบบก่อน
- * ถ้ายังไม่ได้เข้าสู่ระบบจะถูกส่งกลับไปหน้า Register พร้อม shopId
+ * Restricts access to authenticated users only.
+ * If not authenticated, redirects the client to the entry point preserving shopId.
+ * 
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - Child elements to render if authenticated
  */
 export const ProtectedRoute = ({ children }) => {
   if (!isAuthenticated()) {
-    // เก็บ shopId ไว้ตอน redirect เพื่อให้หน้า Register รู้ว่าต้อง connect กับร้านไหน
     const shopId = localStorage.getItem("shopId") || "";
     return <Navigate to={shopId ? `/?shopId=${shopId}` : "/"} replace />;
   }
@@ -18,8 +20,11 @@ export const ProtectedRoute = ({ children }) => {
 
 /**
  * PublicRoute Component
- * ป้องกันการเข้าถึงหน้าสำหรับผู้ที่ยังไม่ได้ล็อกอิน (เช่น หน้า Login, Register)
- * ถ้าเข้าสู่ระบบแล้วจะถูกส่งไปหน้า Home อัตโนมัติ
+ * Restricts access to unauthenticated users only (e.g. Login, Register pages).
+ * If already authenticated, automatically redirects the client to the Home page.
+ * 
+ * @param {Object} props
+ * @param {React.ReactNode} props.children - Child elements to render if unauthenticated
  */
 export const PublicRoute = ({ children }) => {
   if (isAuthenticated()) {
