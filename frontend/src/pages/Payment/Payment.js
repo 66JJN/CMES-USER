@@ -4,13 +4,12 @@
 import { FiChevronLeft } from "react-icons/fi";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import API_BASE_URL from "../config/apiConfig";
-import { ADMIN_API_URL } from "../config/apiConfig";
+import API_BASE_URL, { ADMIN_API_URL } from "../../config/apiConfig";
 import "./Payment.css";
-import promptpayLogo from "../data-icon/promptpay-logo.png";
-import paymentLogo from "../data-icon/payment-logo.jpg";
-import { incrementQueueNumber } from "../utils";
-import SlipUpload from "../06_Slip upload/SlipUpload";
+import promptpayLogo from "../../data-icon/promptpay-logo.png";
+import paymentLogo from "../../data-icon/payment-logo.jpg";
+import { incrementQueueNumber } from "../../utils";
+import SlipUpload from "../SlipUpload/SlipUpload";
 
 /**
  * Payment Component - หน้าชำระเงิน

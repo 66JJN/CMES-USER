@@ -4,9 +4,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import API_BASE_URL from "../config/apiConfig";
+import API_BASE_URL from "../../config/apiConfig";
 import "./Register.css";
-import { getGoogleClientId, isGoogleConfigured } from "../config/googleConfig";
+import { getGoogleClientId, isGoogleConfigured } from "../../config/googleConfig";
 
 /**
  * Register Component - หน้าลงทะเบียนและเข้าสู่ระบบ

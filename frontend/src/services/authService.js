@@ -1,5 +1,4 @@
-import API_BASE_URL from './config/apiConfig';
-
+import API_BASE_URL from '../config/apiConfig';
 
 // ===== Token Management =====
 export const getToken = () => {
@@ -155,8 +154,6 @@ export const checkAuthStatus = async () => {
     return data.success;
   } catch (error) {
     console.error("Auth check failed:", error);
-    // ลบทิ้งเฉพาะกรณีที่เซิร์ฟเวอร์ตอบกลับว่า Token ผิดหรือหมดอายุจริงๆ (401)
-    // ถ้ายิง API ไม่ติด (Network error) จะไม่ลบเพื่อกันผู้ใช้หลุด
     if (error.message && (error.message.includes("Invalid") || error.message.includes("expired") || error.message.includes("No token"))) {
       removeToken();
       removeUser();
@@ -172,7 +169,6 @@ export const initializeAuth = async () => {
       return null;
     }
 
-    // ตรวจสอบ token กับ backend โดยตรง (ไม่ผ่าน getUserProfile เพื่อควบคุม error ได้ดีกว่า)
     const shopId = getShopId();
     const response = await fetch(`${API_BASE_URL}/api/auth/profile?shopId=${shopId}`, {
       method: "GET",
@@ -183,8 +179,6 @@ export const initializeAuth = async () => {
       },
     });
 
-    // ❌ ลบ token เฉพาะตอน 401 (Unauthorized) เท่านั้น
-    // ไม่ลบถ้าเป็น network error, server timeout, หรือ error อื่นๆ
     if (response.status === 401) {
       console.warn("[Auth] Token invalid (401), removing token");
       removeToken();
@@ -200,27 +194,20 @@ export const initializeAuth = async () => {
       }
     }
 
-    // กรณี server error (500, 503 ฯลฯ) หรือ network หลุด → เก็บ token ไว้ก่อน
-    // ผู้ใช้จะยังคงสถานะ login (ตรวจจาก localStorage token ที่ยังอยู่)
     console.warn("[Auth] initializeAuth: non-401 error, keeping token. Status:", response.status);
     return null;
   } catch (error) {
-    // Network error (fetch ล้มเหลว เช่น backend ปิดอยู่) → ไม่ลบ token
     console.warn("[Auth] initializeAuth network error, keeping token:", error.message);
     return null;
   }
 };
+
 export default initializeAuth;
 
 // ===== Toast Notification Trigger =====
-/**
- * @param {string} message - ข้อความที่ต้องการแสดง
- * @param {'success' | 'error' | 'info'} type - ประเภทของ toast
- */
 export const showToast = (message, type = 'success') => {
   const event = new CustomEvent('show-toast', {
     detail: { message, type }
   });
   window.dispatchEvent(event);
 };
-

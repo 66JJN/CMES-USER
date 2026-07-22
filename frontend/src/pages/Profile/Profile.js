@@ -3,8 +3,8 @@ import React, { useState, useEffect, useMemo } from "react";
 import { FiChevronLeft } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import "./Profile.css";
-import API_BASE_URL from "../config/apiConfig";
-import { handleUnauthorized, logoutUser, showToast } from "../authService";
+import API_BASE_URL from "../../config/apiConfig";
+import { handleUnauthorized, logoutUser, showToast } from "../../services/authService";
 
 // Custom Modal Component
 const CustomModal = ({ isOpen, onClose, title, message, type = "info", onConfirm, showCancel = false, confirmText = "ตรวจสอบ", cancelText = "ยกเลิก", isLoading = false }) => {

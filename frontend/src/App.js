@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Register from "./03_Register/Register";
-import Home from "./01_Home/Home";
-import Select from "./05_Select/Select";
-import Upload from "./09_Upload/Upload";
-import Status from "./10_Status/Status";
-import Payment from "./04_Payment/Payment";
-import Profile from "./02_Profile/Profile";
-import Report from "./07_Report/Report";
-import Gift from "./08_Gift/Gift";
+import Register from "./pages/Register/Register";
+import Home from "./pages/Home/Home";
+import Select from "./pages/Select/Select";
+import Upload from "./pages/Upload/Upload";
+import Status from "./pages/Status/Status";
+import Payment from "./pages/Payment/Payment";
+import Profile from "./pages/Profile/Profile";
+import Report from "./pages/Report/Report";
+import Gift from "./pages/Gift/Gift";
 import { ProtectedRoute, PublicRoute } from "./ProtectedRoute";
-import { initializeAuth } from "./authService";
-import Toast from "./Toast";
-import "./Toast.css";
+import { initializeAuth } from "./services/authService";
+import Toast from "./components/Toast";
+import "./components/Toast.css";
 
-import { SocketProvider } from "./context/SocketContext";
+import { SocketProvider } from "./contexts/SocketContext";
 
 function App() {
   const [authLoading, setAuthLoading] = useState(true);

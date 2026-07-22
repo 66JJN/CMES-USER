@@ -3,13 +3,13 @@ import React, { useState, useEffect, useRef } from "react";
 // นำเข้า routing tools สำหรับการนำทางและลิงก์
 import { useNavigate, Link } from "react-router-dom";
 // นำเข้า Custom Hook สำหรับจัดการข้อมูล Realtime & SWR Cache
-import { useHomeData } from "../hooks/useHomeData";
-import { ADMIN_API_URL } from "../config/apiConfig";
+import { useHomeData } from "../../hooks/useHomeData";
+import { ADMIN_API_URL } from "../../config/apiConfig";
 // นำเข้า CSS styles
 import "./Home.css";
-import "../07_Report/Report.css";
+import "../Report/Report.css";
 // นำเข้าไอคอนสำหรับผู้ใช้ที่ไม่มีรูปโปรไฟล์
-import unknownPersonIcon from "../data-icon/unknown-person-icon.png";
+import unknownPersonIcon from "../../data-icon/unknown-person-icon.png";
 // นำเข้าไอคอนรูปภาพสำหรับการ์ดบริการ
 import iconImage from "./icons/icon-image.webp";
 import iconText from "./icons/icon-text.webp";

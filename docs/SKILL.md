@@ -57,28 +57,42 @@ CMES-USER/
 ├── frontend/
 │   ├── public/
 │   ├── src/
-│   │   ├── 01_Home/          # Home.js + Home.css (หน้าหลัก)
-│   │   ├── 02_Profile/       # โปรไฟล์ผู้ใช้
-│   │   ├── 03_Register/      # สมัคร/ล็อกอิน (+ Google OAuth)
-│   │   ├── 04_Payment/       # ชำระเงิน (QR Code + Slip upload)
-│   │   ├── 05_Select/        # เลือกประเภทบริการ
-│   │   ├── 06_Slip upload/   # อัปโหลดสลิป
-│   │   ├── 07_Report/        # รายงานปัญหา
-│   │   ├── 08_Gift/          # ส่งของขวัญ
-│   │   ├── 09_Upload/        # อัปโหลดรูป/ข้อความ
-│   │   ├── 10_Status/        # สถานะคำสั่ง
-│   │   ├── config/
+│   │   ├── components/       # ★ Shared UI Components Layer (Toast, Badges, Overlays)
+│   │   │   ├── Toast.js
+│   │   │   └── Toast.css
+│   │   ├── config/           # ★ API & App Configuration
 │   │   │   ├── apiConfig.js      # API_BASE_URL, ADMIN_API_URL, REALTIME_URL
 │   │   │   └── googleConfig.js   # Google OAuth config
-│   │   ├── context/
+│   │   ├── contexts/         # ★ Global React Contexts (SocketContext)
 │   │   │   └── SocketContext.js   # ★ Global Socket.IO Provider (singleton)
-│   │   ├── authService.js    # ★ Auth utility — token, shopId, apiCall()
+│   │   ├── hooks/            # ★ Custom Hooks (Application/Logic Layer)
+│   │   │   ├── useHomeData.js    # Home page state & socket logic
+│   │   │   ├── useProfileData.js # Profile page state & logic
+│   │   │   └── useSelectData.js  # Service selection logic
+│   │   ├── pages/            # ★ Pure Presentation Pages (Clean & Grouped)
+│   │   │   ├── Home/             # Home.js + Home.css (หน้าหลัก)
+│   │   │   ├── Profile/          # Profile.js + Profile.css (โปรไฟล์)
+│   │   │   ├── Register/         # Register.js + CSS (สมัคร/ล็อกอิน)
+│   │   │   ├── Payment/          # Payment.js + Payment.css (ชำระเงิน)
+│   │   │   ├── Select/           # Select.js + Select.css (เลือกบริการ)
+│   │   │   ├── SlipUpload/       # SlipUpload.js + SlipUpload.css (อัปโหลดสลิป)
+│   │   │   ├── Report/           # Report.js + Report.css (รายงานปัญหา)
+│   │   │   ├── Gift/             # Gift.js + Gift.css (ส่งของขวัญ)
+│   │   │   ├── Upload/           # Upload.js + Upload.css (อัปโหลดรูป/ข้อความ)
+│   │   │   └── Status/           # Status.js + Status.css (สถานะคำสั่ง)
+│   │   ├── services/         # ★ Data & Infrastructure Layer (API Gateway)
+│   │   │   └── authService.js    # Central Auth utility — token, shopId, apiCall()
 │   │   ├── ProtectedRoute.js # ★ Route guards (ProtectedRoute + PublicRoute)
 │   │   ├── App.js            # Router + Auth init + <SocketProvider> wrapper
 │   │   ├── App.css
 │   │   ├── index.js
 │   │   └── utils.js
 │   └── package.json
+
+### Naming Convention — Page Folders
+- เก็บใน `src/pages/PageName/` ตามมาตรฐานเดียวกับ `CMES-ADMIN`
+- ห้ามใช้ตัวเลขนำหน้า หรือเว้นวรรคในชื่อโฟลเดอร์ (เช่น ใช้ `pages/SlipUpload/` ไม่ใช้ `06_Slip upload/`)
+- แต่ละโฟลเดอร์มี `PageName.js` + `PageName.css` (1 component = 1 CSS file)
 │
 ├── backend/
 │   ├── server.js             # ★ Main entry — Express + Socket.IO + route mounting

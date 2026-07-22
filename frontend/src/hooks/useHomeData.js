@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { ADMIN_API_URL } from "../config/apiConfig";
-import { apiCall, getShopId, getToken } from "../authService";
-import { useSocket } from "../context/SocketContext";
+import { apiCall, getShopId, getToken } from "../services/authService";
+import { useSocket } from "../contexts/SocketContext";
 
 // ===== In-Memory SWR Cache (Module-Scoped) =====
 // Retains cached data across route navigation within the SPA session

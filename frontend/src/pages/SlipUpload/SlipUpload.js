@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import axios from "axios";
-import API_BASE_URL from "../config/apiConfig";
-import { showToast } from "../authService";
+import API_BASE_URL from "../../config/apiConfig";
+import { showToast } from "../../services/authService";
 
 /**
  * Component สำหรับอัปโหลดและตรวจสอบสลิปการชำระเงิน

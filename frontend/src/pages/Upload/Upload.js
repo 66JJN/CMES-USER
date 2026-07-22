@@ -1,21 +1,21 @@
 // ==================== IMPORTS ====================
 // นำเข้า React hooks สำหรับจัดการ state และ side effects
 import { FiChevronLeft } from "react-icons/fi";
-import { showToast } from "../authService";
+import { showToast } from "../../services/authService";
 import React, { useState, useEffect } from "react";
 // นำเข้า hooks สำหรับการนำทาง (routing)
 import { useLocation, useNavigate } from "react-router-dom";
 // นำเข้า URL ของ Backend API (User และ Admin)
-import API_BASE_URL, { ADMIN_API_URL } from "../config/apiConfig";
+import API_BASE_URL, { ADMIN_API_URL } from "../../config/apiConfig";
 // นำเข้าฟังก์ชันสำหรับเพิ่มหมายเลขคิว (Queue Number)
-import { incrementQueueNumber } from "../utils";
+import { incrementQueueNumber } from "../../utils";
 // นำเข้า CSS สำหรับ styling
 import "./Upload.css";
 // นำเข้า logo ของ social media ต่างๆ
-import igLogo from "../data-icon/ig-logo.png";
-import fbLogo from "../data-icon/facebook-logo.png";
-import lineLogo from "../data-icon/line-logo.png";
-import tiktokLogo from "../data-icon/tiktok-logo.png";
+import igLogo from "../../data-icon/ig-logo.png";
+import fbLogo from "../../data-icon/facebook-logo.png";
+import lineLogo from "../../data-icon/line-logo.png";
+import tiktokLogo from "../../data-icon/tiktok-logo.png";
 
 // ==================== COMPONENT MAIN ====================
 function Upload() {

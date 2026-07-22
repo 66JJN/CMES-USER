@@ -1,12 +1,12 @@
 import { FiChevronLeft } from "react-icons/fi";
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useSocket } from "../context/SocketContext";
+import { useSocket } from "../../contexts/SocketContext";
 import "./Select.css";
 // นำเข้าไอคอนรูปภาพสำหรับแสดงประเภทบริการ (เหมือนหน้า Home)
-import iconImage from "../01_Home/icons/icon-image.webp";
-import iconText from "../01_Home/icons/icon-text.webp";
-import iconBirthday from "../01_Home/icons/icon-birthday.webp";
+import iconImage from "../Home/icons/icon-image.webp";
+import iconText from "../Home/icons/icon-text.webp";
+import iconBirthday from "../Home/icons/icon-birthday.webp";
 
 function Select() {
   const navigate = useNavigate();

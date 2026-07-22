@@ -7,9 +7,9 @@ import { FiChevronLeft } from "react-icons/fi";
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Gift.css";
-import { incrementQueueNumber } from "../utils";
+import { incrementQueueNumber } from "../../utils";
 
-import API_BASE_URL, { ADMIN_API_URL, REALTIME_URL } from '../config/apiConfig';
+import API_BASE_URL, { ADMIN_API_URL, REALTIME_URL } from '../../config/apiConfig';
 
 // API endpoints สำหรับเชื่อมต่อกับ backend
 const API_BASE = API_BASE_URL;
