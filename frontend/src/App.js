@@ -14,6 +14,8 @@ import { initializeAuth } from "./authService";
 import Toast from "./Toast";
 import "./Toast.css";
 
+import { SocketProvider } from "./context/SocketContext";
+
 function App() {
   const [authLoading, setAuthLoading] = useState(true);
 
@@ -90,47 +92,49 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={<PublicRoute><Register /></PublicRoute>}
-        />
-        <Route
-          path="/home"
-          element={<ProtectedRoute><Home /></ProtectedRoute>}
-        />
-        <Route
-          path="/select"
-          element={<ProtectedRoute><Select /></ProtectedRoute>}
-        />
-        <Route
-          path="/upload"
-          element={<ProtectedRoute><Upload /></ProtectedRoute>}
-        />
-        <Route
-          path="/status"
-          element={<ProtectedRoute><Status /></ProtectedRoute>}
-        />
-        <Route
-          path="/payment"
-          element={<ProtectedRoute><Payment /></ProtectedRoute>}
-        />
-        <Route
-          path="/report"
-          element={<ProtectedRoute><Report /></ProtectedRoute>}
-        />
-        <Route
-          path="/profile"
-          element={<ProtectedRoute><Profile /></ProtectedRoute>}
-        />
-        <Route
-          path="/gift"
-          element={<ProtectedRoute><Gift /></ProtectedRoute>}
-        />
-      </Routes>
-      <Toast />
-    </BrowserRouter>
+    <SocketProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/"
+            element={<PublicRoute><Register /></PublicRoute>}
+          />
+          <Route
+            path="/home"
+            element={<ProtectedRoute><Home /></ProtectedRoute>}
+          />
+          <Route
+            path="/select"
+            element={<ProtectedRoute><Select /></ProtectedRoute>}
+          />
+          <Route
+            path="/upload"
+            element={<ProtectedRoute><Upload /></ProtectedRoute>}
+          />
+          <Route
+            path="/status"
+            element={<ProtectedRoute><Status /></ProtectedRoute>}
+          />
+          <Route
+            path="/payment"
+            element={<ProtectedRoute><Payment /></ProtectedRoute>}
+          />
+          <Route
+            path="/report"
+            element={<ProtectedRoute><Report /></ProtectedRoute>}
+          />
+          <Route
+            path="/profile"
+            element={<ProtectedRoute><Profile /></ProtectedRoute>}
+          />
+          <Route
+            path="/gift"
+            element={<ProtectedRoute><Gift /></ProtectedRoute>}
+          />
+        </Routes>
+        <Toast />
+      </BrowserRouter>
+    </SocketProvider>
   );
 }
 

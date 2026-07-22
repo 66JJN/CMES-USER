@@ -1,9 +1,8 @@
 import { FiChevronLeft } from "react-icons/fi";
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { io } from "socket.io-client";
+import { useSocket } from "../context/SocketContext";
 import "./Select.css";
-import { REALTIME_URL } from "../config/apiConfig";
 // นำเข้าไอคอนรูปภาพสำหรับแสดงประเภทบริการ (เหมือนหน้า Home)
 import iconImage from "../01_Home/icons/icon-image.webp";
 import iconText from "../01_Home/icons/icon-text.webp";
@@ -30,29 +29,34 @@ function Select() {
     birthday: iconBirthday,
   };
 
-  useEffect(() => {
-    const shopId = new URLSearchParams(window.location.search).get("shopId") || localStorage.getItem("shopId") || "";
-    console.log("[Select] shopId:", shopId);
-    const socket = io(REALTIME_URL, { query: { shopId } });
+  const { socket, systemConfig } = useSocket();
 
-    socket.on("status", (data) => {
-      console.log("Received status event:", data);
-      if (data.settings) {
-        const filtered = data.settings.filter(pkg => pkg.mode === type);
-        console.log("Filtered packages for", type, ":", filtered);
+  // Sync packages from systemConfig when systemConfig or type changes
+  useEffect(() => {
+    if (systemConfig && systemConfig.settings) {
+      const filtered = systemConfig.settings.filter((pkg) => pkg.mode === type);
+      setPackages(filtered);
+    }
+  }, [systemConfig, type]);
+
+  // Listen to status event on shared socket
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleStatus = (data) => {
+      if (data && data.settings) {
+        const filtered = data.settings.filter((pkg) => pkg.mode === type);
         setPackages(filtered);
       }
-    });
+    };
 
-    // 🔥 emit getConfig inside connect handler so it fires on initial connect
-    // AND on every reconnect (important: emitting before connect only buffers
-    // once — a disconnect before flush loses the event)
-    socket.on("connect", () => {
-      socket.emit("getConfig");
-    });
+    socket.on("status", handleStatus);
+    socket.emit("getConfig");
 
-    return () => socket.disconnect();
-  }, [type]);
+    return () => {
+      socket.off("status", handleStatus);
+    };
+  }, [socket, type]);
 
   const handleSelect = (time, price, index) => {
     setTime(time);

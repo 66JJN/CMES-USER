@@ -3,9 +3,9 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 // นำเข้า routing tools สำหรับการนำทางและลิงก์
 import { useNavigate, Link } from "react-router-dom";
 // นำเข้า API base URL สำหรับเชื่อมต่อกับ backend
-import API_BASE_URL, { ADMIN_API_URL, REALTIME_URL } from "../config/apiConfig";
-// นำเข้า socket.io สำหรับการสื่อสาร realtime
-import { io } from "socket.io-client";
+import API_BASE_URL, { ADMIN_API_URL } from "../config/apiConfig";
+// นำเข้า global socket context
+import { useSocket } from "../context/SocketContext";
 // นำเข้า CSS styles
 import "./Home.css";
 import "../07_Report/Report.css";
@@ -313,15 +313,15 @@ function Home() {
 
 
 
-  // ===== useEffect: เชื่อมต่อ Socket.IO สำหรับรับข้อมูล realtime =====
-  useEffect(() => {
-    if (!shopId) return;
-    // เชื่อมต่อกับ Realtime Server จาก Admin Backend
-    const socketInstance = io(REALTIME_URL, { query: { shopId } });
-    socketRef.current = socketInstance;
+  // ===== Global Socket Context =====
+  const { socket } = useSocket();
+  socketRef.current = socket;
 
-    // รับฟังการอัปเดตการตั้งค่าระบบจาก Admin
-    socketInstance.on("configUpdate", (newConfig) => {
+  // ===== useEffect: ฟังข้อมูล Realtime จาก Global Socket =====
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleConfigUpdate = (newConfig) => {
       setStatus((prev) => ({
         ...prev,
         systemOn: newConfig.systemOpen ?? newConfig.systemOn ?? prev.systemOn,
@@ -330,9 +330,9 @@ function Home() {
         giftOn: newConfig.enableGift ?? prev.giftOn,
         birthdayOn: newConfig.enableBirthday ?? prev.birthdayOn,
       }));
-    });
-    // รับฟังสถานะระบบจาก Admin
-    socketInstance.on("status", (socketStatus) => {
+    };
+
+    const handleStatus = (socketStatus) => {
       if (!socketStatus) return;
       setStatus((prev) => ({
         ...prev,
@@ -342,36 +342,36 @@ function Home() {
         giftOn: socketStatus.enableGift ?? prev.giftOn,
         birthdayOn: socketStatus.enableBirthday ?? prev.birthdayOn,
       }));
-    });
+    };
 
-    // รับฟังการเปลี่ยนประเภทอันดับที่ Admin กำหนด (daily/monthly/alltime)
-    socketInstance.on("publicRankingTypeUpdated", (data) => {
-      // console.log("[User] Public ranking type updated:", data.type);
+    const handlePublicRanking = (data) => {
       setRankingType(data.type);
-    });
+    };
 
-    // รับฟังการอัปเดตรายการสิทธิพิเศษ (perks) จาก Admin
-    socketInstance.on("perksUpdated", (data) => {
-      // console.log("[User] 🔥 Perks updated via Socket.IO:", data.perks);
+    const handlePerksUpdated = (data) => {
       if (data && data.perks && Array.isArray(data.perks)) {
-        // console.log("[User] ✅ Setting new perks:", data.perks.length, "items");
         setPerks(data.perks);
-        // Force update ถ้า modal เปิดอยู่
-        if (showPerkModal) {
-          // console.log("[User] 🔄 Perk modal is open, will re-render with new perks");
-        }
       } else {
         console.warn("[User] ⚠️ Invalid perks data received:", data);
       }
-    });
+    };
+
+    socket.on("configUpdate", handleConfigUpdate);
+    socket.on("status", handleStatus);
+    socket.on("publicRankingTypeUpdated", handlePublicRanking);
+    socket.on("perksUpdated", handlePerksUpdated);
 
     // ขอข้อมูลการตั้งค่าเริ่มต้นจาก server
-    socketInstance.emit("getConfig");
+    socket.emit("getConfig");
 
-    // Cleanup: ตัดการเชื่อมต่อเมื่อ component unmount
-    return () => socketInstance.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shopId]);
+    // Cleanup: ถอดเฉพาะ event listeners (ไม่ disconnect socket กลาง)
+    return () => {
+      socket.off("configUpdate", handleConfigUpdate);
+      socket.off("status", handleStatus);
+      socket.off("publicRankingTypeUpdated", handlePublicRanking);
+      socket.off("perksUpdated", handlePerksUpdated);
+    };
+  }, [socket]);
 
   // ===== useEffect: ดึงสถานะระบบล่าสุดจาก backend เมื่อเข้าหน้า Home =====
   useEffect(() => {
