@@ -226,51 +226,56 @@ http://localhost:3000/?shopId=demo
 CMES-USER/
 ├── frontend/
 │   ├── src/
-│   │   ├── 01_Home/          # Home dashboard + ranking
-│   │   ├── 02_Profile/       # User profile management
-│   │   ├── 03_Register/      # Register / Login / Google OAuth
-│   │   ├── 04_Payment/       # QR Code + Slip upload
-│   │   ├── 05_Select/        # Service selection
-│   │   ├── 06_Slip upload/   # Slip upload flow
-│   │   ├── 07_Report/        # Bug report
-│   │   ├── 08_Gift/          # Gift system
-│   │   ├── 09_Upload/        # Image/text upload
-│   │   ├── 10_Status/        # Order status
-│   │   ├── config/           # apiConfig.js, googleConfig.js
-│   │   ├── authService.js    # ★ Central auth + API utility
-│   │   ├── ProtectedRoute.js # Route guards
-│   │   └── App.js            # Router + auth init
-│   ├── postcss.config.js     # PostCSS config (moved)
-│   ├── tailwind.config.js    # Tailwind config (moved)
+│   │   ├── pages/                # ★ Pure Presentation Pages (1 Page = 1 Directory)
+│   │   │   ├── Home/             #   Home.js + Home.css (หน้าหลัก + Ranking)
+│   │   │   ├── Profile/          #   Profile.js + Profile.css (โปรไฟล์)
+│   │   │   ├── Register/         #   Register.js + Register.css (สมัคร/ล็อกอิน)
+│   │   │   ├── Payment/          #   Payment.js + Payment.css (ชำระเงิน)
+│   │   │   ├── Select/           #   Select.js + Select.css (เลือกบริการ)
+│   │   │   ├── SlipUpload/       #   SlipUpload.js (อัปโหลดสลิป)
+│   │   │   ├── Report/           #   Report.js + Report.css (รายงานปัญหา)
+│   │   │   ├── Gift/             #   Gift.js + Gift.css (ส่งของขวัญ)
+│   │   │   ├── Upload/           #   Upload.js + Upload.css (อัปโหลดรูป/ข้อความ)
+│   │   │   └── Status/           #   Status.js (สถานะคำสั่ง)
+│   │   ├── components/           # ★ Shared Reusable UI Components
+│   │   │   ├── Toast.js          #   Toast notification component
+│   │   │   └── Toast.css         #   Toast styling
+│   │   ├── contexts/             # ★ Global React Contexts
+│   │   │   └── SocketContext.js  #   Socket.IO Provider (singleton connection)
+│   │   ├── hooks/                # ★ Custom Hooks (Business Logic Layer)
+│   │   │   └── useHomeData.js    #   Home page state, SWR cache, socket events
+│   │   ├── services/             # ★ Data & Infrastructure Layer (API Gateway)
+│   │   │   └── authService.js    #   Central auth utility — token, shopId, apiCall()
+│   │   ├── config/               # ★ App Configuration
+│   │   │   ├── apiConfig.js      #   API_BASE_URL, ADMIN_API_URL, REALTIME_URL
+│   │   │   └── googleConfig.js   #   Google OAuth Client ID
+│   │   ├── data-icon/            # Static icon assets
+│   │   ├── ProtectedRoute.js     # Route guards (ProtectedRoute + PublicRoute)
+│   │   ├── App.js                # Router + Auth init + <SocketProvider> wrapper
+│   │   ├── App.css               # Global app styles
+│   │   ├── index.js              # React entry point
+│   │   └── utils.js              # Pure utility helpers
+│   ├── postcss.config.js         # PostCSS config
+│   ├── tailwind.config.js        # Tailwind config
 │   └── package.json
 │
 ├── backend/
-│   ├── server.js             # ★ Express + all API routes
-│   ├── routes/auth-mongodb.js# Auth endpoints
-│   ├── middleware/           # JWT verification
-│   ├── models/               # User, GiftOrder
-│   ├── uploads/              # Local uploads buffer
-│   ├── tessdata/             # ★ Tesseract isolated language models
+│   ├── server.js                 # ★ Express + all API routes
+│   ├── routes/auth-mongodb.js    # Auth endpoints
+│   ├── middleware/               # JWT verification
+│   ├── models/                   # User, GiftOrder
+│   ├── uploads/                  # Local uploads buffer
+│   ├── tessdata/                 # ★ Tesseract isolated language models
 │   │   ├── eng.traineddata
 │   │   └── tha.traineddata
-│   ├── requirements.txt      # Python requirements (moved)
 │   └── package.json
 │
-├── scripts/                  # ★ Dedicated setup script folder
-│   ├── setup.sh              # Installation script for Linux/macOS (moved)
-│   └── setup.ps1             # Installation script for Windows (moved)
-│
-├── docs/                     # ★ Project documentation folder
-│   ├── screenshots/          # App screenshots
-│   ├── skills/               # Developer skills (debug-mantra, post-mortem, etc.)
-│   ├── AUTH_SETUP.md         # Auth implementation guide
-│   ├── BUGLOG.md             # Change history & bug tracking
-│   ├── DESIGN.md             # System design specifications
-│   ├── GOOGLE_OAUTH_SETUP.md # Google Login OAuth setup guide
-│   ├── QUICK_START.md        # Rapid onboarding handbook
-│   ├── START_HERE.txt        # Initial onboarding check-in summary
-│   └── SKILL.md              # AI coding guidelines
-└── README.md                 # ← You are here
+├── docs/                         # ★ Project documentation folder
+│   ├── screenshots/              # App screenshots
+│   ├── BUGLOG.md                 # Change history & bug tracking
+│   ├── DESIGN.md                 # System design specifications
+│   └── SKILL.md                  # Architecture & coding guidelines
+└── README.md                     # ← You are here
 ```
 
 ---
