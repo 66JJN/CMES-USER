@@ -13,7 +13,8 @@ const giftOrderSchema = new mongoose.Schema(
     },
     senderPhone: {
       type: String,
-      default: null,
+      required: true,
+      match: [/^\d{10}$/, "Sender phone must contain exactly 10 digits"],
     },
     tableNumber: {
       type: Number,

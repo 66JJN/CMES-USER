@@ -34,6 +34,11 @@ export async function createGiftOrder(req, res, next) {
       return res.status(400).json({ success: false, message: "เลขโต๊ะไม่ถูกต้อง" });
     }
 
+    const normalizedPhone = String(senderPhone || "").trim();
+    if (!/^\d{10}$/.test(normalizedPhone)) {
+      return res.status(400).json({ success: false, message: "กรุณากรอกเบอร์โทรศัพท์เป็นตัวเลข 10 หลัก" });
+    }
+
     const validItems = items
       .map((orderItem) => {
         const found = (settings.items || []).find((item) => item.id === orderItem.id);
@@ -62,7 +67,7 @@ export async function createGiftOrder(req, res, next) {
     const order = new GiftOrder({
       orderId: `gift-${Date.now()}`,
       senderName: senderName?.trim() || "Guest",
-      senderPhone: senderPhone?.trim() || null,
+      senderPhone: normalizedPhone,
       tableNumber: table,
       note: note ? note.trim() : "",
       items: validItems.map((item) => ({

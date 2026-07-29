@@ -345,6 +345,19 @@
   background: rgba(0, 0, 0, 0.3);
 }
 
+.input-field.input-invalid {
+  border-color: #fb7185;
+  box-shadow: 0 0 0 2px rgba(251, 113, 133, 0.18);
+}
+
+.field-error {
+  display: block;
+  color: #fda4af;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  margin-top: 0.35rem;
+}
+
 .helper-text {
   display: block;
   font-size: 0.75rem;
@@ -720,6 +733,18 @@
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
+}
+
+.cyberpunk-alert {
+  background: rgba(239, 68, 68, 0.14);
+  border: 1px solid rgba(251, 113, 133, 0.7);
+  color: #fecdd3;
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  margin: -0.5rem 0 0.25rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
 }
 
 .cyberpunk-btn {

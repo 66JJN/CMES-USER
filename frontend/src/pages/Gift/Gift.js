@@ -46,6 +46,7 @@ function Gift() {
 	const [loading, setLoading] = useState(true); // สถานะโหลดข้อมูล
 	const [submitting, setSubmitting] = useState(false); // สถานะกำลังส่งคำสั่งซื้อ
 	const [errorMessage, setErrorMessage] = useState(""); // ข้อความ error
+	const [fieldErrors, setFieldErrors] = useState({});
 	const [giftDisabled, setGiftDisabled] = useState(false); // ระบบปิดฟังก์ชันส่งของขวัญหรือไม่
 	const [statusChecked, setStatusChecked] = useState(false); // ตรวจสอบสถานะระบบแล้วหรือยัง
 	const [giftStatusMessage, setGiftStatusMessage] = useState(""); // ข้อความสถานะระบบ
@@ -188,25 +189,50 @@ function Gift() {
 		setQuantities({});
 	};
 
+	const clearFieldError = (field) => {
+		setFieldErrors((previous) => {
+			if (!previous[field]) return previous;
+			const next = { ...previous };
+			delete next[field];
+			return next;
+		});
+	};
+
+	const showValidationError = (field, message) => {
+		setFieldErrors({ [field]: message });
+		setErrorMessage(message);
+	};
+
+	const validateOrder = () => {
+		if (selectedItems.length === 0) {
+			showValidationError("items", "กรุณาเลือกของขวัญอย่างน้อย 1 รายการ");
+			return false;
+		}
+
+		const table = Number(tableNumber);
+		if (!Number.isInteger(table) || table < 1 || (tableLimit > 0 && table > tableLimit)) {
+			showValidationError("tableNumber", tableLimit
+				? `กรุณาระบุเลขโต๊ะระหว่าง 1 - ${tableLimit}`
+				: "กรุณาระบุเลขโต๊ะที่ถูกต้อง");
+			return false;
+		}
+
+		if (!/^\d{10}$/.test(senderPhone)) {
+			showValidationError("senderPhone", "กรุณากรอกเบอร์โทรศัพท์เป็นตัวเลข 10 หลัก");
+			return false;
+		}
+
+		setFieldErrors({});
+		setErrorMessage("");
+		return true;
+	};
+
 	/**
 	 * ตรวจสอบข้อมูลก่อนแสดง Modal ยืนยัน
 	 * เช็คว่ามีการเลือกสินค้าและระบุเลขโต๊ะหรือไม่
 	 */
 	const handleSubmit = () => {
-		setErrorMessage("");
-
-		// ตรวจสอบว่ามีการเลือกสินค้าหรือไม่
-		if (selectedItems.length === 0) {
-			setErrorMessage("กรุณาเลือกสินค้าอย่างน้อย 1 รายการ");
-			return;
-		}
-		// ตรวจสอบว่าระบุเลขโต๊ะหรือไม่
-		if (!tableNumber) {
-			setErrorMessage("กรุณาระบุเลขโต๊ะที่ต้องการส่ง");
-			return;
-		}
-
-		// แสดง Modal ยืนยัน
+		if (!validateOrder()) return;
 		setShowConfirmModal(true);
 	};
 
@@ -217,6 +243,7 @@ function Gift() {
 	 */
 	const handleConfirmSubmit = async () => {
 		if (submitting) return; // ป้องกันการกดซ้ำ
+		if (!validateOrder()) return;
 		setSubmitting(true);
 		try {
 			// เตรียมข้อมูลสำหรับส่งไปยัง API
@@ -232,7 +259,7 @@ function Gift() {
 					quantity: item.quantity
 				})),
 				avatar: userAvatar || null,
-				senderPhone: senderPhone.trim() || null
+				senderPhone
 			};
 
 			// ส่งคำสั่งซื้อไปยัง backend
@@ -430,13 +457,17 @@ function Gift() {
 					<label className="input-label">เลขโต๊ะที่ต้องการส่ง</label>
 					<input
 						type="number"
-						className="input-field"
+						className={`input-field ${fieldErrors.tableNumber ? "input-invalid" : ""}`}
 						min="1"
 						max={tableLimit || undefined}
 						value={tableNumber}
-						onChange={(e) => setTableNumber(e.target.value)}
+						onChange={(e) => {
+							setTableNumber(e.target.value);
+							clearFieldError("tableNumber");
+						}}
 						placeholder={tableLimit ? `1 - ${tableLimit}` : "ระบุเลขโต๊ะ"}
 					/>
+					{fieldErrors.tableNumber && <small className="field-error" role="alert">{fieldErrors.tableNumber}</small>}
 					{tableLimit > 0 && (
 						<small className="helper-text">รองรับสูงสุด {tableLimit} โต๊ะ</small>
 					)}
@@ -444,12 +475,19 @@ function Gift() {
 					<label className="input-label">เบอร์โทรผู้ส่ง (สำหรับติดต่อกลับ)</label>
 					<input
 						type="tel"
-						className="input-field"
-						placeholder="0XX-XXX-XXXX"
+						className={`input-field ${fieldErrors.senderPhone ? "input-invalid" : ""}`}
+						placeholder="0XXXXXXXXX (10 หลัก)"
 						value={senderPhone}
-						onChange={(e) => setSenderPhone(e.target.value)}
+						inputMode="numeric"
+						pattern="[0-9]{10}"
+						required
+						onChange={(e) => {
+							setSenderPhone(e.target.value.replace(/\D/g, "").slice(0, 10));
+							clearFieldError("senderPhone");
+						}}
 						maxLength={10}
 					/>
+					{fieldErrors.senderPhone && <small className="field-error" role="alert">{fieldErrors.senderPhone}</small>}
 
 					<label className="input-label">ข้อความถึงโต๊ะ</label>
 					<textarea
@@ -492,7 +530,7 @@ function Gift() {
 
 					<button
 						className="gift-submit"
-						disabled={submitting || selectedItems.length === 0 || !tableNumber}
+						disabled={submitting || selectedItems.length === 0}
 						onClick={handleSubmit}
 					>
 						{submitting ? "กำลังสร้างคำสั่งซื้อ..." : "ไปหน้าชำระเงิน"}
@@ -592,6 +630,12 @@ function Gift() {
 						<span>Total Price</span>
 						<strong>{formatCurrency(totalPrice)}</strong>
 					</div>
+
+					{errorMessage && (
+						<div className="cyberpunk-alert" role="alert">
+							{errorMessage}
+						</div>
+					)}
 
 					{/* Action Buttons */}
 					<div className="cyberpunk-actions">
