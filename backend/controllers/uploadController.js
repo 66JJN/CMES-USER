@@ -12,6 +12,27 @@ const ADMIN_API_BASE = (process.env.ADMIN_API_BASE || "https://cmes-admin-server
 
 // In-memory pending uploads store
 export const pendingUploads = new Map();
+const paymentReservationLocks = new Map();
+
+const withPaymentReservationLock = async (key, work) => {
+  const previous = paymentReservationLocks.get(key) || Promise.resolve();
+  const current = previous.catch(() => undefined).then(work);
+  paymentReservationLocks.set(key, current);
+  try {
+    return await current;
+  } finally {
+    if (paymentReservationLocks.get(key) === current) paymentReservationLocks.delete(key);
+  }
+};
+
+const hasUserQueueQuota = (userId) => userId && !['guest', 'unknown'].includes(userId);
+
+const pendingPaidReservationCount = (shopId, userId) => [...pendingUploads.values()]
+  .filter((upload) => (
+    upload.shopId === shopId
+    && upload.userId === userId
+    && Number(upload.price) > 0
+  )).length;
 
 // The User service proxies submissions to Admin. Preserve an actionable
 // upstream message instead of returning a long "Admin backend error" string.
@@ -26,6 +47,36 @@ async function readUpstreamError(response, fallbackMessage) {
     // Do not expose a full proxy/HTML error page to the guest.
     return rawBody.length <= 240 ? rawBody : fallbackMessage;
   }
+}
+
+async function assertQueueEligibility(shopId, userId) {
+  // The active-queue quota currently applies to signed-in users. Guests are
+  // protected by the submission/IP rate limiter instead.
+  if (!userId || ['guest', 'unknown'].includes(userId)) return;
+
+  const response = await fetch(`${ADMIN_API_BASE}/api/queue/eligibility`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-shop-id': shopId,
+      'x-cmes-service-token': process.env.USER_SERVICE_TOKEN || '',
+    },
+    body: JSON.stringify({ userId }),
+  });
+
+  if (!response.ok) {
+    const fallbackMessage = response.status === 404
+      ? 'ระบบยังไม่พร้อมรับรายการ กรุณาลองใหม่อีกครั้ง (ยังไม่ได้มีการรับชำระเงิน)'
+      : 'ไม่สามารถตรวจสอบคิวได้ กรุณาลองใหม่อีกครั้ง';
+    const error = new Error(await readUpstreamError(
+      response,
+      fallbackMessage
+    ));
+    error.status = response.status;
+    throw error;
+  }
+
+  return response.json();
 }
 
 async function forwardUploadToAdmin(uploadData, shopId) {
@@ -183,11 +234,14 @@ export async function uploadPendingContent(req, res, next) {
       qrCodePath: req.files?.qrCode?.[0]?.path || null,
       timestamp: new Date(),
       status: "pending",
+      shopId: req.headers["x-shop-id"] || "",
     };
 
     const shopId = req.headers["x-shop-id"] || "";
     if (!shopId) return res.status(400).json({ success: false, message: "Missing shopId" });
 
+    // Do this before returning an uploadId / opening PromptPay. Otherwise a
+    // full queue would only be discovered after the guest had paid.
     // A zero-price package skips payment, but it is still submitted through
     // this server. The browser never receives Admin credentials or calls it.
     if (Number(price) === 0) {
@@ -195,7 +249,29 @@ export async function uploadPendingContent(req, res, next) {
       return res.json({ success: true, uploadId: adminResult.uploadId });
     }
 
-    pendingUploads.set(uploadId, uploadData);
+    try {
+      if (hasUserQueueQuota(uploadData.userId)) {
+        await withPaymentReservationLock(`${shopId}:${uploadData.userId}`, async () => {
+          const eligibility = await assertQueueEligibility(shopId, uploadData.userId);
+          const reservedCount = pendingPaidReservationCount(shopId, uploadData.userId);
+          if (eligibility.activeCount + reservedCount >= eligibility.limit) {
+            const error = new Error(`คุณมีคิวที่กำลังรออยู่ครบ ${eligibility.limit} รายการแล้ว กรุณารอให้คิวเดิมแสดงเสร็จก่อน`);
+            error.status = 429;
+            throw error;
+          }
+          pendingUploads.set(uploadId, uploadData);
+        });
+      } else {
+        await assertQueueEligibility(shopId, uploadData.userId);
+        pendingUploads.set(uploadId, uploadData);
+      }
+    } catch (error) {
+      // The files have already reached Cloudinary at this point. A rejected
+      // pre-check must not leave unused guest media behind.
+      await deleteCloudinaryFile(uploadData.file);
+      await deleteCloudinaryFile(uploadData.qrCodeFile);
+      throw error;
+    }
     console.log(`[Upload pending] Upload ID: ${uploadId} saved. Expires in 10 mins.`);
 
     // Automatically remove after 10 minutes to avoid memory accumulation

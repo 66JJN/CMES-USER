@@ -13,13 +13,12 @@ export const errorHandler = (err, req, res, next) => {
   }
 
   const statusCode = err.status || err.statusCode || 500;
-  const isProduction = process.env.NODE_ENV === "production";
-
   res.status(statusCode).json({
     success: false,
-    message: statusCode === 500 && isProduction
+    // Stack traces stay in server logs in every environment. Returning them
+    // to a browser leaks paths and makes an error message unusably long.
+    message: statusCode === 500
       ? "เกิดข้อผิดพลาดภายในระบบ กรุณาลองใหม่อีกครั้ง"
       : err.message || "Something went wrong!",
-    ...(isProduction ? {} : { stack: err.stack }),
   });
 };

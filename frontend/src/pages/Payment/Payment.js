@@ -17,6 +17,17 @@ const authenticatedHeaders = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
+const readApiError = async (response, fallbackMessage) => {
+  const rawBody = (await response.text()).trim();
+  if (!rawBody || rawBody.startsWith('<')) return fallbackMessage;
+  try {
+    const body = JSON.parse(rawBody);
+    return body?.message || body?.error || fallbackMessage;
+  } catch {
+    return rawBody.length <= 240 ? rawBody : fallbackMessage;
+  }
+};
+
 /**
  * Payment Component - หน้าชำระเงิน
  * รองรับการชำระเงินสำหรับ:
@@ -233,8 +244,7 @@ function Payment() {
         });
 
         if (!response.ok) {
-          const errText = await response.text();
-          throw new Error(`Payment confirmation failed: ${response.status} ${errText}`);
+          throw new Error(await readApiError(response, "ไม่สามารถยืนยันรายการได้ กรุณาติดต่อพนักงาน"));
         }
 
         const result = await response.json();
@@ -269,12 +279,14 @@ function Payment() {
       setShowPopup(false);
       setShowSuccessModal(true);
       console.log("[Payment] after setShowSuccessModal ->", true);
+      return true;
 
     } catch (err) {
       console.error("[Payment] Error:", err);
       const message = err.message || "เกิดข้อผิดพลาดในการยืนยันการชำระเงิน";
       setErrorMessage(`❌ ${message}`);
       showToast(message, "error");
+      return false;
     } finally {
       setIsProcessing(false);
     }

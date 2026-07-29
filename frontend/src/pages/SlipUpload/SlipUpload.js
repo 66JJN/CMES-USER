@@ -13,7 +13,7 @@ import { showToast } from "../../services/authService";
 function SlipUpload({ price, onSuccess }) {
   const [slipFile, setSlipFile] = useState(null);
   const [isVerifyingSlip, setIsVerifyingSlip] = useState(false);
-  // null | "pending" | "success" | "failed"
+  // null | "pending" | "success" | "failed" | "submission_failed"
   const [paymentStatus, setPaymentStatus] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -42,9 +42,9 @@ function SlipUpload({ price, onSuccess }) {
       });
 
       if (response.data.success) {
-        setPaymentStatus("success");
-        console.log("[SlipUpload] verification success, calling onSuccess");
-        onSuccess && onSuccess();
+        console.log("[SlipUpload] verification success, confirming queue submission");
+        const queueAccepted = onSuccess ? await onSuccess() : true;
+        setPaymentStatus(queueAccepted === false ? "submission_failed" : "success");
       } else {
         setPaymentStatus("failed");
         showToast(response.data.message || "สลิปไม่ถูกต้องหรือจำนวนเงินไม่ตรง", "error");
@@ -63,6 +63,21 @@ function SlipUpload({ price, onSuccess }) {
     }
   };
 
+  const retryQueueSubmission = async () => {
+    if (!onSuccess || isVerifyingSlip) return;
+    setIsVerifyingSlip(true);
+    setPaymentStatus("pending");
+    try {
+      const queueAccepted = await onSuccess();
+      setPaymentStatus(queueAccepted === false ? "submission_failed" : "success");
+    } catch {
+      setPaymentStatus("submission_failed");
+      showToast("ยังส่งคิวไม่ได้ กรุณาลองใหม่หรือติดต่อพนักงาน", "error");
+    } finally {
+      setIsVerifyingSlip(false);
+    }
+  };
+
   return (
     <div style={{ marginTop: '20px', width: '100%' }}>
       {/* Hidden file input */}
@@ -76,7 +91,7 @@ function SlipUpload({ price, onSuccess }) {
       />
 
       {/* Upload area & confirm button — hidden once payment succeeds */}
-      {paymentStatus !== "success" && (
+      {!['success', 'submission_failed'].includes(paymentStatus) && (
         <>
           {/* Upload Drop Zone */}
           <div
@@ -207,6 +222,35 @@ function SlipUpload({ price, onSuccess }) {
               กำลังดำเนินการ กรุณารอสักครู่...
             </div>
           </div>
+        </div>
+      )}
+
+      {paymentStatus === "submission_failed" && (
+        <div style={{
+          marginTop: '8px', padding: '24px 20px', borderRadius: '14px',
+          background: 'rgba(245, 158, 11, 0.08)',
+          border: '1px solid rgba(245, 158, 11, 0.3)',
+          textAlign: 'center'
+        }}>
+          <div style={{ color: '#fbbf24', fontWeight: 700, fontSize: '1rem', marginBottom: '4px' }}>
+            ตรวจสอบสลิปสำเร็จ แต่ยังส่งคิวไม่ได้
+          </div>
+          <div style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.8rem' }}>
+            ไม่ต้องชำระซ้ำ กรุณาติดต่อพนักงาน
+          </div>
+          <button
+            type="button"
+            onClick={retryQueueSubmission}
+            disabled={isVerifyingSlip}
+            style={{
+              marginTop: '14px', padding: '10px 16px', borderRadius: '10px',
+              border: '1px solid rgba(251, 191, 36, 0.5)',
+              background: 'rgba(251, 191, 36, 0.12)', color: '#fde68a',
+              fontWeight: 700, cursor: isVerifyingSlip ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {isVerifyingSlip ? 'กำลังส่งคิว...' : 'ลองส่งคิวอีกครั้ง'}
+          </button>
         </div>
       )}
 
