@@ -1,8 +1,7 @@
-// API Configuration
-const API_BASE_URL = process.env.REACT_APP_API_BASE_URL || process.env.REACT_APP_API_URL || 'https://cmes-user-5b5h.onrender.com';
+// User browsers use CMES-USER only. Calls to CMES-ADMIN are made exclusively
+// by the CMES-USER backend with its server-side service token.
+const API_BASE_URL = process.env.REACT_APP_API_BASE_URL
+  || process.env.REACT_APP_API_URL
+  || 'https://cmes-user-5b5h.onrender.com';
 
-// Admin API (real-time + socket)
-export const ADMIN_API_URL = process.env.REACT_APP_ADMIN_API_URL || 'https://cmes-admin.onrender.com';
-// REALTIME_URL ตอนนี้ชี้ไปที่ Admin server เดียวกัน (ไม่มี realtime-server แยก)
-export const REALTIME_URL = process.env.REACT_APP_REALTIME_URL || ADMIN_API_URL;
 export default API_BASE_URL;
