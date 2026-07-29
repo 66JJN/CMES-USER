@@ -10,6 +10,8 @@ import {
   processOCR,
 } from "../controllers/uploadController.js";
 import { uploadGeneric, uploadSlip, uploadAvatar } from "../middleware/uploadMiddleware.js";
+import { optionalAuth } from "../middleware/authMiddleware.js";
+import { contentSubmissionLimiter, paymentConfirmationLimiter } from "../middleware/submissionRateLimit.js";
 
 const router = express.Router();
 
@@ -22,10 +24,10 @@ const uploadFields = uploadGeneric.fields([
 router.post("/verify-slip", uploadSlip.single("slip"), verifySlip);
 
 // Metadata uploading before payment
-router.post("/api/upload", uploadFields, uploadPendingContent);
+router.post("/api/upload", optionalAuth, contentSubmissionLimiter, uploadFields, uploadPendingContent);
 
 // Confirming payment
-router.post("/api/confirm-payment", confirmPayment);
+router.post("/api/confirm-payment", optionalAuth, paymentConfirmationLimiter, confirmPayment);
 
 // Checking pending upload status
 router.get("/api/upload-status/:uploadId", getUploadStatus);

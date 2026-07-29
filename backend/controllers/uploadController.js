@@ -4,6 +4,7 @@ import { cloudinary } from "../middleware/uploadMiddleware.js";
 import FormData from "form-data";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
+import { randomUUID } from "crypto";
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ async function forwardUploadToAdmin(uploadData, shopId) {
   formData.append("textLayout", uploadData.textLayout || "right");
   formData.append("socialType", uploadData.socialType || "");
   formData.append("socialName", uploadData.socialName || "");
+  formData.append("submissionId", uploadData.submissionId);
   if (uploadData.userId) formData.append("userId", uploadData.userId);
   if (uploadData.email) formData.append("email", uploadData.email);
   if (uploadData.avatar) formData.append("avatar", uploadData.avatar);
@@ -135,10 +137,11 @@ export async function uploadPendingContent(req, res, next) {
       textColor, socialColor, textLayout, socialType, socialName,
     } = req.body;
 
-    const uploadId = Date.now().toString();
+    const uploadId = randomUUID();
 
     const uploadData = {
       id: uploadId,
+      submissionId: randomUUID(),
       text: text || "",
       type,
       time,
@@ -225,6 +228,7 @@ export async function confirmPayment(req, res, next) {
     formData.append("textLayout", uploadData.textLayout || "right");
     formData.append("socialType", uploadData.socialType || "");
     formData.append("socialName", uploadData.socialName || "");
+    formData.append("submissionId", uploadData.submissionId);
 
     if (userId) formData.append("userId", userId);
     if (email) formData.append("email", email);

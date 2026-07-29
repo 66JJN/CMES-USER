@@ -10,9 +10,15 @@ import "./Gift.css";
 import { incrementQueueNumber } from "../../utils";
 
 import API_BASE_URL from '../../config/apiConfig';
+import { getToken } from '../../services/authService';
 
 // API endpoints สำหรับเชื่อมต่อกับ backend
 const API_BASE = API_BASE_URL;
+
+const authenticatedHeaders = () => {
+	const token = getToken();
+	return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 // Admin API สำหรับดึงรูปภาพสินค้า
 
@@ -267,7 +273,8 @@ function Gift() {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
-					"x-shop-id": shopId
+					"x-shop-id": shopId,
+					...authenticatedHeaders()
 				},
 				body: JSON.stringify(payload),
 			});
@@ -299,7 +306,8 @@ function Gift() {
 						method: "POST",
 						headers: {
 							"Content-Type": "application/json",
-							"x-shop-id": shopId
+							"x-shop-id": shopId,
+							...authenticatedHeaders()
 						},
 						body: JSON.stringify({ userId, email, avatar })
 					});

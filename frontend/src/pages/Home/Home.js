@@ -194,7 +194,7 @@ function Home() {
       className: "image-service",
       badge: "ภาพ",
       title: "ส่งรูปขึ้นจอ",
-      features: ["JPG, PNG", "เพิ่มข้อความ", "เลือกสี"],
+      features: ["JPG, PNG, WEBP", "เพิ่มข้อความ", "เลือกสี"],
       price: "เริ่มต้น 1 บาท",
       icon: (
         <img src={iconImage} alt="ส่งรูปขึ้นจอ" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} />
@@ -612,7 +612,7 @@ function Home() {
                       {status.freeMode ? (
                         <>
                           <span className="feature">🎉 ใช้งานฟรีสำหรับร้านนี้</span>
-                          <span className="feature">📸 รองรับ JPG, PNG</span>
+                          <span className="feature">📸 รองรับ JPG, PNG, WEBP</span>
                           <span className="feature">💬 เพิ่มข้อความได้</span>
                         </>
                       ) : isLoggedIn && !birthdayEligibility.eligible ? (
@@ -625,12 +625,12 @@ function Home() {
                         <>
                           <span className="feature">✅ ใช้จ่ายครบแล้ว ฿{birthdayEligibility.totalSpent.toLocaleString()}</span>
                           <span className="feature">🎂 รอวันเกิดเพื่อใช้งานฟรี</span>
-                          <span className="feature">📸 รองรับ JPG, PNG</span>
+                          <span className="feature">📸 รองรับ JPG, PNG, WEBP</span>
                         </>
                       ) : (
                         <>
                           <span className="feature">🎉 สิทธิ์ฟรีสำหรับเจ้าของวันเกิด</span>
-                          <span className="feature">📸 รองรับ JPG, PNG</span>
+                          <span className="feature">📸 รองรับ JPG, PNG, WEBP</span>
                           <span className="feature">💬 เพิ่มข้อความได้</span>
                         </>
                       )}

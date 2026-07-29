@@ -125,6 +125,13 @@
   color: rgba(255, 255, 255, 0.9) !important;
 }
 
+.upload-container .input-requirement {
+  margin: -8px 0 12px;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
 /* ========================
    File Upload
    ======================== */

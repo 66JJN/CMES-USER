@@ -10,6 +10,12 @@ import promptpayLogo from "../../data-icon/promptpay-logo.png";
 import paymentLogo from "../../data-icon/payment-logo.jpg";
 import { incrementQueueNumber } from "../../utils";
 import SlipUpload from "../SlipUpload/SlipUpload";
+import { getToken } from "../../services/authService";
+
+const authenticatedHeaders = () => {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
 
 /**
  * Payment Component - หน้าชำระเงิน
@@ -162,7 +168,8 @@ function Payment() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "x-shop-id": shopId
+            "x-shop-id": shopId,
+            ...authenticatedHeaders()
           },
           body: JSON.stringify({ userId, email, avatar })
         });
@@ -214,7 +221,8 @@ function Payment() {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "x-shop-id": shopId
+            "x-shop-id": shopId,
+            ...authenticatedHeaders()
           },
           body: JSON.stringify({
             uploadId,

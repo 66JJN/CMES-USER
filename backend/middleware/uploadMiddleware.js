@@ -5,6 +5,16 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
+const MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+const IMAGE_MIME_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+
+const imageOnlyFilter = (_req, file, callback) => {
+  if (IMAGE_MIME_TYPES.has(file.mimetype)) return callback(null, true);
+  const error = new Error("รองรับเฉพาะไฟล์รูป JPG, PNG หรือ WebP เท่านั้น");
+  error.status = 415;
+  return callback(error);
+};
+
 // Configure Cloudinary
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -17,7 +27,7 @@ const avatarStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "cmes/avatars",
-    allowed_formats: ["jpg", "jpeg", "png", "gif", "webp"],
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
     transformation: [{ width: 500, height: 500, crop: "limit" }],
     public_id: (req, file) => `avatar-${Date.now()}`,
   },
@@ -38,7 +48,7 @@ const genericStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: "cmes/others",
-    allowed_formats: ["jpg", "jpeg", "png", "gif", "webp", "mp4", "pdf"],
+    allowed_formats: ["jpg", "jpeg", "png", "webp"],
     public_id: (req, file) => `file-${Date.now()}`,
   },
 });
@@ -46,17 +56,19 @@ const genericStorage = new CloudinaryStorage({
 // Multer instances
 export const uploadAvatar = multer({
   storage: avatarStorage,
-  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB limit
+  limits: { fileSize: MAX_IMAGE_BYTES },
+  fileFilter: imageOnlyFilter,
 });
 
 export const uploadSlip = multer({
   storage: slipStorage,
-  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB limit
+  limits: { fileSize: MAX_IMAGE_BYTES },
 });
 
 export const uploadGeneric = multer({
   storage: genericStorage,
-  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB limit
+  limits: { fileSize: MAX_IMAGE_BYTES },
+  fileFilter: imageOnlyFilter,
 });
 
 export { cloudinary };

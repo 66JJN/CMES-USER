@@ -1,5 +1,6 @@
 import GiftOrder from "../models/GiftOrder.js";
 import { fetchGiftSettings, sendGiftOrderToAdmin } from "../services/adminService.js";
+import { randomUUID } from "crypto";
 
 /**
  * GET /api/gifts
@@ -65,7 +66,7 @@ export async function createGiftOrder(req, res, next) {
     }
 
     const order = new GiftOrder({
-      orderId: `gift-${Date.now()}`,
+      orderId: `gift-${randomUUID()}`,
       senderName: senderName?.trim() || "Guest",
       senderPhone: normalizedPhone,
       tableNumber: table,

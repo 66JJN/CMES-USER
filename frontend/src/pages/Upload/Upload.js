@@ -1,7 +1,7 @@
 // ==================== IMPORTS ====================
 // นำเข้า React hooks สำหรับจัดการ state และ side effects
 import { FiChevronLeft } from "react-icons/fi";
-import { showToast } from "../../services/authService";
+import { getToken, showToast } from "../../services/authService";
 import React, { useState, useEffect } from "react";
 // นำเข้า hooks สำหรับการนำทาง (routing)
 import { useLocation, useNavigate } from "react-router-dom";
@@ -16,6 +16,15 @@ import igLogo from "../../data-icon/ig-logo.png";
 import fbLogo from "../../data-icon/facebook-logo.png";
 import lineLogo from "../../data-icon/line-logo.png";
 import tiktokLogo from "../../data-icon/tiktok-logo.png";
+
+const authenticatedHeaders = () => {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
+const SUPPORTED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
+const MAIN_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
+const QR_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 
 // ==================== COMPONENT MAIN ====================
 function Upload() {
@@ -227,9 +236,16 @@ function Upload() {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // ตรวจสอบขนาดไฟล์ไม่เกิน 5MB
-      if (file.size > 5 * 1024 * 1024) {
-        setAlertMessage("ขนาดไฟล์ต้องไม่เกิน 5MB");
+      if (!SUPPORTED_IMAGE_TYPES.has(file.type)) {
+        setAlertMessage("รองรับเฉพาะรูป JPG, PNG หรือ WebP");
+        e.target.value = "";
+        return;
+      }
+      // Keep the browser limit lower than the server hard limit so venue Wi-Fi
+      // stays responsive when several guests submit at once.
+      if (file.size > MAIN_IMAGE_MAX_BYTES) {
+        setAlertMessage("รูปภาพต้องมีขนาดไม่เกิน 5 MB");
+        e.target.value = "";
         return;
       }
 
@@ -251,9 +267,14 @@ function Upload() {
   const handleQRCodeChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // ตรวจสอบขนาดไม่เกิน 2MB
-      if (file.size > 2 * 1024 * 1024) {
-        setAlertMessage("QR Code ต้องไม่เกิน 2MB");
+      if (!SUPPORTED_IMAGE_TYPES.has(file.type)) {
+        setAlertMessage("QR Code รองรับเฉพาะ JPG, PNG หรือ WebP");
+        e.target.value = "";
+        return;
+      }
+      if (file.size > QR_IMAGE_MAX_BYTES) {
+        setAlertMessage("QR Code ต้องมีขนาดไม่เกิน 2 MB");
+        e.target.value = "";
         return;
       }
       setQrCodeFile(file);
@@ -499,7 +520,7 @@ function Upload() {
           // ส่งไปยัง Admin Backend
           const response = await fetch(`${API_BASE_URL}/api/upload?shopId=${shopId}`, {
             method: "POST",
-            headers: { "x-shop-id": shopId },
+            headers: { "x-shop-id": shopId, ...authenticatedHeaders() },
             body: formData,
           });
 
@@ -572,7 +593,7 @@ function Upload() {
           // ส่งไฟล์ไปยัง User Backend เพื่อเก็บชั่วคราว
           const response = await fetch(`${API_BASE_URL}/api/upload?shopId=${shopId}`, {
             method: "POST",
-            headers: { "x-shop-id": shopId },
+            headers: { "x-shop-id": shopId, ...authenticatedHeaders() },
             body: formData
           });
 
@@ -611,7 +632,8 @@ function Upload() {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
-                  "x-shop-id": shopId
+                  "x-shop-id": shopId,
+                  ...authenticatedHeaders()
                 },
                 body: JSON.stringify({
                   uploadId: data.uploadId,
@@ -715,7 +737,8 @@ function Upload() {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "x-shop-id": shopId
+              "x-shop-id": shopId,
+              ...authenticatedHeaders()
             },
             body: JSON.stringify(payload)
           });
@@ -776,7 +799,7 @@ function Upload() {
           console.log("[Upload] Sending text data to backend...");
           const response = await fetch(`${API_BASE_URL}/api/upload?shopId=${shopId}`, {
             method: "POST",
-            headers: { "x-shop-id": shopId },
+            headers: { "x-shop-id": shopId, ...authenticatedHeaders() },
             body: formData
           });
 
@@ -876,7 +899,7 @@ function Upload() {
                 <div className="file-upload-container">
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp"
                     onChange={handleImageChange}
                     id="file-upload"
                     className="file-input"
@@ -897,7 +920,7 @@ function Upload() {
                           <path d="M21 15l-5-5L5 21" />
                         </svg>
                         <span>คลิกเพื่อเลือกรูปภาพ</span>
-                        <small>รองรับไฟล์ JPG, PNG ขนาดไม่เกิน 20MB</small>
+                        <small>รองรับ JPG, PNG, WebP • ขนาดไม่เกิน 5 MB</small>
                       </div>
                     )}
                   </label>
@@ -955,7 +978,7 @@ function Upload() {
                 <div className="file-upload-container">
                   <input
                     type="file"
-                    accept="image/*"
+                    accept="image/jpeg,image/png,image/webp"
                     onChange={handleQRCodeChange}
                     id="qrcode-upload"
                     className="file-input"
@@ -976,7 +999,7 @@ function Upload() {
                           <path d="M21 15l-5-5L5 21" />
                         </svg>
                         <span>คลิกเพื่อเลือก QR Code</span>
-                        <small>ไม่บังคับ - ขนาดไม่เกิน 2MB</small>
+                        <small>ไม่บังคับ • รองรับ JPG, PNG, WebP • ขนาดไม่เกิน 2 MB</small>
                       </div>
                     )}
                   </label>
@@ -998,6 +1021,7 @@ function Upload() {
             {/* Social Section */}
             <div className="social-section">
               <h3>ช่องทางโซเชียลของคุณ</h3>
+              <p className="input-requirement">ไม่บังคับ • ชื่อช่องทางยาวได้ไม่เกิน 32 ตัวอักษร</p>
               <div className="social-radio-options">
                 <label className={`social-radio ${selectedSocial === "ig" ? "selected" : ""}`}>
                   <input
@@ -1080,6 +1104,7 @@ function Upload() {
             <div className="text-section">
               <div className="text-section-header">
                 <h3>ข้อความที่ต้องการแสดง</h3>
+                <p className="input-requirement">ไม่บังคับ • ข้อความยาวได้ไม่เกิน 50 ตัวอักษร</p>
                 <div className="caption-btn-group">
                   {/* ปุ่มสุ่มแคปชั่น */}
                   <button

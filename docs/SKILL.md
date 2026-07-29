@@ -383,7 +383,7 @@ AI Caption:          50 req / 15 min
 | **Auth** | JWT verification middleware (`verifyAuthToken`) |
 | **CORS** | Whitelist-based origin validation |
 | **Password** | bcryptjs hashing (salt rounds: 10) |
-| **File Upload** | Multer size limits (20MB) + Cloudinary (no local storage in production) |
+| **Queue Media Upload** | Browser accepts JPG/PNG/WebP up to 5 MB (QR up to 2 MB); User/Admin servers enforce JPG/PNG/WebP with a 10 MB hard limit + Cloudinary |
 
 ---
 
@@ -706,7 +706,9 @@ Component Mount
 | Concern | Implementation |
 |---------|---------------|
 | **Helmet** | Security headers (CSP, HSTS, X-Frame-Options) |
-| **Rate Limiting** | Per-route rate limits (auth: 100, upload: 200, AI: 50 per 15min) |
+| **Rate Limiting** | Submission: 6/user or 60/guest-IP per 10 min; gift creation: 5/user or 60/guest-IP; payment confirmation: 12/user or 80/guest-IP; generic auth and AI limits remain separate |
+| **Queue Capacity Guard** | At most 3 active items per logged-in user or sender phone by default (`MAX_ACTIVE_QUEUE_PER_USER`); pending/approved/playing count, completed/rejected do not |
+| **Duplicate Protection** | UUID submission/order IDs plus a per-shop idempotency key prevent retrying the same server-to-server request from adding a second queue item |
 | **Input Sanitization** | `mongoSanitize` middleware — strip `$` operators from request body |
 | **Auth Middleware** | `verifyAuthToken` — validate JWT on every protected route |
 | **CORS** | Whitelist-based origin validation (no wildcard `*` in production) |
