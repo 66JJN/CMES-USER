@@ -1,0 +1,39 @@
+.system-status-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(4, 8, 20, 0.78);
+  backdrop-filter: blur(8px);
+}
+
+.system-status-card {
+  width: min(100%, 380px);
+  padding: 28px 24px;
+  border: 1px solid rgba(251, 113, 133, 0.65);
+  border-radius: 20px;
+  background: #141827;
+  color: #fff;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.42);
+}
+
+.system-status-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: #fff;
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.system-status-card h2 { margin: 0 0 8px; font-size: 20px; }
+.system-status-card p { margin: 0; color: #fecdd3; font-weight: 600; }
+.system-status-card small { display: block; margin-top: 14px; color: #aab3c7; line-height: 1.45; }

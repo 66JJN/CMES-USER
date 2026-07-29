@@ -13,6 +13,7 @@ import { ProtectedRoute, PublicRoute } from "./ProtectedRoute";
 import { initializeAuth } from "./services/authService";
 import Toast from "./components/Toast";
 import "./components/Toast.css";
+import SystemStatusOverlay from "./components/SystemStatusOverlay";
 
 import { SocketProvider } from "./contexts/SocketContext";
 
@@ -94,6 +95,7 @@ function App() {
   return (
     <SocketProvider>
       <BrowserRouter>
+        <SystemStatusOverlay />
         <Routes>
           <Route
             path="/"

@@ -373,6 +373,7 @@ export function useHomeData() {
           textOn: newConfig.enableText ?? prev.textOn,
           giftOn: newConfig.enableGift ?? prev.giftOn,
           birthdayOn: newConfig.enableBirthday ?? prev.birthdayOn,
+          freeMode: newConfig.freeMode ?? prev.freeMode,
         };
         homeCache.status = updated;
         return updated;
@@ -389,6 +390,7 @@ export function useHomeData() {
           textOn: socketStatus.enableText ?? prev.textOn,
           giftOn: socketStatus.enableGift ?? prev.giftOn,
           birthdayOn: socketStatus.enableBirthday ?? prev.birthdayOn,
+          freeMode: socketStatus.freeMode ?? prev.freeMode,
         };
         homeCache.status = updated;
         return updated;

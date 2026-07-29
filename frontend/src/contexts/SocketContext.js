@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { io } from "socket.io-client";
 import API_BASE_URL from "../config/apiConfig";
 
 const SocketContext = createContext({
@@ -9,13 +10,13 @@ const SocketContext = createContext({
 });
 
 /**
- * User browsers intentionally do not connect to CMES-ADMIN Socket.IO. They
- * receive read-only configuration through CMES-USER, keeping both the Admin
- * JWT and the service token off the public client.
+ * User browsers connect only to CMES-USER. That backend broadcasts a
+ * read-only config stream per shop and keeps Admin credentials server-side.
  */
 export const SocketProvider = ({ children }) => {
   const [isConnected, setIsConnected] = useState(false);
   const [systemConfig, setSystemConfig] = useState(null);
+  const [socket, setSocket] = useState(null);
   const [shopId] = useState(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get("shopId") || localStorage.getItem("shopId") || "";
@@ -24,6 +25,31 @@ export const SocketProvider = ({ children }) => {
   useEffect(() => {
     if (!shopId) return undefined;
     let cancelled = false;
+
+    const realtimeSocket = io(API_BASE_URL, {
+      auth: { shopId },
+      transports: ["websocket", "polling"],
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+    });
+
+    const handleConfig = (config) => {
+      if (!cancelled && config) setSystemConfig(config);
+    };
+    const handleConnect = () => {
+      if (!cancelled) setIsConnected(true);
+      realtimeSocket.emit("getConfig");
+    };
+    const handleDisconnect = () => {
+      if (!cancelled) setIsConnected(false);
+    };
+
+    realtimeSocket.on("connect", handleConnect);
+    realtimeSocket.on("disconnect", handleDisconnect);
+    realtimeSocket.on("status", handleConfig);
+    realtimeSocket.on("configUpdate", handleConfig);
+    setSocket(realtimeSocket);
 
     const loadStatus = async () => {
       try {
@@ -34,7 +60,7 @@ export const SocketProvider = ({ children }) => {
         const config = await response.json();
         if (!cancelled) {
           setSystemConfig(config);
-          setIsConnected(true);
+          // HTTP remains a resilience fallback while Socket.IO reconnects.
         }
       } catch {
         if (!cancelled) setIsConnected(false);
@@ -42,12 +68,21 @@ export const SocketProvider = ({ children }) => {
     };
 
     loadStatus();
-    const interval = window.setInterval(loadStatus, 10000);
-    return () => { cancelled = true; window.clearInterval(interval); };
+    const interval = window.setInterval(loadStatus, 30000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(interval);
+      realtimeSocket.off("connect", handleConnect);
+      realtimeSocket.off("disconnect", handleDisconnect);
+      realtimeSocket.off("status", handleConfig);
+      realtimeSocket.off("configUpdate", handleConfig);
+      realtimeSocket.disconnect();
+      setSocket(null);
+    };
   }, [shopId]);
 
   return (
-    <SocketContext.Provider value={{ socket: null, isConnected, systemConfig, shopId }}>
+    <SocketContext.Provider value={{ socket, isConnected, systemConfig, shopId }}>
       {children}
     </SocketContext.Provider>
   );

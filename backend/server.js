@@ -24,6 +24,7 @@ import authRoutes from "./routes/authRoutes.js";
 import giftRoutes from "./routes/giftRoutes.js";
 import uploadRoutes from "./routes/uploadRoutes.js";
 import systemRoutes from "./routes/systemRoutes.js";
+import { fetchSystemStatus } from "./services/adminService.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -154,22 +155,86 @@ const port = process.env.PORT ? Number(process.env.PORT) : 5002;
 const server = http.createServer(app);
 const io = new SocketIoServer(server, { cors: { origin: "*" } });
 
-// Local status fallback config cache
+const SHOP_ID_PATTERN = /^[a-zA-Z0-9_-]{1,64}$/;
+const USER_ROOM_PREFIX = "user-shop:";
+const roomForShop = (shopId) => `${USER_ROOM_PREFIX}${shopId}`;
+
+// A cache and active-room registry let one server-side request update every
+// connected browser for a shop. No browser receives the service credential.
 let localConfig = {
   enableImage: true,
   enableText: true,
   price: 100,
   time: 10,
 };
+const configCache = new Map();
+const activeShopSockets = new Map();
+const configRequests = new Map();
+
+const sameConfig = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+
+const syncShopConfig = async (shopId, { emit = true } = {}) => {
+  if (configRequests.has(shopId)) return configRequests.get(shopId);
+
+  const request = (async () => {
+    try {
+      const nextConfig = await fetchSystemStatus(shopId);
+      const previousConfig = configCache.get(shopId);
+      configCache.set(shopId, nextConfig);
+      if (emit && !sameConfig(previousConfig, nextConfig)) {
+        io.to(roomForShop(shopId)).emit("status", nextConfig);
+        io.to(roomForShop(shopId)).emit("configUpdate", nextConfig);
+      }
+      return nextConfig;
+    } catch (error) {
+      console.warn(`[Realtime] Status sync failed for shop ${shopId}:`, error.message);
+      return configCache.get(shopId) || localConfig;
+    } finally {
+      configRequests.delete(shopId);
+    }
+  })();
+
+  configRequests.set(shopId, request);
+  return request;
+};
 
 io.on("connection", (socket) => {
-  socket.emit("configUpdate", localConfig);
+  const shopId = String(socket.handshake.auth?.shopId || socket.handshake.query?.shopId || "");
+  if (!SHOP_ID_PATTERN.test(shopId)) {
+    socket.emit("realtime-error", { message: "Invalid shop" });
+    socket.disconnect(true);
+    return;
+  }
 
-  socket.on("adminUpdateConfig", (newConfig) => {
-    localConfig = { ...localConfig, ...newConfig };
-    io.emit("configUpdate", localConfig);
+  socket.data.shopId = shopId;
+  socket.join(roomForShop(shopId));
+  activeShopSockets.set(shopId, (activeShopSockets.get(shopId) || 0) + 1);
+
+  const sendCurrentConfig = async () => {
+    const config = await syncShopConfig(shopId, { emit: true });
+    socket.emit("status", config);
+    socket.emit("configUpdate", config);
+  };
+
+  sendCurrentConfig();
+  socket.on("getConfig", sendCurrentConfig);
+
+  socket.on("disconnect", () => {
+    const remaining = (activeShopSockets.get(shopId) || 1) - 1;
+    if (remaining > 0) activeShopSockets.set(shopId, remaining);
+    else activeShopSockets.delete(shopId);
   });
 });
+
+// Server-side fallback bridge: one request per active shop, not per browser.
+// The delay is short enough for operational controls while remaining safe for
+// a free-tier deployment and dozens of concurrent guests.
+const realtimeSyncInterval = setInterval(() => {
+  for (const shopId of activeShopSockets.keys()) {
+    syncShopConfig(shopId, { emit: true });
+  }
+}, 2000);
+realtimeSyncInterval.unref();
 
 server.listen(port, () => {
   console.log(`✓ CMES-USER Server + Socket.IO running on http://localhost:${port}`);
