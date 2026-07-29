@@ -9,7 +9,7 @@ const homeCache = {
   shopId: null,
   shopProfile: { name: "Digital Signage CMES", logo: null },
   profile: null,
-  status: { systemOn: true, imageOn: true, textOn: true, giftOn: true, birthdayOn: true },
+  status: { systemOn: true, imageOn: true, textOn: true, giftOn: true, birthdayOn: true, freeMode: false, birthdaySpendingRequirement: 100, settings: [] },
   leaderboard: {}, // Keyed by rankingType (daily, monthly, alltime)
   birthdayEligibility: null,
   perks: [
@@ -20,6 +20,36 @@ const homeCache = {
   ],
   ordersStatus: {},
   lastFetched: 0,
+};
+
+const normaliseStatus = (config = {}, previous = {}) => ({
+  ...previous,
+  systemOn: config.systemOpen ?? config.systemOn ?? previous.systemOn ?? true,
+  imageOn: config.enableImage ?? config.imageOn ?? previous.imageOn ?? true,
+  textOn: config.enableText ?? config.textOn ?? previous.textOn ?? true,
+  giftOn: config.enableGift ?? config.giftOn ?? previous.giftOn ?? true,
+  birthdayOn: config.enableBirthday ?? config.birthdayOn ?? previous.birthdayOn ?? true,
+  freeMode: config.freeMode ?? previous.freeMode ?? false,
+  birthdaySpendingRequirement: config.birthdaySpendingRequirement
+    ?? previous.birthdaySpendingRequirement
+    ?? 100,
+  settings: Array.isArray(config.settings) ? config.settings : (previous.settings || []),
+});
+
+const normaliseBirthdayEligibility = (previous, config = {}) => {
+  const freeMode = config.freeMode === true;
+  const configuredRequirement = Number(config.birthdaySpendingRequirement);
+  const required = freeMode
+    ? 0
+    : (Number.isFinite(configuredRequirement) ? configuredRequirement : previous.required);
+  const totalSpent = Number(previous.totalSpent) || 0;
+  return {
+    ...previous,
+    totalSpent,
+    required,
+    eligible: freeMode || totalSpent >= required,
+    reason: freeMode ? 'free_mode' : (totalSpent >= required ? 'eligible' : 'insufficient_spending'),
+  };
 };
 
 /**
@@ -60,7 +90,7 @@ export function useHomeData() {
     homeCache.shopId = currentShopId;
     homeCache.shopProfile = { name: "Digital Signage CMES", logo: null };
     homeCache.profile = null;
-    homeCache.status = { systemOn: true, imageOn: true, textOn: true, giftOn: true, birthdayOn: true };
+    homeCache.status = { systemOn: true, imageOn: true, textOn: true, giftOn: true, birthdayOn: true, freeMode: false, birthdaySpendingRequirement: 100, settings: [] };
     homeCache.leaderboard = {};
     homeCache.birthdayEligibility = null;
     homeCache.perks = [
@@ -296,14 +326,7 @@ export function useHomeData() {
     // 4. Fetch System Status
     try {
       const data = await apiCall('/api/status');
-      const newStatus = {
-        systemOn: data.systemOpen ?? data.systemOn ?? true,
-        imageOn: (data.enableImage ?? data.imageOn) ?? true,
-        textOn: (data.enableText ?? data.textOn) ?? true,
-        giftOn: (data.enableGift ?? data.giftOn) ?? true,
-        birthdayOn: (data.enableBirthday ?? data.birthdayOn) ?? true,
-        freeMode: data.freeMode === true,
-      };
+      const newStatus = normaliseStatus(data);
       homeCache.status = newStatus;
       setStatus(newStatus);
     } catch (err) {
@@ -319,8 +342,8 @@ export function useHomeData() {
         if (data && data.success) {
           const bData = {
             eligible: data.eligible,
-            totalSpent: data.totalSpent || 0,
-            required: data.required || 100,
+            totalSpent: Number(data.totalSpent) || 0,
+            required: Number.isFinite(Number(data.required)) ? Number(data.required) : 100,
             reason: data.reason || "unknown"
           };
           homeCache.birthdayEligibility = bData;
@@ -366,16 +389,13 @@ export function useHomeData() {
 
     const handleConfigUpdate = (newConfig) => {
       setStatus((prev) => {
-        const updated = {
-          ...prev,
-          systemOn: newConfig.systemOpen ?? newConfig.systemOn ?? prev.systemOn,
-          imageOn: newConfig.enableImage ?? prev.imageOn,
-          textOn: newConfig.enableText ?? prev.textOn,
-          giftOn: newConfig.enableGift ?? prev.giftOn,
-          birthdayOn: newConfig.enableBirthday ?? prev.birthdayOn,
-          freeMode: newConfig.freeMode ?? prev.freeMode,
-        };
+        const updated = normaliseStatus(newConfig, prev);
         homeCache.status = updated;
+        return updated;
+      });
+      setBirthdayEligibility((prev) => {
+        const updated = normaliseBirthdayEligibility(prev, newConfig);
+        homeCache.birthdayEligibility = updated;
         return updated;
       });
     };
@@ -383,16 +403,13 @@ export function useHomeData() {
     const handleStatus = (socketStatus) => {
       if (!socketStatus) return;
       setStatus((prev) => {
-        const updated = {
-          ...prev,
-          systemOn: socketStatus.systemOpen ?? socketStatus.systemOn ?? prev.systemOn,
-          imageOn: socketStatus.enableImage ?? prev.imageOn,
-          textOn: socketStatus.enableText ?? prev.textOn,
-          giftOn: socketStatus.enableGift ?? prev.giftOn,
-          birthdayOn: socketStatus.enableBirthday ?? prev.birthdayOn,
-          freeMode: socketStatus.freeMode ?? prev.freeMode,
-        };
+        const updated = normaliseStatus(socketStatus, prev);
         homeCache.status = updated;
+        return updated;
+      });
+      setBirthdayEligibility((prev) => {
+        const updated = normaliseBirthdayEligibility(prev, socketStatus);
+        homeCache.birthdayEligibility = updated;
         return updated;
       });
     };

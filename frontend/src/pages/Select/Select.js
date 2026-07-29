@@ -8,6 +8,10 @@ import iconImage from "../Home/icons/icon-image.webp";
 import iconText from "../Home/icons/icon-text.webp";
 import iconBirthday from "../Home/icons/icon-birthday.webp";
 
+const getPackagesForType = (config, type) => (Array.isArray(config?.settings) ? config.settings : [])
+  .filter((pkg) => pkg.mode === type)
+  .map((pkg) => ({ ...pkg, price: config.freeMode === true ? 0 : pkg.price }));
+
 function Select() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -34,10 +38,7 @@ function Select() {
   // Sync packages from systemConfig when systemConfig or type changes
   useEffect(() => {
     if (systemConfig && systemConfig.settings) {
-      const filtered = systemConfig.settings
-        .filter((pkg) => pkg.mode === type)
-        .map((pkg) => ({ ...pkg, price: systemConfig.freeMode === true ? 0 : pkg.price }));
-      setPackages(filtered);
+      setPackages(getPackagesForType(systemConfig, type));
     }
   }, [systemConfig, type]);
 
@@ -47,8 +48,7 @@ function Select() {
 
     const handleStatus = (data) => {
       if (data && data.settings) {
-        const filtered = data.settings.filter((pkg) => pkg.mode === type);
-        setPackages(filtered);
+        setPackages(getPackagesForType(data, type));
       }
     };
 

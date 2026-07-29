@@ -186,6 +186,22 @@ function Home() {
     if (isBirthday) navigate(`/select?type=birthday&shopId=${shopId}`);
   };
 
+  // ราคาบนการ์ดต้องใช้ข้อมูลแพ็กเกจเดียวกับหน้าที่ผู้ใช้เลือกจริง
+  // เพื่อไม่ให้คงข้อความราคาเดิมหลังแอดมินปรับแพ็กเกจหรือเปิด Free mode
+  const getStartingPriceLabel = (mode) => {
+    if (status.freeMode) return "ฟรี";
+
+    const prices = (Array.isArray(status.settings) ? status.settings : [])
+      .filter((item) => item?.mode === mode)
+      .map((item) => Number(item.price))
+      .filter((price) => Number.isFinite(price) && price >= 0);
+
+    if (prices.length === 0) return "ยังไม่มีแพ็กเกจ";
+
+    const lowestPrice = Math.min(...prices);
+    return lowestPrice === 0 ? "ฟรี" : `เริ่มต้น ฿${formatCurrency(lowestPrice)}`;
+  };
+
   // ===== ข้อมูลการ์ดบริการทั้งหมด =====
   const serviceCards = [
     {
@@ -195,7 +211,7 @@ function Home() {
       badge: "ภาพ",
       title: "ส่งรูปขึ้นจอ",
       features: ["JPG, PNG, WEBP", "เพิ่มข้อความ", "เลือกสี"],
-      price: "เริ่มต้น 1 บาท",
+      price: getStartingPriceLabel("image"),
       icon: (
         <img src={iconImage} alt="ส่งรูปขึ้นจอ" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} />
       ),
@@ -208,7 +224,7 @@ function Home() {
       badge: "ข้อความ",
       title: "ส่งข้อความขึ้นจอ",
       features: ["50 ตัวอักษร", "เลือกสี", "รวดเร็ว"],
-      price: "เริ่มต้น 1 บาท",
+      price: getStartingPriceLabel("text"),
       icon: (
         <img src={iconText} alt="ส่งข้อความขึ้นจอ" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} />
       ),
@@ -221,7 +237,7 @@ function Home() {
       badge: "Gift",
       title: "ส่งของขวัญ",
       features: ["สินค้าหลายแบบ", "ระบุเลขโต๊ะ"],
-      price: "ราคาตามสินค้าที่เลือก",
+      price: status.freeMode ? "ฟรี" : "ราคาตามสินค้าที่เลือก",
       icon: (
         <img src={iconGift} alt="ส่งของขวัญ" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: "inherit" }} />
       ),
