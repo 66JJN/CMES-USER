@@ -10,7 +10,7 @@ import promptpayLogo from "../../data-icon/promptpay-logo.png";
 import paymentLogo from "../../data-icon/payment-logo.jpg";
 import { incrementQueueNumber } from "../../utils";
 import SlipUpload from "../SlipUpload/SlipUpload";
-import { getToken } from "../../services/authService";
+import { getToken, showToast } from "../../services/authService";
 
 const authenticatedHeaders = () => {
   const token = getToken();
@@ -272,7 +272,9 @@ function Payment() {
 
     } catch (err) {
       console.error("[Payment] Error:", err);
-      setErrorMessage(`❌ ${err.message || "เกิดข้อผิดพลาดในการยืนยันการชำระเงิน"}`);
+      const message = err.message || "เกิดข้อผิดพลาดในการยืนยันการชำระเงิน";
+      setErrorMessage(`❌ ${message}`);
+      showToast(message, "error");
     } finally {
       setIsProcessing(false);
     }
@@ -504,6 +506,9 @@ function Payment() {
                     <li>อัปโหลดสลิปเพื่อยืนยัน</li>
                   </ol>
                 </div>
+                {errorMessage && (
+                  <div className="payment-modal-error" role="alert">{errorMessage}</div>
+                )}
                 <SlipUpload price={amountToPay} onSuccess={() => {
                   console.log("[Payment] SlipUpload onSuccess fired");
                   handleConfirmPayment();

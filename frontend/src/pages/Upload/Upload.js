@@ -26,6 +26,18 @@ const SUPPORTED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"])
 const MAIN_IMAGE_MAX_BYTES = 5 * 1024 * 1024;
 const QR_IMAGE_MAX_BYTES = 2 * 1024 * 1024;
 
+const readApiError = async (response, fallbackMessage) => {
+  const rawBody = (await response.text()).trim();
+  if (!rawBody || rawBody.startsWith("<")) return fallbackMessage;
+
+  try {
+    const body = JSON.parse(rawBody);
+    return body?.message || body?.error || fallbackMessage;
+  } catch {
+    return rawBody.length <= 240 ? rawBody : fallbackMessage;
+  }
+};
+
 // ==================== COMPONENT MAIN ====================
 function Upload() {
   // ==================== ROUTING & URL PARAMETERS ====================
@@ -289,6 +301,12 @@ function Upload() {
   const [captionRetryCount, setCaptionRetryCount] = useState(0);
   const [captionCooldown, setCaptionCooldown] = useState(0);
 
+  const showSubmissionError = (error, fallbackMessage) => {
+    const message = error?.message?.trim() || fallbackMessage;
+    setAlertMessage(message);
+    showToast(message, "error");
+  };
+
   // Countdown timer สำหรับ cooldown
   useEffect(() => {
     if (captionCooldown <= 0) return;
@@ -408,6 +426,7 @@ function Upload() {
     }
 
     // ถ้าผ่านการตรวจสอบแล้ว แสดง modal ยืนยัน
+    setAlertMessage("");
     setShowPreviewModal(true);
   };
 
@@ -557,13 +576,13 @@ function Upload() {
             showToast("✅ อัปโหลดสำเร็จ!", "success");
             navigate(`/home${shopId ? `?shopId=${shopId}` : ''}`);  // กลับไปหน้าหลัก
           } else {
-            const errText = await response.text();
-            console.error("[Upload] Upload failed:", response.status, errText);
-            throw new Error(`Upload failed: ${response.status} ${errText}`);
+            const message = await readApiError(response, "ไม่สามารถส่งรายการได้ กรุณาลองใหม่อีกครั้ง");
+            console.error("[Upload] Upload failed:", response.status, message);
+            throw new Error(message);
           }
         } catch (error) {
           console.error('[Upload] Error uploading:', error);
-          setAlertMessage("เกิดข้อผิดพลาดในการอัปโหลด กรุณาลองใหม่");
+          showSubmissionError(error, "ไม่สามารถส่งรายการได้ กรุณาลองใหม่อีกครั้ง");
           setIsUploading(false);
         }
       } else {
@@ -598,7 +617,7 @@ function Upload() {
           });
 
           if (!response.ok) {
-            throw new Error("Failed to upload file");
+            throw new Error(await readApiError(response, "ไม่สามารถอัปโหลดไฟล์ได้ กรุณาลองใหม่อีกครั้ง"));
           }
 
           const data = await response.json();
@@ -644,8 +663,7 @@ function Upload() {
               });
 
               if (!confirmResponse.ok) {
-                const errText = await confirmResponse.text();
-                throw new Error(`Payment confirmation failed: ${confirmResponse.status} ${errText}`);
+                throw new Error(await readApiError(confirmResponse, "ไม่สามารถยืนยันรายการได้ กรุณาลองใหม่อีกครั้ง"));
               }
 
               const result = await confirmResponse.json();
@@ -675,7 +693,7 @@ function Upload() {
               return;
             } catch (confirmError) {
               console.error('[Upload] Free order confirmation error:', confirmError);
-              setAlertMessage("เกิดข้อผิดพลาดในการยืนยันคำสั่ง กรุณาลองใหม่");
+              showSubmissionError(confirmError, "ไม่สามารถยืนยันรายการได้ กรุณาลองใหม่อีกครั้ง");
               setIsUploading(false);
               return;
             }
@@ -685,7 +703,7 @@ function Upload() {
           navigate(`/payment?price=${price}&type=${actualType || type}&time=${time}&uploadId=${data.uploadId}&shopId=${shopId}`);
         } catch (error) {
           console.error('[Upload] Error uploading file:', error);
-          setAlertMessage("เกิดข้อผิดพลาดในการอัพโหลดไฟล์ กรุณาลองใหม่");
+          showSubmissionError(error, "ไม่สามารถอัปโหลดไฟล์ได้ กรุณาลองใหม่อีกครั้ง");
           setIsUploading(false);
         }
       }
@@ -770,11 +788,11 @@ function Upload() {
             setShowPreviewModal(false);
             navigate(`/home${shopId ? `?shopId=${shopId}` : ''}`);
           } else {
-            throw new Error('Failed to upload');
+            throw new Error(await readApiError(response, "ไม่สามารถส่งรายการได้ กรุณาลองใหม่อีกครั้ง"));
           }
         } catch (error) {
           console.error('Error uploading:', error);
-          setAlertMessage("เกิดข้อผิดพลาดในการอัปโหลด กรุณาลองใหม่");
+          showSubmissionError(error, "ไม่สามารถส่งรายการได้ กรุณาลองใหม่อีกครั้ง");
           setIsUploading(false);
         }
       } else {
@@ -804,7 +822,7 @@ function Upload() {
           });
 
           if (!response.ok) {
-            throw new Error("Failed to upload text data");
+            throw new Error(await readApiError(response, "ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง"));
           }
 
           const data = await response.json();
@@ -836,7 +854,7 @@ function Upload() {
           navigate(`/payment?price=${price}&type=${type}&time=${time}&uploadId=${data.uploadId}&shopId=${shopId}`);
         } catch (error) {
           console.error('[Upload] Error uploading text:', error);
-          setAlertMessage("เกิดข้อผิดพลาดในการอัพโหลดข้อมูล กรุณาลองใหม่");
+          showSubmissionError(error, "ไม่สามารถส่งข้อความได้ กรุณาลองใหม่อีกครั้ง");
           setIsUploading(false);
         }
       }
@@ -847,6 +865,7 @@ function Upload() {
   // ปิด preview modal และกลับไปแก้ไขข้อมูล
   const handleEdit = () => {
     setShowPreviewModal(false);
+    setAlertMessage("");
   };
 
   // ==================== HANDLER: Modal ข้อกำหนด ====================
@@ -1423,6 +1442,12 @@ function Upload() {
                     <p><strong>แสดงเป็นเวลา:</strong> {time} วินาที</p>
                     <p><strong>ราคา:</strong> {price === 0 ? 'ฟรี' : `฿${price}`}</p>
                   </div>
+                  {alertMessage && (
+                    <div className="preview-submit-error" role="alert">
+                      <strong>ส่งรายการไม่สำเร็จ</strong>
+                      <span>{alertMessage}</span>
+                    </div>
+                  )}
                 </div>
               </div>
               <div className="modal-actions">

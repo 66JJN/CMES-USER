@@ -10,7 +10,7 @@ import "./Gift.css";
 import { incrementQueueNumber } from "../../utils";
 
 import API_BASE_URL from '../../config/apiConfig';
-import { getToken } from '../../services/authService';
+import { getToken, showToast } from '../../services/authService';
 
 // API endpoints สำหรับเชื่อมต่อกับ backend
 const API_BASE = API_BASE_URL;
@@ -207,6 +207,7 @@ function Gift() {
 	const showValidationError = (field, message) => {
 		setFieldErrors({ [field]: message });
 		setErrorMessage(message);
+		showToast(message, "error");
 	};
 
 	const validateOrder = () => {
@@ -338,7 +339,9 @@ function Gift() {
 					return;
 				} catch (confirmError) {
 					console.error("[Gift] Free order confirmation error:", confirmError);
-					setErrorMessage(confirmError.message || "เกิดข้อผิดพลาดในการยืนยันคำสั่งซื้อ");
+					const message = confirmError.message || "เกิดข้อผิดพลาดในการยืนยันคำสั่งซื้อ";
+					setErrorMessage(message);
+					showToast(message, "error");
 					setSubmitting(false);
 					return;
 				}
@@ -348,7 +351,9 @@ function Gift() {
 			navigate(`/payment?type=gift&price=${data.order.totalPrice}&orderId=${data.order.id}`);
 		} catch (error) {
 			console.error("Create gift order error", error);
-			setErrorMessage(error.message || "เกิดข้อผิดพลาด กรุณาลองใหม่");
+			const message = error.message || "เกิดข้อผิดพลาด กรุณาลองใหม่";
+			setErrorMessage(message);
+			showToast(message, "error");
 		} finally {
 			setSubmitting(false);
 		}

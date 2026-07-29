@@ -13,6 +13,21 @@ const ADMIN_API_BASE = (process.env.ADMIN_API_BASE || "https://cmes-admin-server
 // In-memory pending uploads store
 export const pendingUploads = new Map();
 
+// The User service proxies submissions to Admin. Preserve an actionable
+// upstream message instead of returning a long "Admin backend error" string.
+async function readUpstreamError(response, fallbackMessage) {
+  const rawBody = (await response.text()).trim();
+  if (!rawBody || rawBody.startsWith("<")) return fallbackMessage;
+
+  try {
+    const body = JSON.parse(rawBody);
+    return body?.message || body?.error || fallbackMessage;
+  } catch {
+    // Do not expose a full proxy/HTML error page to the guest.
+    return rawBody.length <= 240 ? rawBody : fallbackMessage;
+  }
+}
+
 async function forwardUploadToAdmin(uploadData, shopId) {
   const formData = new FormData();
   formData.append("text", uploadData.text || "");
@@ -45,7 +60,14 @@ async function forwardUploadToAdmin(uploadData, shopId) {
       },
       signal: controller.signal,
     });
-    if (!response.ok) throw new Error(`Admin backend error: ${response.status} ${await response.text()}`);
+    if (!response.ok) {
+      const error = new Error(await readUpstreamError(
+        response,
+        "ยังส่งรายการไม่ได้ กรุณาลองใหม่อีกครั้ง"
+      ));
+      error.status = response.status;
+      throw error;
+    }
     return response.json();
   } finally {
     clearTimeout(timerId);
@@ -265,9 +287,14 @@ export async function confirmPayment(req, res, next) {
         uploadId: adminResult.uploadId,
       });
     } else {
-      const errBody = await response.text();
-      console.error("[Confirm Payment] Admin returned error:", response.status, errBody);
-      throw new Error(`Admin backend error: ${response.status} ${errBody}`);
+      const message = await readUpstreamError(
+        response,
+        "ยังยืนยันรายการไม่ได้ กรุณาลองใหม่อีกครั้ง"
+      );
+      console.error("[Confirm Payment] Admin returned error:", response.status, message);
+      const error = new Error(message);
+      error.status = response.status;
+      throw error;
     }
   } catch (error) {
     next(error);

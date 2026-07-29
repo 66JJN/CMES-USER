@@ -705,6 +705,24 @@
   color: rgba(255, 255, 255, 0.8) !important;
 }
 
+.upload-container .preview-submit-error {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border: 1px solid rgba(248, 113, 113, 0.52);
+  border-radius: 12px;
+  background: rgba(127, 29, 29, 0.28);
+  color: #fecaca;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.upload-container .preview-submit-error strong {
+  color: #fca5a5;
+}
+
 .upload-container .caption-picker-body {
   padding: 0 !important;
 }
