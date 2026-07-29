@@ -4,7 +4,7 @@
 import { FiChevronLeft } from "react-icons/fi";
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import API_BASE_URL, { ADMIN_API_URL } from "../../config/apiConfig";
+import API_BASE_URL from "../../config/apiConfig";
 import "./Payment.css";
 import promptpayLogo from "../../data-icon/promptpay-logo.png";
 import paymentLogo from "../../data-icon/payment-logo.jpg";
@@ -89,9 +89,18 @@ function Payment() {
   // useEffect: โหลดภาพ QR Code ชำระเงินจาก Admin
   // ========================
   useEffect(() => {
+    let cancelled = false;
     const loadPaymentQr = async () => {
       try {
-        const res = await fetch(`${ADMIN_API_URL}/api/config/payment-qr?shopId=${shopId}`, {
+        const statusRes = await fetch(`${API_BASE_URL}/api/status?shopId=${encodeURIComponent(shopId)}`, {
+          headers: { "x-shop-id": shopId }
+        });
+        const status = await statusRes.json();
+        if (status.freeMode === true) {
+          if (!cancelled) navigate(`/home${shopId ? `?shopId=${shopId}` : ''}`, { replace: true });
+          return;
+        }
+        const res = await fetch(`${API_BASE_URL}/api/payment-qr?shopId=${encodeURIComponent(shopId)}`, {
           headers: { "x-shop-id": shopId }
         });
         const data = await res.json();
@@ -103,7 +112,8 @@ function Payment() {
       }
     };
     loadPaymentQr();
-  }, [shopId]);
+    return () => { cancelled = true; };
+  }, [shopId, navigate]);
 
   // ========================
   // Form Handlers

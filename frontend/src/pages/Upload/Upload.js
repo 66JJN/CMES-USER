@@ -6,7 +6,7 @@ import React, { useState, useEffect } from "react";
 // นำเข้า hooks สำหรับการนำทาง (routing)
 import { useLocation, useNavigate } from "react-router-dom";
 // นำเข้า URL ของ Backend API (User และ Admin)
-import API_BASE_URL, { ADMIN_API_URL } from "../../config/apiConfig";
+import API_BASE_URL from "../../config/apiConfig";
 // นำเข้าฟังก์ชันสำหรับเพิ่มหมายเลขคิว (Queue Number)
 import { incrementQueueNumber } from "../../utils";
 // นำเข้า CSS สำหรับ styling
@@ -497,7 +497,7 @@ function Upload() {
         try {
           console.log("[Upload] Uploading FREE item with type:", actualType, "to Admin backend");
           // ส่งไปยัง Admin Backend
-          const response = await fetch(`${ADMIN_API_URL}/api/upload?shopId=${shopId}`, {
+          const response = await fetch(`${API_BASE_URL}/api/upload?shopId=${shopId}`, {
             method: "POST",
             headers: { "x-shop-id": shopId },
             body: formData,
@@ -711,7 +711,7 @@ function Upload() {
         };
 
         try {
-          const response = await fetch(`${ADMIN_API_URL}/api/upload?shopId=${shopId}`, {
+          const response = await fetch(`${API_BASE_URL}/api/upload?shopId=${shopId}`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",

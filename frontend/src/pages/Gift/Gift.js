@@ -9,14 +9,12 @@ import { useNavigate } from "react-router-dom";
 import "./Gift.css";
 import { incrementQueueNumber } from "../../utils";
 
-import API_BASE_URL, { ADMIN_API_URL, REALTIME_URL } from '../../config/apiConfig';
+import API_BASE_URL from '../../config/apiConfig';
 
 // API endpoints สำหรับเชื่อมต่อกับ backend
 const API_BASE = API_BASE_URL;
-const REALTIME_BASE = REALTIME_URL;
 
 // Admin API สำหรับดึงรูปภาพสินค้า
-const ADMIN_API_BASE = ADMIN_API_URL;
 
 
 /**
@@ -26,7 +24,7 @@ const ADMIN_API_BASE = ADMIN_API_URL;
  */
 const resolveImageSrc = (url) => {
 	if (!url) return "";
-	return url.startsWith("http") ? url : `${ADMIN_API_BASE}${url}`;
+	return url.startsWith("http") ? url : `${API_BASE_URL}${url}`;
 };
 
 function Gift() {
@@ -85,7 +83,7 @@ function Gift() {
 	useEffect(() => {
 		const checkGiftStatus = async () => {
 			try {
-				const response = await fetch(`${REALTIME_BASE}/api/status?shopId=${shopId}`, {
+				const response = await fetch(`${API_BASE_URL}/api/status?shopId=${shopId}`, {
 					headers: { 'x-shop-id': shopId }
 				});
 				if (!response.ok) throw new Error("CONFIG_ERROR");

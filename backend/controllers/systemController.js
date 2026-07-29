@@ -1,6 +1,6 @@
 import axios from "axios";
 import { generatePartyCaption } from "../services/geminiService.js";
-import { forwardReport, fetchSystemStatus, fetchTopRankings } from "../services/adminService.js";
+import { forwardReport, fetchSystemStatus, fetchTopRankings, fetchShopProfile, fetchPerks, fetchBirthdayEligibility, fetchOrderStatus, deleteUserOrder, fetchPaymentQr } from "../services/adminService.js";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -265,4 +265,34 @@ export async function getRankings(req, res, next) {
   } catch (error) {
     next(error);
   }
+}
+
+export async function getShopProfile(req, res, next) {
+  try { res.json(await fetchShopProfile(req.query.shopId || req.headers["x-shop-id"] || "")); }
+  catch (error) { next(error); }
+}
+
+export async function getPerks(req, res, next) {
+  try { res.json(await fetchPerks(req.query.shopId || req.headers["x-shop-id"] || "")); }
+  catch (error) { next(error); }
+}
+
+export async function getBirthdayEligibility(req, res, next) {
+  try { res.json(await fetchBirthdayEligibility(req.query.shopId || req.headers["x-shop-id"] || "", req.params.email)); }
+  catch (error) { next(error); }
+}
+
+export async function getOrderStatus(req, res, next) {
+  try { res.json(await fetchOrderStatus(req.query.shopId || req.headers["x-shop-id"] || "", req.params.orderId)); }
+  catch (error) { next(error); }
+}
+
+export async function removeUserOrder(req, res, next) {
+  try { res.json(await deleteUserOrder(req.query.shopId || req.headers["x-shop-id"] || "", req.params.orderId)); }
+  catch (error) { next(error); }
+}
+
+export async function getPaymentQr(req, res, next) {
+  try { res.json(await fetchPaymentQr(req.query.shopId || req.headers["x-shop-id"] || "")); }
+  catch (error) { next(error); }
 }

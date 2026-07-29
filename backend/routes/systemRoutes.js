@@ -8,6 +8,12 @@ import {
   verifyPayment,
   getStatus,
   getRankings,
+  getShopProfile,
+  getPerks,
+  getBirthdayEligibility,
+  getOrderStatus,
+  removeUserOrder,
+  getPaymentQr,
 } from "../controllers/systemController.js";
 import { optionalAuth } from "../middleware/authMiddleware.js";
 
@@ -34,5 +40,11 @@ router.get("/api/status", getStatus);
 
 // Rankings proxy
 router.get("/api/rankings/top", getRankings);
+router.get("/api/shop-profile", getShopProfile);
+router.get("/api/perks", getPerks);
+router.get("/api/birthday-eligibility/:email", getBirthdayEligibility);
+router.get("/api/order-status/:orderId", getOrderStatus);
+router.delete("/api/user-delete-order/:orderId", removeUserOrder);
+router.get("/api/payment-qr", getPaymentQr);
 
 export default router;

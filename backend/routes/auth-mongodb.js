@@ -514,6 +514,7 @@ router.put("/profile", async (req, res) => {
         headers: {
           "Content-Type": "application/json",
           "x-shop-id": requestShopId,
+          "x-cmes-service-token": process.env.USER_SERVICE_TOKEN || "",
         },
         body: JSON.stringify({
           userId: user._id.toString(),

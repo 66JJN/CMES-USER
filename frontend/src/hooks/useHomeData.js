@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { ADMIN_API_URL } from "../config/apiConfig";
+import API_BASE_URL from "../config/apiConfig";
 import { apiCall, getShopId, getToken } from "../services/authService";
 import { useSocket } from "../contexts/SocketContext";
 
@@ -23,11 +23,15 @@ const homeCache = {
 };
 
 /**
- * Admin API fetch helper ensuring x-shop-id header & query params
+ * All browser traffic goes to CMES-USER. It proxies only the required
+ * read-only Admin data with a server-side service credential.
  */
-const adminApiCall = async (endpoint, options = {}) => {
+const userApiCall = async (endpoint, options = {}) => {
   const shopId = getShopId();
   const token = getToken();
+  const path = endpoint
+    .replace('/api/shop/profile', '/api/shop-profile')
+    .replace('/api/config/perks', '/api/perks');
   const headers = {
     "Content-Type": "application/json",
     "x-shop-id": shopId,
@@ -36,8 +40,8 @@ const adminApiCall = async (endpoint, options = {}) => {
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
-  const urlSeparator = endpoint.includes('?') ? '&' : '?';
-  const response = await fetch(`${ADMIN_API_URL}${endpoint}${urlSeparator}shopId=${shopId}`, {
+  const urlSeparator = path.includes('?') ? '&' : '?';
+  const response = await fetch(`${API_BASE_URL}${path}${urlSeparator}shopId=${encodeURIComponent(shopId)}`, {
     ...options,
     headers,
   });
@@ -135,7 +139,7 @@ export function useHomeData() {
 
     await Promise.all(pendingOrders.map(async (ord) => {
       try {
-        const data = await adminApiCall(`/api/order-status/${ord.orderId}`);
+        const data = await userApiCall(`/api/order-status/${ord.orderId}`);
         if (data && data.success) {
           newStatuses[ord.orderId] = data;
         } else {
@@ -212,7 +216,7 @@ export function useHomeData() {
       setRankLoading(true);
     }
     try {
-      const data = await adminApiCall(`/api/rankings/top?type=${rankingType}`);
+      const data = await userApiCall(`/api/rankings/top?type=${rankingType}`);
       if (data && data.success) {
         const ranks = data.ranks || [];
         homeCache.leaderboard[rankingType] = ranks;
@@ -265,7 +269,7 @@ export function useHomeData() {
 
     // 2. Fetch Shop Profile
     try {
-      const data = await adminApiCall('/api/shop/profile');
+      const data = await userApiCall('/api/shop/profile');
       if (data && data.success && data.shop) {
         const sProfile = {
           name: data.shop.name || "Digital Signage CMES",
@@ -280,7 +284,7 @@ export function useHomeData() {
 
     // 3. Fetch Perks
     try {
-      const data = await adminApiCall('/api/config/perks');
+      const data = await userApiCall('/api/config/perks');
       if (data && data.success && data.perks) {
         homeCache.perks = data.perks;
         setPerks(data.perks);
@@ -298,6 +302,7 @@ export function useHomeData() {
         textOn: (data.enableText ?? data.textOn) ?? true,
         giftOn: (data.enableGift ?? data.giftOn) ?? true,
         birthdayOn: (data.enableBirthday ?? data.birthdayOn) ?? true,
+        freeMode: data.freeMode === true,
       };
       homeCache.status = newStatus;
       setStatus(newStatus);
@@ -310,7 +315,7 @@ export function useHomeData() {
     if (token && userEmail) {
       try {
         const encodedEmail = encodeURIComponent(userEmail);
-        const data = await adminApiCall(`/api/birthday-eligibility/${encodedEmail}`);
+        const data = await userApiCall(`/api/birthday-eligibility/${encodedEmail}`);
         if (data && data.success) {
           const bData = {
             eligible: data.eligible,

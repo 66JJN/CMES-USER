@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, Link } from "react-router-dom";
 // นำเข้า Custom Hook สำหรับจัดการข้อมูล Realtime & SWR Cache
 import { useHomeData } from "../../hooks/useHomeData";
-import { ADMIN_API_URL } from "../../config/apiConfig";
+import API_BASE_URL from "../../config/apiConfig";
 // นำเข้า CSS styles
 import "./Home.css";
 import "../Report/Report.css";
@@ -119,7 +119,7 @@ function Home() {
       const stat = ordersStatus[orderId];
       if (stat?.status === "pending") {
         try {
-          await fetch(`${ADMIN_API_URL}/api/user-delete-order/${orderId}?shopId=${shopId}`, {
+          await fetch(`${API_BASE_URL}/api/user-delete-order/${orderId}?shopId=${shopId}`, {
             method: "DELETE",
             headers: { "x-shop-id": shopId },
           });
@@ -144,7 +144,7 @@ function Home() {
       const pendingOrders = orders.filter((o) => ordersStatus[o.orderId]?.status === "pending");
       await Promise.all(
         pendingOrders.map((o) =>
-          fetch(`${ADMIN_API_URL}/api/user-delete-order/${o.orderId}?shopId=${shopId}`, {
+          fetch(`${API_BASE_URL}/api/user-delete-order/${o.orderId}?shopId=${shopId}`, {
             method: "DELETE",
             headers: { "x-shop-id": shopId },
           }).catch(() => {})
@@ -467,7 +467,7 @@ function Home() {
               <p>เลือกส่งรูปภาพหรือข้อความไปแสดงบนหน้าจอดิจิทัลได้ง่ายๆ</p>
             </div>
             {/* แผง VIP Supporters */}
-            <div className="rank-panel premium">
+            {!status.freeMode && <div className="rank-panel premium">
               <div className="rank-panel-header">
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "4px" }}>
                   <span style={{ fontSize: "1.5rem", fontWeight: "800", lineHeight: "1.2" }}>VIP Supporters Club</span>
@@ -537,7 +537,7 @@ function Home() {
                   })
                 )}
               </div>
-            </div>
+            </div>}
           </div>
 
           {/* ===== Service Cards ===== */}
@@ -582,7 +582,7 @@ function Home() {
             {/* Birthday Card */}
             {(() => {
               const isSystemDisabled = !status.systemOn || !status.birthdayOn;
-              const isNotEligible = !isLoggedIn || isBirthday === false || !birthdayEligibility.eligible;
+              const isNotEligible = !isLoggedIn || isBirthday === false || (!status.freeMode && !birthdayEligibility.eligible);
               const cannotClick = isSystemDisabled || isNotEligible;
 
               return (
@@ -609,7 +609,13 @@ function Home() {
                   <div className="card-content">
                     <h3>อวยพรวันเกิด {isLoggedIn && birthdayEligibility.eligible && isBirthday && "🎉 ฟรี!"}</h3>
                     <div className="card-features">
-                      {isLoggedIn && !birthdayEligibility.eligible ? (
+                      {status.freeMode ? (
+                        <>
+                          <span className="feature">🎉 ใช้งานฟรีสำหรับร้านนี้</span>
+                          <span className="feature">📸 รองรับ JPG, PNG</span>
+                          <span className="feature">💬 เพิ่มข้อความได้</span>
+                        </>
+                      ) : isLoggedIn && !birthdayEligibility.eligible ? (
                         <>
                           <span className="feature">💰 ใช้จ่ายแล้ว ฿{birthdayEligibility.totalSpent.toLocaleString()}</span>
                           <span className="feature">🎯 ต้องใช้ครบ ฿{birthdayEligibility.required.toLocaleString()}</span>
@@ -634,7 +640,7 @@ function Home() {
                     <span className="price-from">
                       {!isLoggedIn
                         ? "เข้าสู่ระบบเพื่อรับสิทธิ์"
-                        : !birthdayEligibility.eligible
+                        : !status.freeMode && !birthdayEligibility.eligible
                           ? `ใช้จ่ายครบ ฿${birthdayEligibility.required.toLocaleString()} เพื่อปลดล็อก`
                           : isBirthday
                             ? "✨ พร้อมใช้งาน - ฟรีในวันเกิด!"

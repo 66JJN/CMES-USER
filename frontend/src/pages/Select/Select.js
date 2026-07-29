@@ -34,7 +34,9 @@ function Select() {
   // Sync packages from systemConfig when systemConfig or type changes
   useEffect(() => {
     if (systemConfig && systemConfig.settings) {
-      const filtered = systemConfig.settings.filter((pkg) => pkg.mode === type);
+      const filtered = systemConfig.settings
+        .filter((pkg) => pkg.mode === type)
+        .map((pkg) => ({ ...pkg, price: systemConfig.freeMode === true ? 0 : pkg.price }));
       setPackages(filtered);
     }
   }, [systemConfig, type]);
@@ -76,7 +78,7 @@ function Select() {
     }
 
     const timeSeconds = parseInt(time, 10) || 0;
-    const priceNum = Number(price) || 0;
+    const priceNum = systemConfig?.freeMode === true ? 0 : (Number(price) || 0);
     const shopId = new URLSearchParams(window.location.search).get("shopId") || localStorage.getItem("shopId") || "";
 
     if (type === "birthday") {

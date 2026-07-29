@@ -12,6 +12,44 @@ const ADMIN_API_BASE = (process.env.ADMIN_API_BASE || "https://cmes-admin-server
 // In-memory pending uploads store
 export const pendingUploads = new Map();
 
+async function forwardUploadToAdmin(uploadData, shopId) {
+  const formData = new FormData();
+  formData.append("text", uploadData.text || "");
+  formData.append("type", uploadData.type || "image");
+  formData.append("time", String(uploadData.time || 0));
+  formData.append("price", String(uploadData.price || 0));
+  formData.append("sender", uploadData.sender || "Unknown");
+  formData.append("textColor", uploadData.textColor || "#ffffff");
+  formData.append("socialColor", uploadData.socialColor || "#ffffff");
+  formData.append("textLayout", uploadData.textLayout || "right");
+  formData.append("socialType", uploadData.socialType || "");
+  formData.append("socialName", uploadData.socialName || "");
+  if (uploadData.userId) formData.append("userId", uploadData.userId);
+  if (uploadData.email) formData.append("email", uploadData.email);
+  if (uploadData.avatar) formData.append("avatar", uploadData.avatar);
+  if (uploadData.filePath) formData.append("imageUrl", uploadData.filePath);
+  if (uploadData.qrCodePath) formData.append("qrCodeUrl", uploadData.qrCodePath);
+
+  const controller = new AbortController();
+  const timerId = setTimeout(() => controller.abort(), 30000);
+  try {
+    const response = await fetch(`${ADMIN_API_BASE}/api/upload`, {
+      method: "POST",
+      body: formData,
+      headers: {
+        ...formData.getHeaders(),
+        "x-shop-id": shopId,
+        "x-cmes-service-token": process.env.USER_SERVICE_TOKEN || "",
+      },
+      signal: controller.signal,
+    });
+    if (!response.ok) throw new Error(`Admin backend error: ${response.status} ${await response.text()}`);
+    return response.json();
+  } finally {
+    clearTimeout(timerId);
+  }
+}
+
 /**
  * Helper to delete Cloudinary file to clean up assets
  */
@@ -38,7 +76,7 @@ export async function verifySlip(req, res, next) {
   if (!req.file) {
     detail = "ไม่พบไฟล์สลิป";
     try {
-      await sendSlipStat({ category: "payment", detail, status, amount });
+      await sendSlipStat(req.headers["x-shop-id"] || "", { category: "payment", detail, status, amount });
     } catch (err) {
       console.error("Failed to log slip stat to Admin:", err.message);
     }
@@ -66,11 +104,11 @@ export async function verifySlip(req, res, next) {
     if (match1 || match2 || match3 || match4) {
       status = "success";
       detail = `ชำระเงินสำเร็จ จำนวนเงิน: ${amount}`;
-      await sendSlipStat({ category: "payment", detail, status, amount });
+      await sendSlipStat(req.headers["x-shop-id"] || "", { category: "payment", detail, status, amount });
       return res.json({ success: true });
     } else {
       detail = "ชำระเงินไม่ถูกต้อง หรือจำนวนเงินไม่ตรง";
-      await sendSlipStat({ category: "payment", detail, status, amount });
+      await sendSlipStat(req.headers["x-shop-id"] || "", { category: "payment", detail, status, amount });
       return res.json({ success: false, message: detail });
     }
   } catch (error) {
@@ -78,7 +116,7 @@ export async function verifySlip(req, res, next) {
     console.error("[OCR] Failed with error:", error);
     await deleteCloudinaryFile(req.file?.filename);
     try {
-      await sendSlipStat({ category: "payment", detail, status, amount });
+      await sendSlipStat(req.headers["x-shop-id"] || "", { category: "payment", detail, status, amount });
     } catch (err) {
       // ignore
     }
@@ -121,6 +159,16 @@ export async function uploadPendingContent(req, res, next) {
       timestamp: new Date(),
       status: "pending",
     };
+
+    const shopId = req.headers["x-shop-id"] || "";
+    if (!shopId) return res.status(400).json({ success: false, message: "Missing shopId" });
+
+    // A zero-price package skips payment, but it is still submitted through
+    // this server. The browser never receives Admin credentials or calls it.
+    if (Number(price) === 0) {
+      const adminResult = await forwardUploadToAdmin(uploadData, shopId);
+      return res.json({ success: true, uploadId: adminResult.uploadId });
+    }
 
     pendingUploads.set(uploadId, uploadData);
     console.log(`[Upload pending] Upload ID: ${uploadId} saved. Expires in 10 mins.`);
@@ -199,6 +247,7 @@ export async function confirmPayment(req, res, next) {
       headers: {
         ...formData.getHeaders(),
         "x-shop-id": shopId,
+        "x-cmes-service-token": process.env.USER_SERVICE_TOKEN || "",
       },
       signal: controller.signal,
     }).finally(() => clearTimeout(timerId));

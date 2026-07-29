@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { io } from "socket.io-client";
-import { REALTIME_URL } from "../config/apiConfig";
+import API_BASE_URL from "../config/apiConfig";
 
 const SocketContext = createContext({
   socket: null,
@@ -9,8 +8,12 @@ const SocketContext = createContext({
   shopId: "",
 });
 
+/**
+ * User browsers intentionally do not connect to CMES-ADMIN Socket.IO. They
+ * receive read-only configuration through CMES-USER, keeping both the Admin
+ * JWT and the service token off the public client.
+ */
 export const SocketProvider = ({ children }) => {
-  const [socket, setSocket] = useState(null);
   const [isConnected, setIsConnected] = useState(false);
   const [systemConfig, setSystemConfig] = useState(null);
   const [shopId] = useState(() => {
@@ -19,71 +22,36 @@ export const SocketProvider = ({ children }) => {
   });
 
   useEffect(() => {
-    if (!shopId) {
-      console.log("[SocketContext] No shopId found, skipping socket initialization");
-      return;
-    }
+    if (!shopId) return undefined;
+    let cancelled = false;
 
-    console.log("[SocketContext] Initializing single WebSocket connection for shopId:", shopId);
-
-    const socketInstance = io(REALTIME_URL, {
-      query: { shopId },
-      transports: ["websocket"], // ⚡ Enforce WebSocket only (no HTTP long-polling duplication)
-      reconnection: true,
-      reconnectionAttempts: 15,
-      reconnectionDelay: 1000,
-      autoConnect: true,
-    });
-
-    socketInstance.on("connect", () => {
-      console.log("[SocketContext] WebSocket connected:", socketInstance.id);
-      setIsConnected(true);
-      socketInstance.emit("getConfig");
-    });
-
-    socketInstance.on("disconnect", (reason) => {
-      console.log("[SocketContext] WebSocket disconnected:", reason);
-      setIsConnected(false);
-    });
-
-    socketInstance.on("status", (data) => {
-      console.log("[SocketContext] Received status event:", data);
-      if (data) {
-        setSystemConfig(data);
+    const loadStatus = async () => {
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/status?shopId=${encodeURIComponent(shopId)}`, {
+          headers: { "x-shop-id": shopId },
+        });
+        if (!response.ok) throw new Error(`Status request failed: ${response.status}`);
+        const config = await response.json();
+        if (!cancelled) {
+          setSystemConfig(config);
+          setIsConnected(true);
+        }
+      } catch {
+        if (!cancelled) setIsConnected(false);
       }
-    });
-
-    socketInstance.on("configUpdate", (newConfig) => {
-      console.log("[SocketContext] Received configUpdate event:", newConfig);
-      if (newConfig) {
-        setSystemConfig((prev) => ({ ...prev, ...newConfig }));
-      }
-    });
-
-    setSocket(socketInstance);
-
-    return () => {
-      console.log("[SocketContext] Unmounting provider or shopId changed, disconnecting socket");
-      socketInstance.disconnect();
     };
+
+    loadStatus();
+    const interval = window.setInterval(loadStatus, 10000);
+    return () => { cancelled = true; window.clearInterval(interval); };
   }, [shopId]);
 
   return (
-    <SocketContext.Provider
-      value={{
-        socket,
-        isConnected,
-        systemConfig,
-        shopId,
-      }}
-    >
+    <SocketContext.Provider value={{ socket: null, isConnected, systemConfig, shopId }}>
       {children}
     </SocketContext.Provider>
   );
 };
 
-export const useSocket = () => {
-  return useContext(SocketContext);
-};
-
+export const useSocket = () => useContext(SocketContext);
 export default SocketContext;
