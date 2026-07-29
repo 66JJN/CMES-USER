@@ -153,19 +153,21 @@ export function useHomeData() {
   }, []);
 
   // ===== Batch Fetch Order Statuses with Terminal Status Optimization =====
-  const fetchAllOrderStatuses = useCallback(async (currentOrders) => {
+  const fetchAllOrderStatuses = useCallback(async (currentOrders, { force = false, silent = false } = {}) => {
     if (!currentOrders || currentOrders.length === 0) return;
 
     // Skip orders that are already terminal (completed or rejected)
     const pendingOrders = currentOrders.filter((ord) => {
       if (!ord.orderId) return false;
       const currentStatus = homeCache.ordersStatus[ord.orderId]?.status;
-      return currentStatus !== "completed" && currentStatus !== "rejected";
+      return force || (currentStatus !== "completed" && currentStatus !== "rejected");
     });
 
     if (pendingOrders.length === 0) return;
 
-    setStatusLoading(true);
+    // Only the first/manual load should replace modal content with a
+    // skeleton. Periodic syncs must not interrupt someone reading it.
+    if (!silent) setStatusLoading(true);
     const newStatuses = {};
 
     await Promise.all(pendingOrders.map(async (ord) => {
@@ -183,7 +185,7 @@ export function useHomeData() {
     }));
 
     syncOrdersStatusToCache(newStatuses);
-    setStatusLoading(false);
+    if (!silent) setStatusLoading(false);
   }, [syncOrdersStatusToCache]);
 
   // ===== Load Local Orders =====
@@ -213,6 +215,12 @@ export function useHomeData() {
       console.warn("[useHomeData] Error loading orders:", err);
     }
   }, [fetchAllOrderStatuses]);
+
+  // The order-status modal is a live view. Keep this separate from initial
+  // loading so the Home screen does not poll in the background.
+  const refreshOrdersStatus = useCallback(() => {
+    return fetchAllOrderStatuses(orders, { force: true, silent: true });
+  }, [fetchAllOrderStatuses, orders]);
 
   // ===== Delete Single Order =====
   const deleteOrder = useCallback((orderIdToDelete) => {
@@ -492,6 +500,7 @@ export function useHomeData() {
     orders,
     ordersStatus,
     statusLoading,
+    refreshOrdersStatus,
     deleteOrder,
     loadOrders,
     leaderboard,

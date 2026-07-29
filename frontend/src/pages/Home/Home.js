@@ -49,6 +49,7 @@ function Home() {
     orders,
     ordersStatus,
     statusLoading,
+    refreshOrdersStatus,
     deleteOrder,
     loadOrders,
     leaderboard,
@@ -72,6 +73,15 @@ function Home() {
   const [showProfileMenu, setShowProfileMenu] = useState(false); // แสดง/ซ่อน เมนูโปรไฟล์
   const [expandedOrderId, setExpandedOrderId] = useState(null); // order ที่กดดูเพิ่มเติม
   const [deletingOrderId, setDeletingOrderId] = useState(null); // order ที่กำลังลบ
+
+  // Refresh only while the customer is viewing order details. This reflects
+  // shop edits quickly without polling for every visitor on the Home screen.
+  useEffect(() => {
+    if (!showModal || orders.length === 0) return undefined;
+    refreshOrdersStatus();
+    const refreshInterval = window.setInterval(refreshOrdersStatus, 5000);
+    return () => window.clearInterval(refreshInterval);
+  }, [showModal, orders.length, refreshOrdersStatus]);
 
   // ปิดเมนูโปรไฟล์เมื่อคลิกนอกเมนู
   useEffect(() => {
@@ -1037,11 +1047,11 @@ function Home() {
                                   <span className="item-label">โต๊ะ:</span>
                                   <span className="item-value">#{ord.tableNumber}</span>
                                 </div>
-                                {ord.giftItems && ord.giftItems.length > 0 && (
+                                {(stat?.order?.giftItems || ord.giftItems)?.length > 0 && (
                                   <div className="summary-item">
                                     <span className="item-label">รายการ:</span>
                                     <span className="item-value gift-items-value">
-                                      {ord.giftItems.map((item) => `${item.name} x${item.quantity}`).join(", ")}
+                                      {(stat?.order?.giftItems || ord.giftItems).map((item) => `${item.name} x${item.quantity}`).join(", ")}
                                     </span>
                                   </div>
                                 )}
