@@ -559,7 +559,7 @@ function Home() {
           {/* ===== Service Cards ===== */}
           <div className="service-cards">
             {serviceCards.map((card) => {
-              const isSystemDisabled = !status.systemOn || !card.enabled;
+              const isSystemDisabled = !status.systemOn || !status.queueAccepting || !card.enabled;
               return (
                 <div
                   key={card.key}
@@ -597,7 +597,7 @@ function Home() {
 
             {/* Birthday Card */}
             {(() => {
-              const isSystemDisabled = !status.systemOn || !status.birthdayOn;
+              const isSystemDisabled = !status.systemOn || !status.queueAccepting || !status.birthdayOn;
               const isNotEligible = !isLoggedIn || isBirthday === false || (!status.freeMode && !birthdayEligibility.eligible);
               const cannotClick = isSystemDisabled || isNotEligible;
 

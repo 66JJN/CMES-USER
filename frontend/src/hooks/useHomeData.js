@@ -9,7 +9,7 @@ const homeCache = {
   shopId: null,
   shopProfile: { name: "Digital Signage CMES", logo: null },
   profile: null,
-  status: { systemOn: true, imageOn: true, textOn: true, giftOn: true, birthdayOn: true, freeMode: false, birthdaySpendingRequirement: 100, settings: [] },
+  status: { systemOn: true, imageOn: true, textOn: true, giftOn: true, birthdayOn: true, queueAccepting: true, freeMode: false, birthdaySpendingRequirement: 100, settings: [] },
   leaderboard: {}, // Keyed by rankingType (daily, monthly, alltime)
   birthdayEligibility: null,
   perks: [
@@ -29,6 +29,7 @@ const normaliseStatus = (config = {}, previous = {}) => ({
   textOn: config.enableText ?? config.textOn ?? previous.textOn ?? true,
   giftOn: config.enableGift ?? config.giftOn ?? previous.giftOn ?? true,
   birthdayOn: config.enableBirthday ?? config.birthdayOn ?? previous.birthdayOn ?? true,
+  queueAccepting: config.queueAccepting ?? previous.queueAccepting ?? true,
   freeMode: config.freeMode ?? previous.freeMode ?? false,
   birthdaySpendingRequirement: config.birthdaySpendingRequirement
     ?? previous.birthdaySpendingRequirement
@@ -90,7 +91,7 @@ export function useHomeData() {
     homeCache.shopId = currentShopId;
     homeCache.shopProfile = { name: "Digital Signage CMES", logo: null };
     homeCache.profile = null;
-    homeCache.status = { systemOn: true, imageOn: true, textOn: true, giftOn: true, birthdayOn: true, freeMode: false, birthdaySpendingRequirement: 100, settings: [] };
+    homeCache.status = { systemOn: true, imageOn: true, textOn: true, giftOn: true, birthdayOn: true, queueAccepting: true, freeMode: false, birthdaySpendingRequirement: 100, settings: [] };
     homeCache.leaderboard = {};
     homeCache.birthdayEligibility = null;
     homeCache.perks = [
