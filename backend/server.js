@@ -184,6 +184,10 @@ const syncShopConfig = async (shopId, { emit = true } = {}) => {
       if (emit && !sameConfig(previousConfig, nextConfig)) {
         io.to(roomForShop(shopId)).emit("status", nextConfig);
         io.to(roomForShop(shopId)).emit("configUpdate", nextConfig);
+        if (["daily", "monthly", "alltime"].includes(nextConfig.publicRankingType)
+          && nextConfig.publicRankingType !== previousConfig?.publicRankingType) {
+          io.to(roomForShop(shopId)).emit("publicRankingTypeUpdated", { type: nextConfig.publicRankingType });
+        }
       }
       return nextConfig;
     } catch (error) {
@@ -214,6 +218,9 @@ io.on("connection", (socket) => {
     const config = await syncShopConfig(shopId, { emit: true });
     socket.emit("status", config);
     socket.emit("configUpdate", config);
+    if (["daily", "monthly", "alltime"].includes(config.publicRankingType)) {
+      socket.emit("publicRankingTypeUpdated", { type: config.publicRankingType });
+    }
   };
 
   sendCurrentConfig();
