@@ -1,348 +1,331 @@
-<p align="center">
-  <h1 align="center">🖥️ CMES-USER</h1>
-  <p align="center">
-    <strong>Content Management & Entertainment System — User App</strong>
-    <br />
-    ระบบ Digital Signage สำหรับร้านเหล้า ผับ บาร์ — ฝั่งลูกค้า
-    <br /><br />
-    <a href="https://cmes-user-frontend.vercel.app/?shopId=JJ"><strong>🌐 Live Demo »</strong></a>
-    &nbsp;&nbsp;·&nbsp;&nbsp;
-    <a href="#-screenshots">Screenshots</a>
-    &nbsp;&nbsp;·&nbsp;&nbsp;
-    <a href="#-quick-start">Quick Start</a>
-    &nbsp;&nbsp;·&nbsp;&nbsp;
-    <a href="./docs/SKILL.md">SKILL.md</a>
-  </p>
-</p>
+<div align="center">
+
+# CMES-USER
+
+**เว็บสำหรับลูกค้าส่งรูป ข้อความ ของขวัญ และคำอวยพรขึ้นจอของร้าน พร้อมชำระเงินและติดตามคิวแบบ realtime**
+
+[Live Demo](https://cmes-user-frontend.vercel.app/?shopId=JJ) · [CMES-ADMIN](https://github.com/66JJN/CMES-ADMIN)
+
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-Express-339933?logo=node.js&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)
+![Socket.IO](https://img.shields.io/badge/Realtime-Socket.IO-010101?logo=socket.io&logoColor=white)
+![Cloudinary](https://img.shields.io/badge/Storage-Cloudinary-3448C5?logo=cloudinary&logoColor=white)
+![Deploy](https://img.shields.io/badge/Deploy-Vercel_%2B_Render-6C63FF)
+
+</div>
+
+## ภาพรวม
+
+CMES-USER คือ customer-facing application ของระบบ CMES ลูกค้าเข้าผ่านลิงก์หรือ QR Code ของร้าน สมัครสมาชิก เลือกบริการ ออกแบบคอนเทนต์ ชำระเงินเมื่อร้านเปิดโหมดคิดเงิน และติดตามสถานะตั้งแต่ส่งรายการจนแสดงเสร็จบนจอ
+
+Frontend ฝั่ง User ติดต่อเฉพาะ CMES-USER backend เท่านั้น งานที่ต้องเข้าคิวกลางจะถูกส่งต่อจาก User backend ไป CMES-ADMIN backend ด้วย service token ภายใน จึงไม่เปิด Admin API หรือ secret ให้ browser
+
+### จุดเด่น
+
+- ส่งรูปพร้อมข้อความ/social, ข้อความล้วน, ของขวัญ และคำอวยพรวันเกิด
+- สถานะระบบ ราคาแพ็กเกจ ranking, birthday eligibility และรายละเอียดคำสั่งซื้ออัปเดตแบบ realtime
+- Free mode จาก server: ไม่แสดงขั้นตอนชำระเงินและไม่เชื่อราคาจาก query/browser
+- ตรวจสิทธิ์และจำนวน active queue ก่อนเข้าสู่ขั้นตอนรับชำระเงิน
+- ป้องกันการกดซ้ำด้วย submission ID/idempotency ที่ฝั่ง Admin queue
+- รูปภาพรองรับ JPG, PNG และ WebP ขนาดไม่เกิน 10 MB
+- จำกัด active queue ค่าเริ่มต้น 3 รายการต่อผู้ใช้/ผู้ส่ง
+- Rate limit แยก auth, upload, AI caption, payment confirmation และ gift order
+- Error แสดงใน modal ที่ผู้ใช้กำลังทำงานอยู่ พร้อมข้อความจาก server ที่อ่านเข้าใจได้
+- รองรับ email/password, Email OTP และ Google OAuth
+
+## Screenshots
+
+> เปลี่ยนภาพล่าสุดได้โดยใช้ชื่อไฟล์เดิมใน `docs/screenshots/`
 
 <p align="center">
-  <img src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white" alt="React" />
-  <img src="https://img.shields.io/badge/Node.js-Express-339933?logo=node.js&logoColor=white" alt="Node.js" />
-  <img src="https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white" alt="MongoDB" />
-  <img src="https://img.shields.io/badge/AI-Gemini%202.5-FF6F00?logo=google&logoColor=white" alt="Gemini" />
-  <img src="https://img.shields.io/badge/Realtime-Socket.IO-010101?logo=socket.io&logoColor=white" alt="Socket.IO" />
-  <img src="https://img.shields.io/badge/Storage-Cloudinary-3448C5?logo=cloudinary&logoColor=white" alt="Cloudinary" />
-  <img src="https://img.shields.io/badge/Frontend-Vercel-000?logo=vercel&logoColor=white" alt="Vercel" />
-  <img src="https://img.shields.io/badge/Backend-Render-46E3B7?logo=render&logoColor=white" alt="Render" />
+  <img src="docs/screenshots/Home.png" width="250" alt="CMES User home" />
+  <img src="docs/screenshots/Upload.png" width="250" alt="CMES User upload" />
+  <img src="docs/screenshots/Payment.png" width="250" alt="CMES User payment" />
 </p>
 
----
+## Customer flow
 
-## 📋 Table of Contents
-
-- [About](#-about)
-- [Screenshots](#-screenshots)
-- [Architecture](#-architecture)
-- [Features](#-features)
-- [Tech Stack](#-tech-stack)
-- [Quick Start](#-quick-start)
-- [Environment Variables](#-environment-variables)
-- [Project Structure](#-project-structure)
-- [API Reference](#-api-reference)
-- [Deployment](#-deployment)
-- [Related Repos](#-related-repos)
-- [License](#-license)
-
----
-
-## 📖 About
-
-**CMES-USER** คือแอปพลิเคชันฝั่งลูกค้าสำหรับระบบ Digital Signage ในร้านเหล้า/ผับ/บาร์ ลูกค้าสามารถ:
-
-- 📸 อัปโหลดรูปภาพพร้อม caption ขึ้นจอในร้าน
-- 🤖 ใช้ AI สร้าง caption อัตโนมัติ (Google Gemini)
-- 💬 ส่งข้อความขึ้นจอ
-- 🎁 ส่งของขวัญไปยังโต๊ะอื่น
-- 🎂 ส่งข้อความอวยพรวันเกิด
-- 💳 ชำระเงินผ่าน QR Code + ตรวจสลิปอัตโนมัติด้วย OCR
-- 🏆 ดูอันดับผู้สนับสนุนอันดับต้น
-
-> **Multi-tenant Architecture** — รองรับหลายร้านด้วย `shopId` แยกข้อมูลอิสระ
-
----
-
-## 📸 Screenshots
-
-
-<p align="center">
-  <img src="docs/screenshots/Home.png" width="250" alt="Home" />
-  &nbsp;&nbsp;
-  <img src="docs/screenshots/Upload.png" width="250" alt="Upload" />
-  &nbsp;&nbsp;
-  <img src="docs/screenshots/Payment.png" width="250" alt="Payment" />
-</p>
-
-
-| หน้า | คำอธิบาย |
-|------|----------|
-| **Register** | สมัครสมาชิก / เข้าสู่ระบบ (Email + Google OAuth) |
-| **Home** | Dashboard — Ranking, บริการทั้งหมด, Bottom Navigation |
-| **Upload** | อัปโหลดรูป + AI Caption + เลือกสี/layout |
-| **Payment** | QR Code ชำระเงิน + อัปโหลดสลิป (OCR verify) |
-| **Gift** | เลือกของขวัญ → เลือกโต๊ะ → ชำระเงิน |
-| **Profile** | แก้ไขโปรไฟล์, avatar, วันเกิด |
-
----
-
-## 🏗 Architecture
-
-```
-┌──────────────────┐      ┌──────────────────┐     ┌───────────────────┐
-│   CMES-USER      │      │   CMES-USER      │     │   CMES-ADMIN      │
-│   Frontend       │────▶│   Backend        │────▶│   Backend         │
-│   (React/Vercel) │      │  (Express/Render)│     │   (Express/Render)│
-└──────────────────┘      └──────────────────┘     └───────────────────┘
-        │                        │                        │
-        │                  ┌─────┴─────┐            ┌─────┴─────┐
-        │                  │ MongoDB   │            │ Socket.IO │
-        │                  │ Atlas     │            │ Server    │
-        │                  └───────────┘            └───────────┘
-        │                        │
-        │                  ┌─────┴─────┐
-        └────────────────▶│ Cloudinary│
-                           │ (Storage) │
-                           └───────────┘
+```mermaid
+flowchart LR
+    A["เข้าผ่าน QR / shopId"] --> B["เลือก Image / Text / Gift / Birthday"]
+    B --> C["กรอกและตรวจข้อมูล"]
+    C --> D["User backend ตรวจ queue eligibility"]
+    D --> E{"Free mode?"}
+    E -->|"ใช่"| G["ส่งเข้าคิวราคา 0"]
+    E -->|"ไม่ใช่"| F["ชำระเงิน / ตรวจสลิป"]
+    F --> G
+    G --> H["Admin queue: pending/approved"]
+    H --> I["playing บน OBS"]
+    I --> J["completed และดูย้อนหลัง"]
 ```
 
----
+### การอนุมัติคอนเทนต์
 
-## ✨ Features
+- Text: เข้า approved อัตโนมัติหลังผ่าน validation
+- Image/Birthday: SightEngine ตรวจรูปที่ Admin backend เมื่อเปิด AI moderation
+- รูปปลอดภัย: approved อัตโนมัติ
+- รูปที่ถูก flag หรือ AI ตรวจไม่ได้: ค้าง pending ให้ Admin ตรวจ
+- Gift: ใช้รูปสินค้าและรายการที่ Admin ตั้งไว้
 
-| Category | Features |
-|----------|----------|
-| **Authentication** | Email/Password register, Login, Google OAuth, JWT (7-day), Protected Routes |
-| **Image Upload** | อัปโหลดรูป, AI Caption (Gemini), เลือกสี/layout, QR Code overlay |
-| **Text Message** | ส่งข้อความขึ้นจอ, เลือกสีตัวอักษร |
-| **Gift System** | เลือกของขวัญ, เลือกโต๊ะ, ส่งพร้อมข้อความ |
-| **Birthday** | ตรวจวันเกิดอัตโนมัติ, ส่งข้อความอวยพร (ต้องยอดใช้จ่ายขั้นต่ำ) |
-| **Payment** | QR Code, อัปโหลดสลิป, OCR ตรวจจำนวนเงินอัตโนมัติ |
-| **Ranking** | คะแนนสะสม Daily/Monthly/All-time, Top 3 บน Home |
-| **AI** | Google Gemini 2.5 Flash, auto-caption ภาษาไทย Gen Z, retry + fallback models |
-| **Realtime** | Socket.IO — สถานะระบบ, ranking updates |
-| **Multi-tenant** | `shopId` แยกร้าน, รองรับหลาย tenant |
+## สถาปัตยกรรมและ security boundary
 
----
+```mermaid
+flowchart LR
+    Browser["User Frontend :3001"] -->|"User JWT / Public request"| UserAPI["User Backend :5002"]
+    UserAPI <--> UserDB[("User MongoDB")]
+    UserAPI -->|"x-cmes-service-token"| AdminAPI["Admin Backend :5001"]
+    AdminAPI <--> QueueDB[("Queue MongoDB")]
+    AdminAPI --> OBS["OBS + Admin realtime"]
+```
 
-## 🛠 Tech Stack
+- `JWT_SECRET` ใช้เซ็น token สมาชิกของ CMES-USER
+- `USER_SERVICE_TOKEN` ใช้เฉพาะ backend-to-backend และต้องตรงกับ CMES-ADMIN backend
+- ห้ามนำ `USER_SERVICE_TOKEN` ไปใส่ใน `REACT_APP_*` หรือส่งลง browser
+- User browser ไม่ส่ง `x-admin-id`/`x-shop-id` เพื่อขอสิทธิ์ Admin
+- `shopId` ระบุร้าน แต่สิทธิ์สำคัญถูกตรวจและผูกโดย backend
+- Helmet, CORS allowlist, Mongo sanitization และ rate limit ทำงานที่ User backend
 
-| Layer | Technology |
-|-------|-----------|
-| **Frontend** | React 19, React Router 7, Vanilla CSS (Dark glassmorphism) |
-| **Backend** | Node.js, Express 4, ES Modules |
-| **Database** | MongoDB Atlas + Mongoose 8 |
-| **Auth** | JWT + bcryptjs + Google OAuth + Trust Proxy Rate Limiting |
-| **AI** | Google Gemini 2.5 Flash (caption generation) |
-| **OCR** | Tesseract.js 5 (slip verification) |
-| **Realtime** | Socket.IO 4 |
-| **Storage** | Cloudinary (images, slips, avatars) |
-| **Email** | Nodemailer + Gmail |
-| **Deploy** | Vercel (frontend) + Render (backend) |
+## Validation และข้อจำกัด
 
----
+| รายการ | ข้อจำกัดปัจจุบัน |
+|---|---|
+| รูป content/avatar | JPG, PNG หรือ WebP ไม่เกิน 10 MB |
+| Slip | สูงสุด 10 MB; storage รองรับ JPG/JPEG/PNG/PDF |
+| หมายเลขผู้ส่งของขวัญ | ตัวเลขครบ 10 หลัก |
+| Active queue | ค่าเริ่มต้นสูงสุด 3 รายการต่อผู้ใช้/ผู้ส่ง |
+| Content submission | ผู้ใช้ที่ login 6 ครั้ง/10 นาที; guest รวมตาม IP 60 ครั้ง/10 นาที |
+| Payment confirmation | ผู้ใช้ที่ login 12 ครั้ง/10 นาที; guest รวมตาม IP 80 ครั้ง/10 นาที |
+| Gift order | ผู้ใช้ที่ login 5 ครั้ง/10 นาที; guest รวมตาม IP 60 ครั้ง/10 นาที |
+| AI caption | production 50 ครั้ง/15 นาทีต่อ rate-limit key |
 
-## 🚀 Quick Start
+Guest quota ตั้งสูงกว่าเพื่อรองรับหลายคนที่แชร์ Wi‑Fi/NAT ของร้าน ขณะที่ active queue และ idempotency ป้องกันคนเดียวเติมคิวมากเกินไป
 
-### Prerequisites
+## Payment และ Free mode
 
-- Node.js 18+
+### โหมดคิดเงิน
+
+1. User backend สร้าง pending upload/order
+2. ตรวจ queue eligibility กับ Admin backend ก่อนรับชำระเงิน
+3. แสดง QR ที่ Admin ตั้งค่าไว้
+4. ผู้ใช้อัปโหลดสลิปและระบบตรวจข้อมูล/OCR
+5. เมื่อยืนยันสำเร็จ User backend ส่งรายการไป Admin backend
+6. Ranking/income อัปเดตจากการชำระเงินสำเร็จ ส่วนประวัติการแสดงจบอัปเดตเมื่อคิว completed
+
+### Free mode
+
+- Admin backend เป็นผู้กำหนด `freeMode`
+- ราคา effective เป็น `0` ที่ server แม้ browser ส่งราคาอื่นมา
+- User frontend ข้าม payment UI ตาม config จาก server
+- Birthday ไม่ติดเงื่อนไขยอดใช้จ่ายใน Free mode
+- Ranking/income จากยอดเงินถูกปิดหรือคืนค่าเป็นศูนย์ตาม API
+
+## Tech Stack
+
+| ส่วน | เทคโนโลยี |
+|---|---|
+| Frontend | React 19, React Router 7, Vanilla CSS, Socket.IO Client |
+| Backend | Node.js, Express 4, ES Modules |
+| Database | MongoDB Atlas, Mongoose 8 |
+| Authentication | JWT, bcryptjs, Google OAuth, Email OTP |
+| Storage | Cloudinary |
+| AI | Google Gemini สำหรับ caption |
+| OCR | Tesseract.js สำหรับอ่านข้อมูลสลิป |
+| Operations | Helmet, CORS allowlist, rate limiting, Mongo sanitization |
+| Deployment | Vercel frontend, Render backend |
+
+## Local services
+
+ระบบ CMES ใช้พอร์ตคงที่ดังนี้:
+
+| Service | URL |
+|---|---|
+| CMES-ADMIN frontend | `http://localhost:3000` |
+| CMES-ADMIN backend | `http://localhost:5001` |
+| CMES-USER frontend | `http://localhost:3001` |
+| CMES-USER backend | `http://localhost:5002` |
+
+## Quick Start
+
+### Requirements
+
+- Node.js 20+
 - npm
-- MongoDB Atlas account ([free tier](https://cloud.mongodb.com))
-- Cloudinary account ([free tier](https://cloudinary.com))
+- MongoDB Atlas
+- Cloudinary
+- CMES-ADMIN backend ที่ port 5001 สำหรับ queue/config แบบครบระบบ
+- Google OAuth, Gmail, Gemini และ OCR ใช้ตามฟีเจอร์ที่ต้องการทดสอบ
 
-### 1. Clone & Install
+### ติดตั้ง
 
-```bash
-git clone https://github.com/66JJN/CMES-USER
+```powershell
+git clone https://github.com/66JJN/CMES-USER.git
 cd CMES-USER
 
-# Backend
 cd backend
-cp .env.example .env    # แก้ไขค่าใน .env
+Copy-Item .env.example .env
 npm install
 
-# Frontend (new terminal)
-cd frontend
-cp .env.example .env    # แก้ไขค่าใน .env
+cd ../frontend
+Copy-Item .env.example .env
 npm install
 ```
 
-### 2. Configure Environment
+ตั้ง `PORT=3001` ใน `frontend/.env` และใส่ environment ที่จำเป็นก่อนเปิดระบบ ห้าม commit `.env`
 
-แก้ไข `backend/.env` — ดู [Environment Variables](#-environment-variables) สำหรับรายละเอียด
+### เปิดระบบ local
 
-### 3. Run Development
-
-```bash
-# Terminal 1 — Backend (port 5002)
-cd backend
+```powershell
+# Terminal 1 — User backend :5002
+cd D:\CMES-USER\backend
 npm run dev
 
-# Terminal 2 — Frontend (port 3000)
-cd frontend
+# Terminal 2 — User frontend :3001
+cd D:\CMES-USER\frontend
 npm start
 ```
 
-### 4. Open App
+เปิด `http://localhost:3001/?shopId=JJ` โดยเปลี่ยน `JJ` เป็น shop ID ที่มีอยู่จริง
 
-```
-http://localhost:3000/?shopId=demo
-```
+## Environment Variables
 
----
+ดูค่าตัวอย่างที่ [backend/.env.example](./backend/.env.example) และ [frontend/.env.example](./frontend/.env.example)
 
-## 🔑 Environment Variables
+### User backend
 
-### Frontend (`frontend/.env`)
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `REACT_APP_API_BASE_URL` | User backend URL | `http://localhost:5002` |
-| `REACT_APP_ADMIN_API_URL` | Admin backend URL | `http://localhost:5001` |
-| `REACT_APP_REALTIME_URL` | Socket.IO URL | `http://localhost:5001` |
-| `REACT_APP_GOOGLE_CLIENT_ID` | Google OAuth Client ID | — |
-
-### Backend (`backend/.env`)
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `MONGODB_URI` | MongoDB connection string | ✅ |
-| `JWT_SECRET` | JWT signing secret (64+ chars) | ✅ |
-| `CLOUDINARY_CLOUD_NAME` | Cloudinary cloud name | ✅ |
-| `CLOUDINARY_API_KEY` | Cloudinary API key | ✅ |
-| `CLOUDINARY_API_SECRET` | Cloudinary API secret | ✅ |
-| `ADMIN_API_BASE` | Admin backend URL | ✅ |
-| `GEMINI_API_KEY` | Google Gemini API key | Optional |
-| `EMAIL_USER` | Gmail address | Optional |
+| Variable | หน้าที่ | Required |
+|---|---|---|
+| `MONGODB_URI` | MongoDB connection ของสมาชิก/pending orders | Yes |
+| `JWT_SECRET` | เซ็น token สมาชิก; ใช้ค่าคงที่และสุ่มยาว | Yes |
+| `USER_SERVICE_TOKEN` | ติดต่อ Admin backend; ต้องตรงกับฝั่ง Admin | Yes |
+| `ADMIN_API_BASE` | Admin backend URL เช่น `http://localhost:5001` | Yes |
+| `USER_FRONTEND_URL` | CORS allowlist ของ User frontend | Yes |
+| `ADMIN_FRONTEND_URL` | CORS allowlist ที่ต้องอนุญาต | Yes |
+| `CLOUDINARY_CLOUD_NAME` | Cloudinary account | Yes |
+| `CLOUDINARY_API_KEY` | Cloudinary API key | Yes |
+| `CLOUDINARY_API_SECRET` | Cloudinary API secret | Yes |
+| `GOOGLE_CLIENT_ID` | ตรวจ Google OAuth token | Optional |
+| `GEMINI_API_KEY` | สร้าง AI caption | Optional |
+| `EMAIL_USER` | Email สำหรับ OTP | Optional |
 | `EMAIL_PASS` | Gmail app password | Optional |
-| `PORT` | Server port | `5002` |
+| `PORT` | User backend port; default `5002` | Optional |
 
-> 📄 ดูตัวอย่างทั้งหมดที่ [`frontend/.env.example`](./frontend/.env.example) และ [`backend/.env.example`](./backend/.env.example)
+### User frontend
 
----
+| Variable | Local value |
+|---|---|
+| `PORT` | `3001` |
+| `REACT_APP_API_BASE_URL` | `http://localhost:5002` |
+| `REACT_APP_GOOGLE_CLIENT_ID` | Google OAuth client ID |
 
-## 📁 Project Structure
+User frontend ปัจจุบันไม่ต้องมี Admin API URL หรือ service token เพราะเรียกผ่าน User backend เท่านั้น
 
-```
+## API สำคัญ
+
+Endpoint ด้านล่างเป็นภาพรวม โปรดดู `backend/routes/` สำหรับรายการทั้งหมด
+
+| Method | Endpoint | หน้าที่ |
+|---|---|---|
+| `POST` | `/api/auth/register` | สมัครสมาชิกด้วย Email OTP |
+| `POST` | `/api/auth/login` | Login email/password |
+| `POST` | `/api/auth/google` | Login/Register ด้วย Google |
+| `GET` | `/api/auth/profile` | อ่าน profile |
+| `PUT` | `/api/auth/profile` | แก้ profile |
+| `POST` | `/api/upload` | สร้าง pending content และตรวจ queue eligibility |
+| `POST` | `/api/confirm-payment` | ยืนยัน payment/free order และส่งเข้า Admin queue |
+| `GET` | `/api/upload-status/:uploadId` | อ่านสถานะ pending upload |
+| `POST` | `/verify-slip` | ตรวจสลิป |
+| `POST` | `/api/gifts/order` | สร้าง gift order |
+| `POST` | `/api/gifts/order/:orderId/confirm` | ยืนยัน gift order |
+| `GET` | `/api/order-status/:orderId` | อ่านสถานะคิวและรายละเอียดล่าสุด |
+| `DELETE` | `/api/user-delete-order/:orderId` | ลบรายการของผู้ใช้ตามสิทธิ์ |
+| `GET` | `/api/status` | อ่าน system/free/feature config จาก Admin |
+| `GET` | `/api/rankings/top` | อ่าน public ranking |
+| `POST` | `/api/generate-caption` | สร้าง caption ด้วย Gemini |
+
+## Project Structure
+
+```text
 CMES-USER/
-├── frontend/
-│   ├── src/
-│   │   ├── pages/                # ★ Pure Presentation Pages (1 Page = 1 Directory)
-│   │   │   ├── Home/             #   Home.js + Home.css (หน้าหลัก + Ranking)
-│   │   │   ├── Profile/          #   Profile.js + Profile.css (โปรไฟล์)
-│   │   │   ├── Register/         #   Register.js + Register.css (สมัคร/ล็อกอิน)
-│   │   │   ├── Payment/          #   Payment.js + Payment.css (ชำระเงิน)
-│   │   │   ├── Select/           #   Select.js + Select.css (เลือกบริการ)
-│   │   │   ├── SlipUpload/       #   SlipUpload.js (อัปโหลดสลิป)
-│   │   │   ├── Report/           #   Report.js + Report.css (รายงานปัญหา)
-│   │   │   ├── Gift/             #   Gift.js + Gift.css (ส่งของขวัญ)
-│   │   │   ├── Upload/           #   Upload.js + Upload.css (อัปโหลดรูป/ข้อความ)
-│   │   │   └── Status/           #   Status.js (สถานะคำสั่ง)
-│   │   ├── components/           # ★ Shared Reusable UI Components
-│   │   │   ├── Toast.js          #   Toast notification component
-│   │   │   └── Toast.css         #   Toast styling
-│   │   ├── contexts/             # ★ Global React Contexts
-│   │   │   └── SocketContext.js  #   Socket.IO Provider (singleton connection)
-│   │   ├── hooks/                # ★ Custom Hooks (Business Logic Layer)
-│   │   │   └── useHomeData.js    #   Home page state, SWR cache, socket events
-│   │   ├── services/             # ★ Data & Infrastructure Layer (API Gateway)
-│   │   │   └── authService.js    #   Central auth utility — token, shopId, apiCall()
-│   │   ├── config/               # ★ App Configuration
-│   │   │   ├── apiConfig.js      #   API_BASE_URL, ADMIN_API_URL, REALTIME_URL
-│   │   │   └── googleConfig.js   #   Google OAuth Client ID
-│   │   ├── data-icon/            # Static icon assets
-│   │   ├── ProtectedRoute.js     # Route guards (ProtectedRoute + PublicRoute)
-│   │   ├── App.js                # Router + Auth init + <SocketProvider> wrapper
-│   │   ├── App.css               # Global app styles
-│   │   ├── index.js              # React entry point
-│   │   └── utils.js              # Pure utility helpers
-│   ├── postcss.config.js         # PostCSS config
-│   ├── tailwind.config.js        # Tailwind config
-│   └── package.json
-│
 ├── backend/
-│   ├── server.js                 # ★ Express + all API routes
-│   ├── routes/auth-mongodb.js    # Auth endpoints
-│   ├── middleware/               # JWT verification
-│   ├── models/                   # User, GiftOrder
-│   ├── uploads/                  # Local uploads buffer
-│   ├── tessdata/                 # ★ Tesseract isolated language models
-│   │   ├── eng.traineddata
-│   │   └── tha.traineddata
-│   └── package.json
-│
-├── docs/                         # ★ Project documentation folder
-│   ├── screenshots/              # App screenshots
-│   ├── BUGLOG.md                 # Change history & bug tracking
-│   ├── DESIGN.md                 # System design specifications
-│   └── SKILL.md                  # Architecture & coding guidelines
-└── README.md                     # ← You are here
+│   ├── controllers/       # Upload, gifts, status and gateway logic
+│   ├── middleware/        # Auth, upload validation and rate limits
+│   ├── models/            # User and GiftOrder
+│   ├── routes/            # Auth, upload, gift and system routes
+│   ├── services/          # Admin gateway and Gemini service
+│   └── server.js
+├── frontend/
+│   └── src/
+│       ├── components/    # Shared UI and notifications
+│       ├── contexts/      # Realtime connection state
+│       ├── hooks/         # Home/status data logic
+│       ├── pages/         # Home, Upload, Gift, Payment, Status, Profile
+│       ├── services/      # User auth/API client
+│       └── config/        # User backend URL and Google config
+├── docs/
+└── README.md
 ```
 
----
+## การทดสอบก่อนใช้ในร้าน
 
-## 📡 API Reference
+- เปิด Admin/User backend และตรวจว่าเชื่อม MongoDB ได้
+- User login แล้วส่ง Image, Text และ Gift อย่างละหนึ่งรายการ
+- ทดสอบรูปผิดชนิดและไฟล์เกิน 10 MB ต้องเห็นข้อความชัดเจนใน modal
+- กดส่งซ้ำหรือจำลอง network retry แล้วต้องได้รายการเดียว
+- เมื่อ active queue ครบ ต้องถูกปฏิเสธก่อนชำระเงิน
+- เปิด/ปิดระบบและ feature จาก Admin แล้ว User เห็นผล realtime
+- เปลี่ยนของขวัญ/ราคา/ranking จาก Admin แล้ว User เห็นข้อมูลล่าสุดโดยไม่ refresh
+- ทดสอบ Free mode ว่าราคาเป็นศูนย์จาก server และไม่แสดง payment flow
+- ทดสอบผู้ใช้หลายคนผ่าน Wi‑Fi เดียวกันและตรวจ response `429` เมื่อเกิน rate limit
+- รัน load test จาก CMES-ADMIN เพื่อยืนยันคิว 60 submissions
 
-### Authentication
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/auth/register` | สมัครสมาชิก |
-| `POST` | `/api/auth/login` | เข้าสู่ระบบ |
-| `POST` | `/api/auth/logout` | ออกจากระบบ |
-| `POST` | `/api/auth/verify-token` | ตรวจสอบ token |
-| `GET` | `/api/auth/profile` | ดูโปรไฟล์ |
-| `PUT` | `/api/auth/profile` | แก้ไขโปรไฟล์ |
+## Deployment
 
-### Core Features
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `POST` | `/api/upload` | อัปโหลดรูป/ข้อความ (pending) |
-| `POST` | `/api/confirm-payment` | ยืนยันชำระเงิน → ส่งไป Admin |
-| `POST` | `/verify-slip` | OCR ตรวจสลิปโอนเงิน |
-| `POST` | `/api/generate-caption` | AI สร้าง caption (Gemini) |
-| `POST` | `/api/report` | ส่งรายงานปัญหา |
-| `GET` | `/api/check-birthday` | ตรวจวันเกิด |
+### Backend — Render
 
-> **หมายเหตุ:** ทุก request ต้องส่ง `shopId` ทั้ง query param (`?shopId=xxx`) และ header (`x-shop-id`)
+1. Root Directory: `backend`
+2. Build Command: `npm install`
+3. Start Command: `npm start`
+4. ตั้ง environment จาก `backend/.env.example`
+5. ตั้ง `ADMIN_API_BASE` ไปยัง production Admin backend
+6. ตั้ง `USER_SERVICE_TOKEN` ค่าเดียวกับ Admin backend
+7. ตั้ง CORS URLs ให้ตรงกับ Vercel ทั้งสองเว็บ
 
----
+### Frontend — Vercel
 
-## 🚢 Deployment
+1. Root Directory: `frontend`
+2. Build Command: `npm run build`
+3. ตั้ง `REACT_APP_API_BASE_URL` เป็น production User backend
+4. ตั้ง `REACT_APP_GOOGLE_CLIENT_ID` ถ้าเปิด Google login
+5. Deploy ใหม่หลังเปลี่ยนตัวแปร `REACT_APP_*`
 
-### Frontend → Vercel
-```bash
-cd frontend
-npx vercel --prod
-```
-ตั้ง Environment Variables ใน Vercel Dashboard
+## Troubleshooting
 
-### Backend → Render
-1. สร้าง **Web Service** ใน [Render](https://render.com)
-2. Root Directory: `backend`
-3. Build Command: `npm install`
-4. Start Command: `node server.js`
-5. ตั้ง Environment Variables ใน Render Dashboard
+| อาการ | สาเหตุ/วิธีตรวจ |
+|---|---|
+| User ต้อง refresh จึงเห็น Admin config | ตรวจ Socket.IO ของ Admin backend และ listener ฝั่ง User; API fallback ควรยังโหลด config ได้ |
+| `401/403` ตอนส่งเข้า queue | ตรวจ User JWT, `USER_SERVICE_TOKEN`, shop ID และสถานะปิดรับคิว |
+| `404 /api/upload` | ตรวจ `REACT_APP_API_BASE_URL` ว่าชี้ User backend port 5002 |
+| `429` | เกิน rate limit หรือ active queue; รอช่วงเวลา/คิวเดิมแสดงเสร็จ |
+| รูปอัปโหลดไม่ได้ | ตรวจชนิด JPG/PNG/WebP และขนาดไม่เกิน 10 MB |
+| Login Google ไม่ผ่าน | Client ID ฝั่ง frontend/backend ต้องเป็น project เดียวกันและมี origin ถูกต้อง |
+| CORS ถูก block | ตรวจ `USER_FRONTEND_URL` และ `ADMIN_FRONTEND_URL` บน Render |
 
----
+## ขอบเขตปัจจุบัน
 
-## 🔗 Related Repos
+- ระบบมี automated load test ด้าน queue 60 submissions แต่ควรทำ venue test กับ Wi‑Fi, Render และ OBS จริงก่อนใช้งาน
+- OCR และ AI ขึ้นกับคุณภาพรูปและ quota ของ third-party service
+- Free-tier hosting อาจมี cold start จึงควรวอร์มระบบก่อนเปิดให้ลูกค้า
+- ระบบนี้เป็นโปรเจกต์จบและ pilot system ควรมีผู้ดูแลร้านเฝ้าระหว่างทดลองใช้งาน
 
-| Repo | Description |
-|------|-------------|
-| [CMES-ADMIN](https://github.com/66JJN/CMES-ADMIN) | Admin Dashboard — จัดการระบบ, คิวรูปภาพ, ของขวัญ, OBS overlay |
+## Related repository
 
----
+[CMES-ADMIN](https://github.com/66JJN/CMES-ADMIN) — Dashboard, persistent queue, moderation, ranking, gifts และ OBS display control
 
-## 📄 License
+## License
 
-ISC License — feel free to use and modify.
+ISC License
 
----
-
-<p align="center">
-  Originally built with ❤️ by 
-  <a href="https://github.com/66JJN">SUPHAKON</a> 
-  &amp; <a href="https://github.com/Boriwat-wtm">BORIWAT</a>
-  <br />
-  This repo is a rebuilt &amp; extended version by 
-  <a href="https://github.com/66JJN">SUPHAKON</a>
-</p>
+<div align="center">
+Built by <a href="https://github.com/66JJN">SUPHAKON SAEPHAN</a>
+</div>
