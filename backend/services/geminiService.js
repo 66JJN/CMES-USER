@@ -1,6 +1,11 @@
 import fetch from "node-fetch";
 
-const models = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.0-flash-lite"];
+export const DEFAULT_GEMINI_MODELS = Object.freeze([
+  "gemini-3.5-flash-lite",
+  "gemini-2.5-flash-lite",
+]);
+
+const DEFAULT_TIMEOUT_MS = 15000;
 
 const prompt = `คุณคือเทพแคปชั่นสาย Party สไตล์ไทย Gen Z
 
@@ -20,16 +25,25 @@ const prompt = `คุณคือเทพแคปชั่นสาย Party 
 /**
  * Call Google Gemini API with a strict timeout limit to avoid thread blocking.
  */
-async function callGeminiWithTimeout(model, apiKey, base64Data, detectedMime, timeoutMs = 5000) {
+async function callGeminiWithTimeout(
+  model,
+  apiKey,
+  base64Data,
+  detectedMime,
+  { timeoutMs = DEFAULT_TIMEOUT_MS, fetchImpl = fetch } = {}
+) {
   const controller = new AbortController();
   const id = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+    const response = await fetchImpl(
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
       {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": apiKey,
+        },
         body: JSON.stringify({
           contents: [
             {
@@ -45,10 +59,7 @@ async function callGeminiWithTimeout(model, apiKey, base64Data, detectedMime, ti
             },
           ],
           generationConfig: {
-            temperature: 1.0,
             maxOutputTokens: 100,
-            topP: 0.95,
-            topK: 40,
           },
         }),
         signal: controller.signal,
@@ -76,31 +87,66 @@ async function callGeminiWithTimeout(model, apiKey, base64Data, detectedMime, ti
   }
 }
 
+function shouldStopFallback(status) {
+  return [400, 401, 403, 413, 422].includes(status);
+}
+
+function failurePriority(status) {
+  if ([401, 403].includes(status)) return 100;
+  if (status === 429) return 90;
+  if ([400, 413, 422].includes(status)) return 85;
+  if (status === 408) return 80;
+  if (status >= 500) return 70;
+  if (status === 404) return 20;
+  return 50;
+}
+
+function selectMostActionableFailure(failures) {
+  return failures.reduce((selected, current) => {
+    if (!selected || failurePriority(current.status) > failurePriority(selected.status)) {
+      return current;
+    }
+    return selected;
+  }, null);
+}
+
 /**
  * Generate visual party captions using Gemini API with retry logic and fallback models.
  */
-export async function generatePartyCaption(apiKey, base64Data, detectedMime) {
-  let lastResult = null;
+export async function generatePartyCaption(
+  apiKey,
+  base64Data,
+  detectedMime,
+  {
+    models = DEFAULT_GEMINI_MODELS,
+    timeoutMs = DEFAULT_TIMEOUT_MS,
+    fetchImpl = fetch,
+  } = {}
+) {
+  const failures = [];
 
   for (const model of models) {
-    // Attempt with retry logic
-    for (let attempt = 0; attempt < 2; attempt++) {
-      lastResult = await callGeminiWithTimeout(model, apiKey, base64Data, detectedMime);
-      if (lastResult.success) {
-        return lastResult;
-      }
+    const result = await callGeminiWithTimeout(model, apiKey, base64Data, detectedMime, {
+      timeoutMs,
+      fetchImpl,
+    });
 
-      // If rate limited, wait a brief duration before retry
-      if (lastResult.status === 429 && attempt === 0) {
-        console.warn(`[Gemini Service] Model ${model} rate limited, retrying in 1s...`);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        continue;
-      }
+    if (result.success) {
+      return result;
+    }
 
-      // For other errors, skip attempts and try the fallback model immediately
+    failures.push(result);
+    if (shouldStopFallback(result.status)) {
       break;
     }
   }
 
-  return lastResult || { success: false, status: 500, errText: "No response from Gemini API models" };
+  const selectedFailure = selectMostActionableFailure(failures) || {
+    success: false,
+    status: 500,
+    errText: "No response from Gemini API models",
+    model: models[0] || "unknown",
+  };
+
+  return { ...selectedFailure, failures };
 }

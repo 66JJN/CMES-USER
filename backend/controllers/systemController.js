@@ -69,13 +69,33 @@ export async function generateAICaption(req, res, next) {
     const result = await generatePartyCaption(GEMINI_API_KEY, base64Data, detectedMime);
 
     if (!result || !result.success) {
-      const isQuotaError = result?.status === 429;
-      return res.status(isQuotaError ? 429 : 500).json({
+      const status = result?.status;
+      const isQuotaError = status === 429;
+      const isTimeout = status === 408;
+      const responseStatus = isQuotaError ? 429 : isTimeout ? 504 : 503;
+      const errorCode = isQuotaError
+        ? "QUOTA_EXCEEDED"
+        : isTimeout
+          ? "AI_TIMEOUT"
+          : "AI_UNAVAILABLE";
+
+      console.error("[AI Caption] Gemini request failed", {
+        status: status || 500,
+        model: result?.model || "unknown",
+        attempts: result?.failures?.map((failure) => ({
+          model: failure.model,
+          status: failure.status,
+        })) || [],
+      });
+
+      return res.status(responseStatus).json({
         success: false,
-        errorCode: isQuotaError ? "QUOTA_EXCEEDED" : "API_ERROR",
+        errorCode,
         message: isQuotaError
-          ? "AI ใช้งานเต็มแล้วในขณะนี้ กรุณารอ 1-2 นาทีแล้วลองใหม่"
-          : "AI ไม่สามารถสร้างแคปชั่นได้ กรุณาลองใหม่",
+          ? "โควตา AI เต็มชั่วคราว กรุณาใช้ปุ่มสุ่มแคปชั่นหรือลองใหม่ภายหลัง"
+          : isTimeout
+            ? "AI ใช้เวลาวิเคราะห์นานเกินไป กรุณาลองอีกครั้งหรือใช้ปุ่มสุ่มแคปชั่น"
+            : "AI ยังไม่พร้อมใช้งาน กรุณาใช้ปุ่มสุ่มแคปชั่นแทนชั่วคราว",
       });
     }
 
