@@ -1,0 +1,104 @@
+.app-loading-screen {
+  min-height: 100dvh;
+  width: 100%;
+  box-sizing: border-box;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 38%, rgba(124, 92, 255, 0.16), transparent 32%),
+    linear-gradient(180deg, #0a0e27 0%, #151338 52%, #0f0c29 100%);
+  font-family: "Inter", "Noto Sans Thai", -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.app-loading-card {
+  width: min(100%, 360px);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  color: #fff;
+}
+
+.app-loading-card h1 {
+  margin: 22px 0 6px;
+  font-size: clamp(1.05rem, 4vw, 1.2rem);
+  line-height: 1.45;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.app-loading-card p {
+  margin: 0;
+  color: rgba(226, 232, 255, 0.68);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.app-loading-spinner {
+  width: 42px;
+  height: 42px;
+  box-sizing: border-box;
+  border: 3px solid rgba(167, 139, 250, 0.2);
+  border-top-color: #a78bfa;
+  border-right-color: #7c3aed;
+  border-radius: 50%;
+  filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.35));
+  animation: app-loading-spin 0.8s linear infinite;
+}
+
+.app-loading-card--error {
+  padding: 28px 24px;
+  border: 1px solid rgba(248, 113, 113, 0.2);
+  border-radius: 20px;
+  background: rgba(20, 22, 52, 0.78);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.22);
+}
+
+.app-loading-card--error h1 {
+  margin-top: 16px;
+}
+
+.app-loading-error-mark {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  border-radius: 50%;
+  color: #fecaca;
+  background: rgba(239, 68, 68, 0.12);
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.app-loading-card button {
+  width: 100%;
+  margin-top: 22px;
+  padding: 12px 18px;
+  border: 0;
+  border-radius: 12px;
+  color: #fff;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  box-shadow: 0 10px 26px rgba(124, 58, 237, 0.28);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.app-loading-card button:focus-visible {
+  outline: 3px solid rgba(196, 181, 253, 0.55);
+  outline-offset: 3px;
+}
+
+@keyframes app-loading-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-loading-spinner {
+    animation-duration: 1.8s;
+  }
+}

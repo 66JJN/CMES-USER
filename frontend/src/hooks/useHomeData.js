@@ -1,13 +1,14 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import API_BASE_URL from "../config/apiConfig";
 import { apiCall, getShopId, getToken } from "../services/authService";
+import { getCachedShopProfile, loadShopProfile } from "../services/appBootstrap";
 import { useSocket } from "../contexts/SocketContext";
 
 // ===== In-Memory SWR Cache (Module-Scoped) =====
 // Retains cached data across route navigation within the SPA session
 const homeCache = {
   shopId: null,
-  shopProfile: { name: "Digital Signage CMES", logo: null },
+  shopProfile: null,
   profile: null,
   status: { systemOn: true, imageOn: true, textOn: true, giftOn: true, birthdayOn: true, queueAccepting: true, freeMode: false, birthdaySpendingRequirement: 100, settings: [] },
   leaderboard: {}, // Keyed by rankingType (daily, monthly, alltime)
@@ -89,7 +90,7 @@ export function useHomeData() {
   // ===== Cache Invalidation on shopId Change =====
   if (homeCache.shopId !== currentShopId) {
     homeCache.shopId = currentShopId;
-    homeCache.shopProfile = { name: "Digital Signage CMES", logo: null };
+    homeCache.shopProfile = getCachedShopProfile(currentShopId);
     homeCache.profile = null;
     homeCache.status = { systemOn: true, imageOn: true, textOn: true, giftOn: true, birthdayOn: true, queueAccepting: true, freeMode: false, birthdaySpendingRequirement: 100, settings: [] };
     homeCache.leaderboard = {};
@@ -112,7 +113,9 @@ export function useHomeData() {
   };
 
   // ===== States (Initialized from Cache for 0ms Latency) =====
-  const [shopProfile, setShopProfile] = useState(homeCache.shopProfile);
+  const [shopProfile, setShopProfile] = useState(
+    () => homeCache.shopProfile || getCachedShopProfile(currentShopId) || { name: "", logo: null },
+  );
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!getToken());
   const [profileImage, setProfileImage] = useState(getValidAvatar);
   const [orders, setOrders] = useState([]);
@@ -308,15 +311,9 @@ export function useHomeData() {
 
     // 2. Fetch Shop Profile
     try {
-      const data = await userApiCall('/api/shop/profile');
-      if (data && data.success && data.shop) {
-        const sProfile = {
-          name: data.shop.name || "Digital Signage CMES",
-          logo: data.shop.logo || null
-        };
-        homeCache.shopProfile = sProfile;
-        setShopProfile(sProfile);
-      }
+      const sProfile = await loadShopProfile(currentShopId);
+      homeCache.shopProfile = sProfile;
+      setShopProfile(sProfile);
     } catch (err) {
       console.error("[useHomeData] Shop profile fetch error:", err.message);
     }
@@ -362,7 +359,7 @@ export function useHomeData() {
         console.error("[useHomeData] Birthday eligibility error:", err.message);
       }
     }
-  }, [loadOrders, loadRankings]);
+  }, [currentShopId, loadOrders, loadRankings]);
 
   // ===== Initial Mount Effect =====
   useEffect(() => {
