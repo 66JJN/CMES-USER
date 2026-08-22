@@ -5,6 +5,13 @@ dotenv.config();
 
 const ADMIN_API_BASE = (process.env.ADMIN_API_BASE || "https://cmes-admin-server.onrender.com").replace(/\/$/, "");
 
+export function createUpstreamError(resourceName, status) {
+  const error = new Error(`Admin returned ${resourceName} ${status}`);
+  error.status = status;
+  error.statusCode = status;
+  return error;
+}
+
 const serviceHeaders = (shopId, headers = {}) => ({
   ...headers,
   "x-shop-id": shopId || "",
@@ -135,7 +142,7 @@ export async function fetchOrderStatus(shopId, orderId) {
   const res = await fetchWithTimeout(`${ADMIN_API_BASE}/api/order-status/${encodeURIComponent(orderId)}`, {
     headers: serviceHeaders(shopId),
   });
-  if (!res.ok) throw new Error(`Admin returned order status ${res.status}`);
+  if (!res.ok) throw createUpstreamError("order status", res.status);
   return res.json();
 }
 
@@ -143,7 +150,7 @@ export async function deleteUserOrder(shopId, orderId) {
   const res = await fetchWithTimeout(`${ADMIN_API_BASE}/api/user-delete-order/${encodeURIComponent(orderId)}`, {
     method: 'DELETE', headers: serviceHeaders(shopId),
   });
-  if (!res.ok) throw new Error(`Admin returned delete order ${res.status}`);
+  if (!res.ok) throw createUpstreamError("delete order", res.status);
   return res.json();
 }
 

@@ -1,6 +1,12 @@
 import GiftOrder from "../models/GiftOrder.js";
 import { fetchGiftSettings, sendGiftOrderToAdmin } from "../services/adminService.js";
 import { randomUUID } from "crypto";
+import { findGiftForShop, requireShopIdValue } from "../services/tenantRecordService.js";
+
+const findOrderForShop = (shopId, orderId) => findGiftForShop(
+  { shopId, orderId },
+  { findOne: (query) => GiftOrder.findOne(query) },
+);
 
 /**
  * GET /api/gifts
@@ -8,7 +14,7 @@ import { randomUUID } from "crypto";
  */
 export async function getGifts(req, res, next) {
   try {
-    const shopId = req.headers["x-shop-id"] || "";
+    const shopId = requireShopIdValue(req.headers["x-shop-id"]);
     const settings = await fetchGiftSettings(shopId);
     res.json({ success: true, settings });
   } catch (error) {
@@ -27,7 +33,7 @@ export async function createGiftOrder(req, res, next) {
       return res.status(400).json({ success: false, message: "กรุณาเลือกรายการสินค้า" });
     }
 
-    const shopId = req.headers["x-shop-id"] || "";
+    const shopId = requireShopIdValue(req.headers["x-shop-id"]);
     const settings = await fetchGiftSettings(shopId);
     const maxTable = Number(settings.tableCount) || 0;
     const table = Number(tableNumber);
@@ -66,6 +72,7 @@ export async function createGiftOrder(req, res, next) {
     }
 
     const order = new GiftOrder({
+      shopId,
       orderId: `gift-${randomUUID()}`,
       senderName: senderName?.trim() || "Guest",
       senderPhone: normalizedPhone,
@@ -109,7 +116,8 @@ export async function createGiftOrder(req, res, next) {
 export async function getGiftOrder(req, res, next) {
   try {
     const { orderId } = req.params;
-    const order = await GiftOrder.findOne({ orderId });
+    const shopId = requireShopIdValue(req.headers["x-shop-id"]);
+    const order = await findOrderForShop(shopId, orderId);
     if (!order) {
       return res.status(404).json({ success: false, message: "ไม่พบคำสั่งซื้อ" });
     }
@@ -139,10 +147,11 @@ export async function getGiftOrder(req, res, next) {
 export async function confirmGiftOrder(req, res, next) {
   const { orderId } = req.params;
   const { userId, email, avatar } = req.body;
-  const shopId = req.headers["x-shop-id"] || "";
+  let shopId;
 
   try {
-    const order = await GiftOrder.findOne({ orderId });
+    shopId = requireShopIdValue(req.headers["x-shop-id"]);
+    const order = await findOrderForShop(shopId, orderId);
     if (!order) {
       return res.status(404).json({ success: false, message: "ไม่พบคำสั่งซื้อ" });
     }
@@ -204,7 +213,7 @@ export async function confirmGiftOrder(req, res, next) {
   } catch (error) {
     console.error("Confirm gift order failed", error);
     try {
-      const order = await GiftOrder.findOne({ orderId });
+      const order = await findOrderForShop(shopId, orderId);
       if (order) {
         order.status = "pending_payment";
         await order.save();

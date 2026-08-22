@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const giftOrderSchema = new mongoose.Schema(
   {
+    shopId: {
+      type: String,
+      required: true,
+      index: true,
+      trim: true,
+    },
     orderId: {
       type: String,
       unique: true,

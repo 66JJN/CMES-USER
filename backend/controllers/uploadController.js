@@ -5,6 +5,10 @@ import FormData from "form-data";
 import fetch from "node-fetch";
 import dotenv from "dotenv";
 import { randomUUID } from "crypto";
+import {
+  getPendingUploadForShop,
+  requireShopIdValue,
+} from "../services/tenantRecordService.js";
 
 dotenv.config();
 
@@ -210,6 +214,7 @@ export async function uploadPendingContent(req, res, next) {
       textColor, socialColor, textLayout, socialType, socialName,
     } = req.body;
 
+    const shopId = requireShopIdValue(req.headers["x-shop-id"]);
     const uploadId = randomUUID();
 
     const uploadData = {
@@ -234,11 +239,8 @@ export async function uploadPendingContent(req, res, next) {
       qrCodePath: req.files?.qrCode?.[0]?.path || null,
       timestamp: new Date(),
       status: "pending",
-      shopId: req.headers["x-shop-id"] || "",
+      shopId,
     };
-
-    const shopId = req.headers["x-shop-id"] || "";
-    if (!shopId) return res.status(400).json({ success: false, message: "Missing shopId" });
 
     // Do this before returning an uploadId / opening PromptPay. Otherwise a
     // full queue would only be discovered after the guest had paid.
@@ -300,16 +302,12 @@ export async function uploadPendingContent(req, res, next) {
 export async function confirmPayment(req, res, next) {
   try {
     const { uploadId, userId, email, avatar } = req.body;
-    const shopId = req.headers["x-shop-id"] || "";
+    const shopId = requireShopIdValue(req.headers["x-shop-id"]);
 
     if (!uploadId) {
       return res.status(400).json({ success: false, message: "Missing uploadId" });
     }
-    if (!shopId) {
-      return res.status(400).json({ success: false, message: "Missing shopId" });
-    }
-
-    const uploadData = pendingUploads.get(uploadId);
+    const uploadData = getPendingUploadForShop({ shopId, uploadId, pendingUploads });
     if (!uploadData) {
       return res.status(404).json({ success: false, message: "Upload not found or expired" });
     }
@@ -381,12 +379,17 @@ export async function confirmPayment(req, res, next) {
  * GET /api/upload-status/:uploadId
  */
 export function getUploadStatus(req, res, next) {
-  const { uploadId } = req.params;
-  if (pendingUploads.has(uploadId)) {
-    const data = pendingUploads.get(uploadId);
-    res.json({ exists: true, status: data.status });
-  } else {
-    res.json({ exists: false });
+  try {
+    const shopId = requireShopIdValue(req.headers["x-shop-id"]);
+    const data = getPendingUploadForShop({
+      shopId,
+      uploadId: req.params.uploadId,
+      pendingUploads,
+    });
+    if (!data) return res.status(404).json({ exists: false });
+    return res.json({ exists: true, status: data.status });
+  } catch (error) {
+    return next(error);
   }
 }
 
