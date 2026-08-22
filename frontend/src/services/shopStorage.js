@@ -65,3 +65,88 @@ export const writeShopJson = (
   shopId,
   storage = window.localStorage,
 ) => writeShopItem(name, JSON.stringify(value), shopId, storage);
+
+export const readShopOrders = (
+  shopId,
+  storage = window.localStorage,
+) => {
+  const normalizedShopId = String(shopId || "").trim();
+  const orders = readShopJson("orders", [], normalizedShopId, storage);
+  if (!Array.isArray(orders)) return [];
+  return orders.filter(
+    (order) => order && String(order.shopId || "").trim() === normalizedShopId,
+  );
+};
+
+export const appendShopOrder = (
+  shopId,
+  order,
+  storage = window.localStorage,
+) => {
+  const normalizedShopId = String(shopId || "").trim();
+  const nextOrder = { ...order, shopId: normalizedShopId };
+  writeShopJson(
+    "orders",
+    [...readShopOrders(normalizedShopId, storage), nextOrder],
+    normalizedShopId,
+    storage,
+  );
+  writeShopJson("order", nextOrder, normalizedShopId, storage);
+  return nextOrder;
+};
+
+export const removeShopOrder = (
+  shopId,
+  orderId,
+  storage = window.localStorage,
+) => {
+  const orders = readShopOrders(shopId, storage).filter(
+    (order) => (order.orderId || order.id) !== orderId,
+  );
+  writeShopJson("orders", orders, shopId, storage);
+
+  const latest = readShopJson("order", null, shopId, storage);
+  if (latest && (latest.orderId || latest.id) === orderId) {
+    removeShopItem("order", shopId, storage);
+  }
+  return orders;
+};
+
+export const clearShopOrders = (
+  shopId,
+  storage = window.localStorage,
+) => {
+  writeShopJson("orders", [], shopId, storage);
+  removeShopItem("order", shopId, storage);
+};
+
+export const readLegacyOrders = (storage = window.localStorage) => {
+  try {
+    const orders = JSON.parse(storage.getItem("orders") || "[]");
+    return Array.isArray(orders) ? orders : [];
+  } catch {
+    return [];
+  }
+};
+
+export const adoptVerifiedLegacyOrders = (
+  shopId,
+  verifiedOrderIds,
+  storage = window.localStorage,
+) => {
+  const normalizedShopId = String(shopId || "").trim();
+  const current = readShopOrders(normalizedShopId, storage);
+  const knownIds = new Set(current.map((order) => order.orderId || order.id));
+  const adopted = readLegacyOrders(storage)
+    .filter((order) => {
+      const id = order?.orderId || order?.id;
+      return id && verifiedOrderIds.has(id) && !knownIds.has(id);
+    })
+    .map((order) => ({ ...order, shopId: normalizedShopId }));
+
+  const merged = [...current, ...adopted];
+  if (adopted.length > 0) {
+    writeShopJson("orders", merged, normalizedShopId, storage);
+  }
+  return merged;
+};

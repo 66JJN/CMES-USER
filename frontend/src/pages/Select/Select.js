@@ -7,6 +7,7 @@ import "./Select.css";
 import iconImage from "../Home/icons/icon-image.webp";
 import iconText from "../Home/icons/icon-text.webp";
 import iconBirthday from "../Home/icons/icon-birthday.webp";
+import { writeShopItem, writeShopJson } from "../../services/shopStorage";
 
 const getPackagesForType = (config, type) => (Array.isArray(config?.settings) ? config.settings : [])
   .filter((pkg) => pkg.mode === type)
@@ -83,15 +84,13 @@ function Select() {
 
     if (type === "birthday") {
       const endTime = new Date(Date.now() + timeSeconds * 1000);
-      localStorage.setItem("endTime", endTime.toISOString());
-      const newOrderValue = JSON.stringify({ type: "birthday", time: timeSeconds, price: 0 });
-      localStorage.setItem("order", newOrderValue);
+      writeShopItem("endTime", endTime.toISOString(), shopId);
+      writeShopJson("order", { type: "birthday", time: timeSeconds, price: 0, shopId }, shopId);
       navigate(`/upload?type=birthday&time=${timeSeconds}&price=0&free=true&shopId=${shopId}`);
     } else {
       const endTime = new Date(Date.now() + timeSeconds * 1000);
-      localStorage.setItem("endTime", endTime.toISOString());
-      const newOrderValue = JSON.stringify({ type, time: timeSeconds, price: priceNum });
-      localStorage.setItem("order", newOrderValue);
+      writeShopItem("endTime", endTime.toISOString(), shopId);
+      writeShopJson("order", { type, time: timeSeconds, price: priceNum, shopId }, shopId);
       const freeParam = priceNum === 0 ? "&free=true" : "";
       navigate(`/upload?type=${encodeURIComponent(type)}&time=${timeSeconds}&price=${priceNum}${freeParam}&shopId=${shopId}`);
     }

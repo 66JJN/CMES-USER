@@ -9,6 +9,14 @@ import { useLocation, useNavigate } from "react-router-dom";
 import API_BASE_URL from "../../config/apiConfig";
 // นำเข้าฟังก์ชันสำหรับเพิ่มหมายเลขคิว (Queue Number)
 import { incrementQueueNumber } from "../../utils";
+import {
+  appendShopOrder,
+  readShopItem,
+  readShopJson,
+  removeShopItem,
+  writeShopItem,
+  writeShopJson,
+} from "../../services/shopStorage";
 // นำเข้า CSS สำหรับ styling
 import "./Upload.css";
 // นำเข้า logo ของ social media ต่างๆ
@@ -175,39 +183,24 @@ function Upload() {
   // รันครั้งเดียวตอน component mount และเมื่อ type เปลี่ยน
   useEffect(() => {
     // โหลด draft ที่ผู้ใช้พิมพ์ค้างไว้ (กรณีกลับมาแก้ไข)
-    const saved = localStorage.getItem("uploadFormDraft");
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        if (data) {
-          // กู้คืนข้อมูลที่พิมพ์ไว้
-          setText(data.text || "");
-          setTextColor(data.textColor || "#ffffff");
-          setSocialColor(data.socialColor || "#ffffff");
-          setTextLayout(data.textLayout || "right");
-          setSelectedSocial(data.selectedSocial || "");
-          setSocialName(data.socialName || "");
-          // หมายเหตุ: ไม่เก็บรูปภาพใน localStorage เพราะขนาดใหญ่เกินไป
-        }
-      } catch {
-        // ถ้า parse ไม่ได้ ให้ข้ามไป
-      }
+    const data = readShopJson("uploadFormDraft", null, shopId);
+    if (data) {
+      setText(data.text || "");
+      setTextColor(data.textColor || "#ffffff");
+      setSocialColor(data.socialColor || "#ffffff");
+      setTextLayout(data.textLayout || "right");
+      setSelectedSocial(data.selectedSocial || "");
+      setSocialName(data.socialName || "");
     }
 
     // ดึง actual type จาก order ที่ Select.js บันทึกไว้
     // (สำคัญสำหรับ birthday type ที่อาจถูกเปลี่ยนจาก image)
-    const order = localStorage.getItem("order");
-    if (order) {
-      try {
-        const orderData = JSON.parse(order);
-        console.log("[Upload] Order from localStorage:", orderData);
-        setActualType(orderData.type || type);
-      } catch {
-        // ถ้า parse ไม่ได้ ใช้ type จาก URL
-        setActualType(type);
-      }
+    const orderData = readShopJson("order", null, shopId);
+    if (orderData?.shopId === shopId) {
+      console.log("[Upload] Order from shop storage:", orderData);
+      setActualType(orderData.type || type);
     }
-  }, [type]);
+  }, [shopId, type]);
 
   // ==================== useEffect: Auto-save ข้อมูล ====================
   // บันทึกข้อมูลลง localStorage ทุกครั้งที่ state เหล่านี้เปลี่ยนแปลง
@@ -215,18 +208,19 @@ function Upload() {
   useEffect(() => {
     // หมายเหตุ: ไม่เก็บรูปภาพที่นี่เพราะ File object ไม่สามารถ stringify ได้
     // รูปภาพจะถูกเก็บเป็น base64 แยกต่างหากใน handleImageChange
-    localStorage.setItem(
+    writeShopJson(
       "uploadFormDraft",
-      JSON.stringify({
+      {
         text,
         textColor,
         socialColor,
         textLayout,
         selectedSocial,
         socialName,
-      })
+      },
+      shopId,
     );
-  }, [text, textColor, socialColor, textLayout, selectedSocial, socialName]);
+  }, [shopId, text, textColor, socialColor, textLayout, selectedSocial, socialName]);
 
   // ==================== HANDLER: การเปลี่ยนแปลงข้อความ ====================
   // จัดการตอนผู้ใช้พิมพ์ข้อความ พร้อมตรวจสอบความยาว
@@ -268,7 +262,7 @@ function Upload() {
       // แปลงรูปเป็น base64 และเก็บลง localStorage เพื่อกู้คืนได้หลัง refresh
       const reader = new FileReader();
       reader.onload = function (ev) {
-        localStorage.setItem("uploadFormImage", ev.target.result);
+        writeShopItem("uploadFormImage", ev.target.result, shopId);
       };
       reader.readAsDataURL(file); // อ่านไฟล์และแปลงเป็น base64
     }
@@ -388,7 +382,7 @@ function Upload() {
   // ==================== useEffect: โหลดรูปภาพจาก localStorage ====================
   // รันครั้งเดียวตอน mount เพื่อกู้คืนรูปที่ผู้ใช้อัปโหลดไว้ก่อนหน้า
   useEffect(() => {
-    const saved = localStorage.getItem("uploadFormImage");
+    const saved = readShopItem("uploadFormImage", shopId);
     if (saved) {
       // แปลง base64 กลับมาเป็น File object
       const arr = saved.split(",");
@@ -408,7 +402,7 @@ function Upload() {
         setImage(file);
       }
     }
-  }, []);
+  }, [shopId]);
 
   // ==================== HANDLER: การกดปุ่มอัปโหลด ====================
   // ตรวจสอบความถูกต้องก่อนอนุญาตให้อัปโหลด
@@ -549,8 +543,7 @@ function Upload() {
             console.log("[Upload] Received uploadId from Admin:", result.uploadId);
 
             // สร้างหมายเลขคิวใหม่
-            const currentQueueNumber = parseInt(localStorage.getItem("currentQueueNumber") || "0") + 1;
-            localStorage.setItem("currentQueueNumber", currentQueueNumber.toString());
+            const currentQueueNumber = incrementQueueNumber(shopId);
 
             // สร้างข้อมูลคำสั่งซื้อ
             const newOrder = {
@@ -564,14 +557,11 @@ function Upload() {
             console.log("[Upload] Creating FREE order with orderId:", newOrder.orderId, "type:", newOrder.type);
 
             // บันทึกคำสั่งซื้อลง localStorage
-            const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]");
-            existingOrders.push(newOrder);
-            localStorage.setItem("orders", JSON.stringify(existingOrders));
-            localStorage.setItem("order", JSON.stringify(newOrder));
+            appendShopOrder(shopId, newOrder);
 
             // ลบข้อมูลชั่วคราว
-            localStorage.removeItem("uploadFormDraft");
-            localStorage.removeItem("uploadFormImage");
+            removeShopItem("uploadFormDraft", shopId);
+            removeShopItem("uploadFormImage", shopId);
 
             showToast("✅ อัปโหลดสำเร็จ!", "success");
             navigate(`/home${shopId ? `?shopId=${shopId}` : ''}`);  // กลับไปหน้าหลัก
@@ -639,7 +629,7 @@ function Upload() {
             avatar  // ✅ ส่ง avatar ไปด้วยเพื่อให้ ranking record มีรูป
           };
 
-          localStorage.setItem("pendingUploadData", JSON.stringify(uploadData));
+          writeShopJson("pendingUploadData", { ...uploadData, shopId }, shopId);
           console.log("[Upload] Saved uploadId to localStorage");
 
           setShowPreviewModal(false);
@@ -669,7 +659,7 @@ function Upload() {
               const result = await confirmResponse.json();
               console.log("[Upload] Free payment confirmed:", result);
 
-              const currentQueueNumber = incrementQueueNumber();
+              const currentQueueNumber = incrementQueueNumber(shopId);
               const newOrder = {
                 type: uploadData.type,
                 time: uploadData.time,
@@ -680,14 +670,11 @@ function Upload() {
 
               console.log("[Upload] Creating order with orderId:", newOrder.orderId, "from Admin");
 
-              const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]");
-              existingOrders.push(newOrder);
-              localStorage.setItem("orders", JSON.stringify(existingOrders));
-              localStorage.setItem("order", JSON.stringify(newOrder));
+              appendShopOrder(shopId, newOrder);
 
-              localStorage.removeItem("pendingUploadData");
-              localStorage.removeItem("uploadFormDraft");
-              localStorage.removeItem("uploadFormImage");
+              removeShopItem("pendingUploadData", shopId);
+              removeShopItem("uploadFormDraft", shopId);
+              removeShopItem("uploadFormImage", shopId);
 
               navigate(`/home${shopId ? `?shopId=${shopId}` : ''}`);
               return;
@@ -764,8 +751,7 @@ function Upload() {
           if (response.ok) {
             const result = await response.json();
             // สร้างหมายเลขคิว
-            const currentQueueNumber = parseInt(localStorage.getItem("currentQueueNumber") || "0") + 1;
-            localStorage.setItem("currentQueueNumber", currentQueueNumber.toString());
+            const currentQueueNumber = incrementQueueNumber(shopId);
 
             // สร้างข้อมูลคำสั่งซื้อ
             const newOrder = {
@@ -777,13 +763,10 @@ function Upload() {
             };
 
             // บันทึกลง localStorage
-            const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]");
-            existingOrders.push(newOrder);
-            localStorage.setItem("orders", JSON.stringify(existingOrders));
-            localStorage.setItem("order", JSON.stringify(newOrder));
+            appendShopOrder(shopId, newOrder);
 
             // ลบข้อมูลชั่วคราว
-            localStorage.removeItem("uploadFormDraft");
+            removeShopItem("uploadFormDraft", shopId);
 
             setShowPreviewModal(false);
             navigate(`/home${shopId ? `?shopId=${shopId}` : ''}`);
@@ -845,7 +828,7 @@ function Upload() {
             avatar  // ✅ ส่ง avatar ไปด้วยเพื่อให้ ranking record มีรูป
           };
 
-          localStorage.setItem("pendingUploadData", JSON.stringify(uploadData));
+          writeShopJson("pendingUploadData", { ...uploadData, shopId }, shopId);
           console.log("[Upload] Saved uploadId to localStorage");
 
           setShowPreviewModal(false);

@@ -3,6 +3,14 @@ import API_BASE_URL from "../config/apiConfig";
 import { apiCall, getShopId, getToken } from "../services/authService";
 import { getCachedShopProfile, loadShopProfile } from "../services/appBootstrap";
 import { useSocket } from "../contexts/SocketContext";
+import {
+  adoptVerifiedLegacyOrders,
+  readLegacyOrders,
+  readShopItem,
+  readShopOrders,
+  removeShopOrder,
+  writeShopItem,
+} from "../services/shopStorage";
 
 // ===== In-Memory SWR Cache (Module-Scoped) =====
 // Retains cached data across route navigation within the SPA session
@@ -192,32 +200,33 @@ export function useHomeData() {
   }, [syncOrdersStatusToCache]);
 
   // ===== Load Local Orders =====
-  const loadOrders = useCallback(() => {
+  const loadOrders = useCallback(async () => {
     try {
-      const storedOrders = localStorage.getItem("orders");
-      if (storedOrders) {
-        let parsed = JSON.parse(storedOrders);
-        if (Array.isArray(parsed)) {
-          const reversed = [...parsed].reverse();
-          setOrders(reversed);
-          fetchAllOrderStatuses(reversed);
-          return;
-        }
+      let storedOrders = readShopOrders(currentShopId);
+      const legacyChecked = readShopItem("legacyOrdersChecked", currentShopId) === "1";
+      if (storedOrders.length === 0 && !legacyChecked) {
+        const legacyOrders = readLegacyOrders().filter((order) => order?.orderId || order?.id);
+        const verifiedIds = new Set();
+        await Promise.all(legacyOrders.map(async (order) => {
+          const orderId = order.orderId || order.id;
+          try {
+            const data = await userApiCall(`/api/order-status/${orderId}`);
+            if (data?.success) verifiedIds.add(orderId);
+          } catch {
+            // Legacy data stays untouched and invisible when verification fails.
+          }
+        }));
+        storedOrders = adoptVerifiedLegacyOrders(currentShopId, verifiedIds);
+        writeShopItem("legacyOrdersChecked", "1", currentShopId);
       }
-
-      const storedOrder = localStorage.getItem("order");
-      if (storedOrder) {
-        const parsed = JSON.parse(storedOrder);
-        const singleList = [parsed];
-        setOrders(singleList);
-        fetchAllOrderStatuses(singleList);
-      } else {
-        setOrders([]);
-      }
+      const reversed = [...storedOrders].reverse();
+      setOrders(reversed);
+      fetchAllOrderStatuses(reversed);
     } catch (err) {
       console.warn("[useHomeData] Error loading orders:", err);
+      setOrders([]);
     }
-  }, [fetchAllOrderStatuses]);
+  }, [currentShopId, fetchAllOrderStatuses]);
 
   // The order-status modal is a live view. Keep this separate from initial
   // loading so the Home screen does not poll in the background.
@@ -228,29 +237,14 @@ export function useHomeData() {
   // ===== Delete Single Order =====
   const deleteOrder = useCallback((orderIdToDelete) => {
     try {
-      const storedOrders = localStorage.getItem("orders");
-      if (storedOrders) {
-        let parsed = JSON.parse(storedOrders);
-        if (Array.isArray(parsed)) {
-          const updated = parsed.filter((ord) => (ord.orderId || ord.id) !== orderIdToDelete);
-          localStorage.setItem("orders", JSON.stringify(updated));
-        }
-      }
-      const storedOrder = localStorage.getItem("order");
-      if (storedOrder) {
-        const parsed = JSON.parse(storedOrder);
-        if ((parsed.orderId || parsed.id) === orderIdToDelete) {
-          localStorage.removeItem("order");
-        }
-      }
-
+      removeShopOrder(currentShopId, orderIdToDelete);
       setOrders((prev) => prev.filter((ord) => (ord.orderId || ord.id) !== orderIdToDelete));
       showAlert("ลบประวัติคำสั่งซื้อสำเร็จ");
     } catch (err) {
       console.error("[useHomeData] Error deleting order:", err);
       showAlert("เกิดข้อผิดพลาดในการลบคำสั่งซื้อ");
     }
-  }, [showAlert]);
+  }, [currentShopId, showAlert]);
 
   // ===== Fetch Leaderboard =====
   const loadRankings = useCallback(async () => {

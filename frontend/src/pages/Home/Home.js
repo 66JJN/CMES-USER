@@ -15,6 +15,7 @@ import iconImage from "./icons/icon-image.webp";
 import iconText from "./icons/icon-text.webp";
 import iconGift from "./icons/icon-gift.webp";
 import iconBirthday from "./icons/icon-birthday.webp";
+import { clearShopOrders } from "../../services/shopStorage";
 
 // ฟังก์ชันแปลงตัวเลขเป็นรูปแบบเงินสกุลไทย (เช่น 1000 -> 1,000)
 const formatCurrency = (value) => Number(value || 0).toLocaleString("th-TH");
@@ -160,8 +161,7 @@ function Home() {
           }).catch(() => {})
         )
       );
-      localStorage.setItem("orders", "[]");
-      localStorage.removeItem("order");
+      clearShopOrders(shopId);
       loadOrders();
       showAlert("✅ ลบรายการทั้งหมดสำเร็จ");
     } catch (err) {

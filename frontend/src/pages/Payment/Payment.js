@@ -11,6 +11,11 @@ import paymentLogo from "../../data-icon/payment-logo.jpg";
 import { incrementQueueNumber } from "../../utils";
 import SlipUpload from "../SlipUpload/SlipUpload";
 import { getToken, showToast } from "../../services/authService";
+import {
+  appendShopOrder,
+  readShopJson,
+  removeShopItem,
+} from "../../services/shopStorage";
 
 const authenticatedHeaders = () => {
   const token = getToken();
@@ -190,7 +195,7 @@ function Payment() {
         }
 
         // สร้างหมายเลขคิวใหม่
-        const currentQueueNumber = incrementQueueNumber();
+        const currentQueueNumber = incrementQueueNumber(shopId);
         const newOrder = {
           type: "gift",
           price: data.order.totalPrice,
@@ -201,24 +206,18 @@ function Payment() {
         };
 
         // เก็บคำสั่งซื้อใน localStorage เป็น array
-        const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]");
-        existingOrders.push(newOrder);
-        localStorage.setItem("orders", JSON.stringify(existingOrders));
-        // เก็บ order ล่าสุดไว้ด้วย (สำหรับ backward compatibility)
-        localStorage.setItem("order", JSON.stringify(newOrder));
+        appendShopOrder(shopId, newOrder);
         setGiftOrder(data.order);
 
         // === กรณีแสดงรูปภาพ/ข้อความ ===
       } else {
         // ดึงข้อมูลการอัพโหลดที่เก็บไว้จาก Upload.js (มี uploadId)
-        const savedData = localStorage.getItem("pendingUploadData");
-        console.log("[Payment] Saved upload data:", savedData);
+        const uploadData = readShopJson("pendingUploadData", null, shopId);
+        console.log("[Payment] Saved upload data:", uploadData);
 
-        if (!savedData) {
+        if (!uploadData || uploadData.shopId !== shopId) {
           throw new Error("ไม่พบข้อมูลการอัปโหลด");
         }
-
-        const uploadData = JSON.parse(savedData);
         const uploadId = uploadData.uploadId;
 
         if (!uploadId) {
@@ -252,7 +251,7 @@ function Payment() {
         console.log("[Payment] Received uploadId from Admin:", result.uploadId);
 
         // สร้างหมายเลขคิวและข้อมูลคำสั่งซื้อใหม่
-        const currentQueueNumber = incrementQueueNumber();
+        const currentQueueNumber = incrementQueueNumber(shopId);
         const newOrder = {
           type: uploadData.type,
           time: uploadData.time,
@@ -264,15 +263,12 @@ function Payment() {
         console.log("[Payment] Creating order with orderId:", newOrder.orderId);
 
         // เก็บคำสั่งซื้อใน localStorage
-        const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]");
-        existingOrders.push(newOrder);
-        localStorage.setItem("orders", JSON.stringify(existingOrders));
-        localStorage.setItem("order", JSON.stringify(newOrder));
+        appendShopOrder(shopId, newOrder);
 
         // ลบข้อมูลชั่วคราวที่ใช้ในกระบวนการอัพโหลด
-        localStorage.removeItem("pendingUploadData");
-        localStorage.removeItem("uploadFormDraft");
-        localStorage.removeItem("uploadFormImage");
+        removeShopItem("pendingUploadData", shopId);
+        removeShopItem("uploadFormDraft", shopId);
+        removeShopItem("uploadFormImage", shopId);
       }
 
       // ปิด popup และแสดง modal สำเร็จ

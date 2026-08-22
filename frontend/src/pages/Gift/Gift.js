@@ -11,6 +11,7 @@ import { incrementQueueNumber } from "../../utils";
 
 import API_BASE_URL from '../../config/apiConfig';
 import { getToken, showToast } from '../../services/authService';
+import { appendShopOrder } from '../../services/shopStorage';
 
 // API endpoints สำหรับเชื่อมต่อกับ backend
 const API_BASE = API_BASE_URL;
@@ -318,7 +319,7 @@ function Gift() {
 					}
 
 					// บันทึกคำสั่งซื้อลง localStorage เพื่อแสดงใน Home
-					const currentQueueNumber = incrementQueueNumber();
+					const currentQueueNumber = incrementQueueNumber(shopId);
 					const newOrder = {
 						type: "gift",
 						price: confirmData.order.totalPrice,
@@ -329,10 +330,7 @@ function Gift() {
 					};
 
 					// เพิ่มคำสั่งซื้อใหม่เข้าไปในรายการ orders
-					const existingOrders = JSON.parse(localStorage.getItem("orders") || "[]");
-					existingOrders.push(newOrder);
-					localStorage.setItem("orders", JSON.stringify(existingOrders));
-					localStorage.setItem("order", JSON.stringify(newOrder)); // backward compatibility
+					appendShopOrder(shopId, newOrder);
 
 					// ไปหน้า home แสดงสถานะคำสั่งซื้อ
 					navigate(`/home${shopId ? `?shopId=${shopId}` : ''}`);
@@ -348,7 +346,7 @@ function Gift() {
 			}
 
 			// กรณีปกติ: มีค่าใช้จ่าย ไปหน้าชำระเงินตามปกติ
-			navigate(`/payment?type=gift&price=${data.order.totalPrice}&orderId=${data.order.id}`);
+			navigate(`/payment?type=gift&price=${data.order.totalPrice}&orderId=${data.order.id}&shopId=${encodeURIComponent(shopId)}`);
 		} catch (error) {
 			console.error("Create gift order error", error);
 			const message = error.message || "เกิดข้อผิดพลาด กรุณาลองใหม่";
