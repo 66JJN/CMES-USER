@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const ADMIN_API_BASE = (process.env.ADMIN_API_BASE || "https://cmes-admin-server.onrender.com").replace(/\/$/, "");
+export const ADMIN_API_BASE = (process.env.ADMIN_API_BASE || "https://cmes-admin.onrender.com").replace(/\/$/, "");
 
 export function createUpstreamError(resourceName, status) {
   const error = new Error(`Admin returned ${resourceName} ${status}`);

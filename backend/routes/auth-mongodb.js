@@ -6,13 +6,11 @@ import User from "../models/User.js";
 import fetch from "node-fetch";
 import { JWT_SECRET } from "../middleware/authMiddleware.js"; // 🛡️ ใช้ secret จาก middleware กลาง
 import { sendEmail } from "../services/emailService.js";
+import { ADMIN_API_BASE } from "../services/adminService.js";
 
 dotenv.config();
 
 const router = express.Router();
-
-// Admin API Base URL
-const ADMIN_API_BASE = (process.env.ADMIN_API_BASE || "https://cmes-admin-server.onrender.com").replace(/\/$/, "");
 
 // OTP Storage (In-memory)
 // Format: email -> { otp: "123456", expires: Date }

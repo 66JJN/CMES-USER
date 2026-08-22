@@ -1,5 +1,5 @@
 import { performOCR, thaiToArabic } from "../services/ocrService.js";
-import { sendSlipStat } from "../services/adminService.js";
+import { ADMIN_API_BASE, sendSlipStat } from "../services/adminService.js";
 import { cloudinary } from "../middleware/uploadMiddleware.js";
 import FormData from "form-data";
 import fetch from "node-fetch";
@@ -11,8 +11,6 @@ import {
 } from "../services/tenantRecordService.js";
 
 dotenv.config();
-
-const ADMIN_API_BASE = (process.env.ADMIN_API_BASE || "https://cmes-admin-server.onrender.com").replace(/\/$/, "");
 
 // In-memory pending uploads store
 export const pendingUploads = new Map();
